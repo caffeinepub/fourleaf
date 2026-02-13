@@ -1,104 +1,60 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-13T07:38:21.612Z",
+  "generatedAt": "2026-02-13T14:27:35.579Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 6,
-    "implemented": 6,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Replace the current top-header-centric page chrome with a Spotify-style three-panel shell: a narrow left sidebar, a large center main content area, and a right details panel, all on a deep dark background using Tailwind CSS.",
+        "summary": "Enable and verify the end-to-end song file upload feature so authenticated users can upload an audio file (and optional cover image) and see the newly uploaded track appear in the appropriate library views (public catalog and personal library) without errors.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/index.css"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
+          "frontend/src/components/personal/PersonalSongUploadDialog.tsx",
+          "frontend/src/pages/LibraryPage.tsx",
+          "frontend/src/pages/MyLibraryPage.tsx",
+          "frontend/src/components/layout/AppLayout.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/index.css"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
+          "frontend/src/components/personal/PersonalSongUploadDialog.tsx",
+          "frontend/src/components/layout/AppLayout.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Implement the left sidebar as stacked, card-like sections with rounded corners and a slightly lighter gray-black background; include primary navigation actions (Library, My Library, Pricing, Admin when available) using the existing icon set and routing.",
+        "summary": "Replace the current header logo icon rendering with a minimal, scalable four-leaf clover mark that matches the provided design constraints: a perfectly centered circular container with equal height/width, black background fill inside the circle, four equal rounded leaf shapes arranged in a balanced cross pattern touching seamlessly at the center (no visible gaps), rich premium green fill (not neon), and no text, shadows, gradients, or extra effects.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/layout/LeftSidebar.tsx",
+          "frontend/src/components/branding/FourleafBrand.tsx",
           "frontend/src/components/layout/AppLayout.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/layout/LeftSidebar.tsx",
+          "frontend/src/components/branding/FourleafBrand.tsx",
           "frontend/src/components/layout/AppLayout.tsx"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Update the center main content area to include a prominent header region with a red-to-black gradient background and a bold, large title area (playlist-style header) above the tracklist/list content.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/LibraryPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/LibraryPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Render the main tracklist in a structured row layout (table-like) where each row clearly presents: song thumbnail, title, album name, and duration, while preserving existing play controls and download actions.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/catalog/CatalogSongRowCard.tsx",
-          "frontend/src/pages/LibraryPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/catalog/CatalogSongRowCard.tsx",
-          "frontend/src/pages/LibraryPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-5",
-        "summary": "Implement the right details panel as a vertical container that shows a large image and descriptive text; when a song is currently playing, populate the panel from the current item (cover art as image and song/artist/album as the description), otherwise show an empty-state message.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/layout/RightDetailsPanel.tsx",
-          "frontend/src/components/layout/AppLayout.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/layout/RightDetailsPanel.tsx",
-          "frontend/src/components/layout/AppLayout.tsx"
-        ]
-      },
-      {
-        "id": "REQ-6",
-        "summary": "Make the three-panel layout responsive: on smaller viewports, collapse/hide the right details panel and allow the left sidebar to collapse into a compact mode or stack while keeping the main content usable without horizontal scrolling.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/components/layout/LeftSidebar.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/components/layout/LeftSidebar.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/catalog/CatalogSongRowCard.tsx",
+    "frontend/src/components/branding/FourleafBrand.tsx",
+    "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
     "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/components/layout/LeftSidebar.tsx",
-    "frontend/src/components/layout/RightDetailsPanel.tsx",
-    "frontend/src/index.css",
-    "frontend/src/pages/LibraryPage.tsx",
+    "frontend/src/components/personal/PersonalSongUploadDialog.tsx",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -50,6 +50,7 @@ export interface SongMetadata {
     title: string;
     duration: bigint;
     album: string;
+    audioFile: ExternalBlob;
     coverImage?: ExternalBlob;
     artist: string;
 }

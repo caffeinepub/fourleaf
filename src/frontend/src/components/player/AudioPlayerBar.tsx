@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAudioQueue } from '../../hooks/useAudioQueue';
 import { useStreamSongAudio, useStreamPersonalSongAudio } from '../../hooks/useQueries';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Music, X } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Music, X, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Card } from '@/components/ui/card';
+import { useNavigate } from '@tanstack/react-router';
 
 export default function AudioPlayerBar() {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const artworkRef = useRef<HTMLDivElement>(null);
   const {
     getCurrentItem,
     isPlaying,
@@ -25,12 +27,16 @@ export default function AudioPlayerBar() {
     currentIndex,
     removeCurrent,
     closePlayer,
+    openNowPlaying,
+    seekRequest,
+    clearSeekRequest,
+    setTransitionContext,
   } = useAudioQueue();
 
+  const navigate = useNavigate();
   const currentItem = getCurrentItem();
   const currentSong = currentItem?.song;
   
-  // Fetch audio based on source type
   const { data: catalogAudioBlob, isError: catalogError } = useStreamSongAudio(
     currentItem?.source === 'catalog' ? currentSong?.id ?? null : null
   );
@@ -42,6 +48,16 @@ export default function AudioPlayerBar() {
   const hasStreamError = currentItem?.source === 'catalog' ? catalogError : personalError;
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState(false);
+
+  // Handle seek requests from Now Playing
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio && seekRequest !== null && audioUrl) {
+      audio.currentTime = seekRequest;
+      setCurrentTime(seekRequest);
+      clearSeekRequest();
+    }
+  }, [seekRequest, audioUrl]);
 
   // Reset timing state when song changes
   useEffect(() => {
@@ -69,7 +85,11 @@ export default function AudioPlayerBar() {
     const audio = audioRef.current;
     if (!audio || !audioUrl) return;
 
+    // Pause and reset before switching tracks
+    audio.pause();
+    audio.currentTime = 0;
     audio.src = audioUrl;
+    audio.preload = 'auto';
     audio.load();
 
     if (isPlaying) {
@@ -154,6 +174,20 @@ export default function AudioPlayerBar() {
     closePlayer();
   };
 
+  const handleOpenNowPlaying = () => {
+    // Capture artwork geometry for transition
+    if (artworkRef.current) {
+      const rect = artworkRef.current.getBoundingClientRect();
+      const coverUrl = currentSong?.coverImage?.getDirectURL();
+      setTransitionContext({
+        sourceRect: rect,
+        sourceImageUrl: coverUrl,
+      });
+    }
+    openNowPlaying();
+    navigate({ to: '/now-playing' });
+  };
+
   if (!currentSong) {
     return null;
   }
@@ -182,7 +216,11 @@ export default function AudioPlayerBar() {
           </Button>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div 
+              ref={artworkRef}
+              className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={handleOpenNowPlaying}
+            >
               {coverUrl ? (
                 <img
                   src={coverUrl}
@@ -198,6 +236,7 @@ export default function AudioPlayerBar() {
                 <h4 className="font-semibold text-sm truncate">{currentSong.title}</h4>
                 <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
               </div>
+              <Maximize2 className="h-4 w-4 text-muted-foreground shrink-0" />
             </div>
 
             <div className="flex flex-col items-center gap-2 flex-1 max-w-2xl">

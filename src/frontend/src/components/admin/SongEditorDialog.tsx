@@ -31,7 +31,8 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
   const [duration, setDuration] = useState('');
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [audioProgress, setAudioProgress] = useState(0);
+  const [coverProgress, setCoverProgress] = useState(0);
 
   const isEditing = !!song;
 
@@ -49,14 +50,14 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
       setAudioFile(null);
       setCoverImage(null);
     }
-    setUploadProgress(0);
+    setAudioProgress(0);
+    setCoverProgress(0);
   }, [song, open]);
 
   const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setAudioFile(file);
-      // Try to get duration from audio file
       const audio = new Audio();
       audio.src = URL.createObjectURL(file);
       audio.onloadedmetadata = () => {
@@ -73,11 +74,6 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
     }
   };
 
-  const normalizeProgress = (percentage: number): number => {
-    // Handle both 0-1 and 0-100 ranges
-    return percentage > 1 ? percentage : percentage * 100;
-  };
-
   const handleSubmit = async () => {
     if (!title.trim() || !artist.trim() || !album.trim() || !duration) {
       toast.error('Please fill in all required fields');
@@ -90,14 +86,15 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
     }
 
     try {
-      setUploadProgress(0);
+      setAudioProgress(0);
+      setCoverProgress(0);
 
       let audioBlob: ExternalBlob;
       if (audioFile) {
         const audioBytes = new Uint8Array(await audioFile.arrayBuffer());
         audioBlob = ExternalBlob.fromBytes(audioBytes).withUploadProgress((percentage) => {
-          const normalized = normalizeProgress(percentage);
-          setUploadProgress(normalized * 0.7); // Audio takes 70% of progress
+          const normalized = Math.min(100, Math.max(0, percentage > 1 ? percentage : percentage * 100));
+          setAudioProgress(Math.round(normalized));
         });
       } else if (song) {
         audioBlob = song.audioFile;
@@ -109,8 +106,8 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
       if (coverImage) {
         const coverBytes = new Uint8Array(await coverImage.arrayBuffer());
         coverBlob = ExternalBlob.fromBytes(coverBytes).withUploadProgress((percentage) => {
-          const normalized = normalizeProgress(percentage);
-          setUploadProgress(70 + normalized * 0.3); // Cover takes 30% of progress
+          const normalized = Math.min(100, Math.max(0, percentage > 1 ? percentage : percentage * 100));
+          setCoverProgress(Math.round(normalized));
         });
       } else if (song?.coverImage) {
         coverBlob = song.coverImage;
@@ -133,20 +130,26 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
         toast.success('Song uploaded successfully');
       }
 
-      setUploadProgress(100);
       onOpenChange(false);
     } catch (error: any) {
       const errorMessage = error.message || 'Failed to save song';
-      toast.error(errorMessage);
-      setUploadProgress(0);
+      toast.error(errorMessage.includes('Unauthorized') ? 'You do not have permission to perform this action' : errorMessage);
+      setAudioProgress(0);
+      setCoverProgress(0);
     }
   };
 
   const isUploading = uploadSong.isPending || editSong.isPending;
 
+  const totalProgress = coverImage && audioFile
+    ? Math.round((audioProgress * 0.7) + (coverProgress * 0.3))
+    : audioFile
+    ? audioProgress
+    : 0;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Edit Song' : 'Upload New Song'}</DialogTitle>
           <DialogDescription>
@@ -235,13 +238,13 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
             </div>
           </div>
 
-          {isUploading && uploadProgress > 0 && (
+          {isUploading && totalProgress > 0 && (
             <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Uploading...</span>
-                <span>{Math.round(uploadProgress)}%</span>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Uploading...</span>
+                <span className="font-medium">{totalProgress}%</span>
               </div>
-              <Progress value={uploadProgress} />
+              <Progress value={totalProgress} className="h-2" />
             </div>
           )}
         </div>
@@ -251,14 +254,8 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={isUploading} className="gap-2">
-            {isUploading ? (
-              <>Uploading...</>
-            ) : (
-              <>
-                <Upload className="h-4 w-4" />
-                {isEditing ? 'Update' : 'Upload'}
-              </>
-            )}
+            <Upload className="h-4 w-4" />
+            {isUploading ? 'Saving...' : isEditing ? 'Update Song' : 'Upload Song'}
           </Button>
         </DialogFooter>
       </DialogContent>

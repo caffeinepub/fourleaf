@@ -4,60 +4,64 @@
 
 @layer base {
     :root {
-        --radius: 0.75rem;
-        /* Fresh green and charcoal palette - Light mode */
-        --background: 0.98 0 0;
-        --foreground: 0.20 0 0;
-        --card: 1 0 0;
-        --card-foreground: 0.20 0 0;
-        --popover: 1 0 0;
-        --popover-foreground: 0.20 0 0;
-        --primary: 0.65 0.18 145;
-        --primary-foreground: 0.98 0 0;
-        --secondary: 0.92 0 0;
-        --secondary-foreground: 0.20 0 0;
-        --muted: 0.94 0 0;
-        --muted-foreground: 0.50 0 0;
-        --accent: 0.70 0.20 145;
-        --accent-foreground: 0.98 0 0;
-        --destructive: 0.55 0.22 25;
-        --destructive-foreground: 0.98 0 0;
-        --border: 0.88 0 0;
-        --input: 0.88 0 0;
-        --ring: 0.65 0.18 145;
-        --chart-1: 0.65 0.18 145;
-        --chart-2: 0.60 0.15 160;
-        --chart-3: 0.55 0.12 140;
-        --chart-4: 0.70 0.20 150;
-        --chart-5: 0.50 0.10 135;
+        --radius: 0.5rem;
+        /* Cherry blossom soft-glam palette - Light mode */
+        --background: 0.98 0.01 30;  /* Soft seashell cream */
+        --foreground: 0.25 0.02 25;  /* Dark charcoal/twig brown */
+        --card: 0.99 0.005 35;  /* Very pale cream card */
+        --card-foreground: 0.25 0.02 25;
+        --popover: 0.99 0.005 35;
+        --popover-foreground: 0.25 0.02 25;
+        --primary: 0.55 0.18 15;  /* Deep cherry blossom pink/crimson */
+        --primary-foreground: 0.99 0.005 35;  /* White on primary for accessibility */
+        --secondary: 0.92 0.04 20;  /* Light desaturated petal pink */
+        --secondary-foreground: 0.25 0.02 25;
+        --muted: 0.94 0.02 30;  /* Subtle muted cream */
+        --muted-foreground: 0.50 0.02 25;
+        --accent: 0.88 0.06 75;  /* Pale gold accent */
+        --accent-foreground: 0.25 0.02 25;
+        --highlight: 0.90 0.04 145;  /* Soft sage green highlight */
+        --highlight-foreground: 0.25 0.02 25;
+        --destructive: 0.58 0.20 25;
+        --destructive-foreground: 0.98 0.01 30;
+        --border: 0.88 0.02 30;
+        --input: 0.88 0.02 30;
+        --ring: 0.55 0.18 15;
+        --chart-1: 0.55 0.18 15;
+        --chart-2: 0.60 0.16 20;
+        --chart-3: 0.88 0.06 75;
+        --chart-4: 0.50 0.14 10;
+        --chart-5: 0.92 0.04 20;
     }
 
     .dark {
-        /* Deep dark background with charcoal surfaces - Spotify-style */
-        --background: 0.12 0 0;
-        --foreground: 0.95 0 0;
-        --card: 0.18 0 0;
-        --card-foreground: 0.95 0 0;
-        --popover: 0.20 0 0;
-        --popover-foreground: 0.95 0 0;
-        --primary: 0.70 0.20 145;
-        --primary-foreground: 0.15 0 0;
-        --secondary: 0.28 0 0;
-        --secondary-foreground: 0.95 0 0;
-        --muted: 0.22 0 0;
-        --muted-foreground: 0.65 0 0;
-        --accent: 0.26 0 0;
-        --accent-foreground: 0.95 0 0;
-        --destructive: 0.60 0.24 25;
-        --destructive-foreground: 0.95 0 0;
-        --border: 0.25 0 0;
-        --input: 0.25 0 0;
-        --ring: 0.70 0.20 145;
-        --chart-1: 0.70 0.20 145;
-        --chart-2: 0.65 0.18 160;
-        --chart-3: 0.60 0.15 140;
-        --chart-4: 0.75 0.22 150;
-        --chart-5: 0.55 0.12 135;
+        /* Cherry blossom dark mode - deep warm tones */
+        --background: 0.20 0.03 20;
+        --foreground: 0.96 0.01 30;
+        --card: 0.26 0.04 20;
+        --card-foreground: 0.96 0.01 30;
+        --popover: 0.24 0.04 20;
+        --popover-foreground: 0.96 0.01 30;
+        --primary: 0.62 0.20 15;
+        --primary-foreground: 0.20 0.03 20;
+        --secondary: 0.34 0.05 20;
+        --secondary-foreground: 0.96 0.01 30;
+        --muted: 0.30 0.04 20;
+        --muted-foreground: 0.68 0.02 30;
+        --accent: 0.38 0.06 75;
+        --accent-foreground: 0.96 0.01 30;
+        --highlight: 0.36 0.05 145;
+        --highlight-foreground: 0.96 0.01 30;
+        --destructive: 0.62 0.22 25;
+        --destructive-foreground: 0.96 0.01 30;
+        --border: 0.32 0.05 20;
+        --input: 0.32 0.05 20;
+        --ring: 0.62 0.20 15;
+        --chart-1: 0.62 0.20 15;
+        --chart-2: 0.60 0.18 20;
+        --chart-3: 0.38 0.06 75;
+        --chart-4: 0.58 0.16 10;
+        --chart-5: 0.34 0.05 20;
     }
 
     * {
@@ -68,7 +72,6 @@
         @apply bg-background text-foreground;
     }
 
-    /* Remove background texture for cleaner Spotify-style look */
     .dark body {
         background-image: none;
     }
@@ -100,5 +103,51 @@
 
     .snap-center {
         scroll-snap-align: center;
+    }
+
+    /* Animated hero background with reduced-motion fallback */
+    .hero-bg-animated {
+        background-image: url(/assets/generated/fourleaf-hero-bg-animated.dim_1920x1080.gif);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .hero-bg-animated {
+            background-image: url(/assets/generated/fourleaf-hero-bg-static.dim_1920x1080.png);
+        }
+    }
+
+    /* Responsive header logo styling */
+    .header-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+    }
+}
+
+/* Now Playing page animations */
+@media (prefers-reduced-motion: no-preference) {
+    .now-playing-page {
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .now-playing-page {
+        animation: none;
     }
 }

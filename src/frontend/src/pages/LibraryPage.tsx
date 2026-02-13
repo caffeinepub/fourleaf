@@ -1,5 +1,5 @@
 import { useMemo, useRef, useEffect, useState } from 'react';
-import { useGetAllSongs, useGetTotalSongs } from '../hooks/useQueries';
+import { useGetAllSongs, useGetTotalSongs, usePrefetchSongAudio } from '../hooks/useQueries';
 import { useAudioQueue } from '../hooks/useAudioQueue';
 import { useHeaderSearch } from '../hooks/useHeaderSearch';
 import { useHomeBrowsing } from '../hooks/useHomeBrowsing';
@@ -23,12 +23,12 @@ export default function LibraryPage() {
   const { setQueue, play, getCurrentItem } = useAudioQueue();
   const { query, setQuery } = useHeaderSearch();
   const { activeTab, requestScrollToBrowsing, setActiveTab } = useHomeBrowsing();
+  const { prefetchCatalogSong } = usePrefetchSongAudio();
   const currentItem = getCurrentItem();
   const navigate = useNavigate();
   const browsingRef = useRef<HTMLDivElement>(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
-  // Handle scroll to browsing section
   useEffect(() => {
     if (useHomeBrowsing.getState().scrollToBrowsingRequested > 0 && browsingRef.current) {
       browsingRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -55,32 +55,32 @@ export default function LibraryPage() {
     return filteredSongs;
   }, [filteredSongs, activeTab]);
 
-  // Recommended Today: newest songs (by descending ID), limited to 8 for horizontal scroll
   const recommendedSongs = useMemo(() => {
     if (!songs || songs.length === 0) return [];
     const sorted = [...songs].sort((a, b) => Number(b.id - a.id));
     return sorted.slice(0, 8);
   }, [songs]);
 
-  // Latest Uploads: similar to recommended but different slice
   const latestUploads = useMemo(() => {
     if (!songs || songs.length === 0) return [];
     const sorted = [...songs].sort((a, b) => Number(b.id - a.id));
     return sorted.slice(0, 10);
   }, [songs]);
 
-  const handlePlaySong = (song: Song, index: number, sourceList: Song[]) => {
+  const handlePlaySong = async (song: Song, index: number, sourceList: Song[]) => {
     const queueItems = sourceList.map(s => ({ source: 'catalog' as const, song: s }));
+    
+    await prefetchCatalogSong(song.id);
+    
     setQueue(queueItems, index);
     play();
   };
 
-  const handlePlayFromCard = (song: Song, sourceList: Song[]) => {
+  const handlePlayFromCard = async (song: Song, sourceList: Song[]) => {
     const index = sourceList.findIndex(s => s.id === song.id);
-    handlePlaySong(song, index, sourceList);
+    await handlePlaySong(song, index, sourceList);
   };
 
-  // "Show all" handler: scrolls to browsing section and sets appropriate tab
   const handleShowAll = () => {
     requestScrollToBrowsing();
     setActiveTab('All');
@@ -106,43 +106,42 @@ export default function LibraryPage() {
 
   return (
     <div className="w-full">
-      {/* Gradient Header */}
       <div 
-        className="relative px-6 py-12 lg:py-16"
-        style={{
-          background: 'linear-gradient(180deg, oklch(0.55 0.22 25) 0%, oklch(0.18 0 0) 100%)'
-        }}
+        className="hero-bg-animated relative px-6 py-12 lg:py-16 overflow-hidden"
       >
+        <div 
+          className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/75 to-background"
+          aria-hidden="true"
+        />
         <div className="container max-w-screen-2xl relative z-10">
           <div className="flex items-end justify-between gap-4 flex-wrap">
             <div>
-              <h1 className="text-4xl lg:text-6xl font-bold font-display mb-2">
-                Music Library
+              <h1 className="text-4xl lg:text-6xl font-bold font-display mb-2 drop-shadow-lg text-primary">
+                Discover Music
               </h1>
-              <p className="text-lg text-foreground/80">
-                {totalSongs ? `${totalSongs.toString()} songs` : 'Explore the catalog'}
+              <p className="text-lg text-foreground/90 drop-shadow">
+                {totalSongs ? `${totalSongs.toString()} tracks available` : 'Explore the collection'}
               </p>
             </div>
             <Button
               onClick={() => setUploadDialogOpen(true)}
               size="lg"
-              className="gap-2"
+              className="gap-2 shadow-lg"
             >
               <Upload className="h-5 w-5" />
-              Upload Song
+              Upload Track
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Search Bar */}
       <div className="sticky top-[57px] lg:top-[57px] z-40 bg-background/95 backdrop-blur border-b border-border/40 px-6 py-4">
         <div className="container max-w-screen-2xl">
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search songs, artists, albums..."
+              placeholder="Search tracks, artists, albums..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="pl-10"
@@ -154,10 +153,9 @@ export default function LibraryPage() {
       <div className="container py-8 max-w-screen-2xl px-6">
         {showHomepageView ? (
           <>
-            {/* Recommended Today Section */}
             {recommendedSongs.length > 0 && (
               <StreamingSection
-                title="Recommended Today"
+                title="Featured Today"
                 icon={<Sparkles className="h-6 w-6" />}
                 onShowAll={handleShowAll}
               >
@@ -166,21 +164,17 @@ export default function LibraryPage() {
                     <StreamingCard
                       key={song.id.toString()}
                       song={song}
-                      isPlaying={
-                        currentItem?.source === 'catalog' &&
-                        currentItem.song.id === song.id
-                      }
                       onPlay={() => handlePlayFromCard(song, recommendedSongs)}
+                      isPlaying={currentItem?.song.id === song.id}
                     />
                   ))}
                 </HorizontalSnapRow>
               </StreamingSection>
             )}
 
-            {/* Latest Uploads Section */}
             {latestUploads.length > 0 && (
               <StreamingSection
-                title="Latest Uploads"
+                title="Fresh Uploads"
                 icon={<TrendingUp className="h-6 w-6" />}
                 onShowAll={handleShowAll}
               >
@@ -189,54 +183,40 @@ export default function LibraryPage() {
                     <StreamingCard
                       key={song.id.toString()}
                       song={song}
-                      isPlaying={
-                        currentItem?.source === 'catalog' &&
-                        currentItem.song.id === song.id
-                      }
                       onPlay={() => handlePlayFromCard(song, latestUploads)}
+                      isPlaying={currentItem?.song.id === song.id}
                     />
                   ))}
                 </HorizontalSnapRow>
               </StreamingSection>
             )}
 
-            {/* Browse All Section */}
-            <div ref={browsingRef} tabIndex={-1} className="mt-12">
+            <div ref={browsingRef} tabIndex={-1} className="outline-none mt-12">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold font-display flex items-center gap-2">
-                  <Music className="h-6 w-6" />
-                  Browse All
+                  <Flame className="h-6 w-6 text-primary" />
+                  All Tracks
                 </h2>
               </div>
 
-              {/* Tab Pills */}
-              <div className="flex gap-2 mb-6">
-                {['All', 'Music', 'Podcast'].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab as any)}
-                    className={`px-6 py-2 rounded-full font-medium transition-all ${
-                      activeTab === tab
-                        ? 'bg-primary text-primary-foreground shadow-md'
-                        : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
-
-              {/* Tracklist */}
-              {displayedSongs.length > 0 ? (
-                <div className="space-y-2">
-                  {/* Column Headers - Desktop Only */}
-                  <div className="hidden lg:grid grid-cols-[auto_80px_1fr_200px_120px_80px] gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/50">
-                    <div className="w-12"></div>
+              {displayedSongs.length === 0 ? (
+                <Alert>
+                  <Music className="h-4 w-4" />
+                  <AlertDescription>
+                    {activeTab === 'Podcast' 
+                      ? 'No podcasts available yet.'
+                      : 'No tracks found. Upload your first track to get started!'}
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <div className="space-y-1">
+                  <div className="hidden lg:grid grid-cols-[auto_60px_1fr_1fr_80px_auto] gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/40">
+                    <div className="w-12">#</div>
                     <div>Cover</div>
                     <div>Title</div>
                     <div>Album</div>
-                    <div>Duration</div>
-                    <div></div>
+                    <div className="text-center">Duration</div>
+                    <div className="w-24"></div>
                   </div>
 
                   {displayedSongs.map((song, index) => (
@@ -244,65 +224,42 @@ export default function LibraryPage() {
                       key={song.id.toString()}
                       song={song}
                       index={index}
-                      isCurrentSong={
-                        currentItem?.source === 'catalog' &&
-                        currentItem.song.id === song.id
-                      }
-                      onPlay={(s, i) => handlePlaySong(s, i, displayedSongs)}
+                      onPlay={() => handlePlaySong(song, index, displayedSongs)}
+                      isPlaying={currentItem?.song.id === song.id}
                     />
                   ))}
                 </div>
-              ) : (
-                <Alert>
-                  <Music className="h-4 w-4" />
-                  <AlertDescription>
-                    {activeTab === 'Podcast'
-                      ? 'No podcasts available yet.'
-                      : 'No songs found in the library.'}
-                  </AlertDescription>
-                </Alert>
               )}
             </div>
           </>
         ) : (
-          // Search Results View
-          <div>
-            <h2 className="text-2xl font-bold font-display mb-6">
-              Search Results {displayedSongs.length > 0 && `(${displayedSongs.length})`}
-            </h2>
+          <div className="space-y-1">
+            <div className="hidden lg:grid grid-cols-[auto_60px_1fr_1fr_80px_auto] gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/40">
+              <div className="w-12">#</div>
+              <div>Cover</div>
+              <div>Title</div>
+              <div>Album</div>
+              <div className="text-center">Duration</div>
+              <div className="w-24"></div>
+            </div>
 
-            {displayedSongs.length > 0 ? (
-              <div className="space-y-2">
-                {/* Column Headers - Desktop Only */}
-                <div className="hidden lg:grid grid-cols-[auto_80px_1fr_200px_120px_80px] gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/50">
-                  <div className="w-12"></div>
-                  <div>Cover</div>
-                  <div>Title</div>
-                  <div>Album</div>
-                  <div>Duration</div>
-                  <div></div>
-                </div>
-
-                {displayedSongs.map((song, index) => (
-                  <CatalogSongRowCard
-                    key={song.id.toString()}
-                    song={song}
-                    index={index}
-                    isCurrentSong={
-                      currentItem?.source === 'catalog' &&
-                      currentItem.song.id === song.id
-                    }
-                    onPlay={(s, i) => handlePlaySong(s, i, displayedSongs)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <Alert>
+            {displayedSongs.length === 0 ? (
+              <Alert className="mt-4">
                 <Music className="h-4 w-4" />
                 <AlertDescription>
-                  No songs found matching "{query}". Try a different search term.
+                  No tracks match your search. Try different keywords.
                 </AlertDescription>
               </Alert>
+            ) : (
+              displayedSongs.map((song, index) => (
+                <CatalogSongRowCard
+                  key={song.id.toString()}
+                  song={song}
+                  index={index}
+                  onPlay={() => handlePlaySong(song, index, displayedSongs)}
+                  isPlaying={currentItem?.song.id === song.id}
+                />
+              ))
             )}
           </div>
         )}

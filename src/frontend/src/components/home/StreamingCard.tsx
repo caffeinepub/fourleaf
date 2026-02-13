@@ -1,25 +1,49 @@
-import { Play, Music } from 'lucide-react';
+import { Play, Pause, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Song } from '../../backend';
+import { useRef } from 'react';
+import { useAudioQueue } from '../../hooks/useAudioQueue';
+import { useUISounds } from '../../hooks/useUISounds';
 
 interface StreamingCardProps {
   song: Song;
-  isPlaying?: boolean;
   onPlay: () => void;
+  isPlaying?: boolean;
 }
 
-export default function StreamingCard({ song, isPlaying, onPlay }: StreamingCardProps) {
+export default function StreamingCard({ song, onPlay, isPlaying }: StreamingCardProps) {
   const coverUrl = song.coverImage?.getDirectURL();
-  const durationMinutes = Math.floor(Number(song.duration) / 60);
-  const durationSeconds = Number(song.duration) % 60;
-  const formattedDuration = `${durationMinutes}:${durationSeconds.toString().padStart(2, '0')}`;
+  const cardRef = useRef<HTMLDivElement>(null);
+  const { setTransitionContext } = useAudioQueue();
+  const { playClick } = useUISounds();
+
+  const handleClick = () => {
+    playClick();
+    // Capture card geometry for transition
+    if (cardRef.current) {
+      const rect = cardRef.current.querySelector('img, .cover-placeholder')?.getBoundingClientRect();
+      if (rect) {
+        setTransitionContext({
+          sourceRect: rect,
+          sourceImageUrl: coverUrl,
+        });
+      }
+    }
+    onPlay();
+  };
+
+  const handlePlayButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleClick();
+  };
 
   return (
-    <div className="group relative flex-shrink-0 w-[180px] sm:w-[200px] md:w-[220px] cursor-pointer">
-      <div
-        className="relative aspect-square rounded-lg overflow-hidden bg-card mb-3 shadow-md hover:shadow-lg transition-all duration-300"
-        onClick={onPlay}
-      >
+    <div
+      ref={cardRef}
+      className="group relative flex-shrink-0 w-48 cursor-pointer transition-transform hover:scale-105"
+      onClick={handleClick}
+    >
+      <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-3 shadow-md">
         {coverUrl ? (
           <img
             src={coverUrl}
@@ -27,47 +51,30 @@ export default function StreamingCard({ song, isPlaying, onPlay }: StreamingCard
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-muted">
-            <Music className="h-12 w-12 text-muted-foreground" />
+          <div className="cover-placeholder w-full h-full flex items-center justify-center bg-muted">
+            <Music className="h-16 w-16 text-muted-foreground/50" />
           </div>
         )}
         
-        {/* Gradient overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity" />
         
-        {/* Play button overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Button
-            size="icon"
-            className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-glow-md"
-            onClick={(e) => {
-              e.stopPropagation();
-              onPlay();
-            }}
-          >
-            <Play className="h-6 w-6 fill-current" />
-          </Button>
-        </div>
-
-        {/* Playing indicator */}
-        {isPlaying && (
-          <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded-full text-xs font-medium">
-            Playing
-          </div>
-        )}
+        <Button
+          size="icon"
+          variant="default"
+          className="absolute bottom-2 right-2 h-12 w-12 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0"
+          onClick={handlePlayButtonClick}
+        >
+          {isPlaying ? (
+            <Pause className="h-5 w-5" />
+          ) : (
+            <Play className="h-5 w-5 ml-0.5" />
+          )}
+        </Button>
       </div>
 
-      {/* Song info */}
       <div className="px-1">
-        <h3 className="font-semibold text-sm mb-1 truncate group-hover:text-primary transition-colors">
-          {song.title}
-        </h3>
-        <p className="text-xs text-muted-foreground truncate mb-1">
-          {song.artist}
-        </p>
-        <p className="text-xs text-muted-foreground/70">
-          {formattedDuration}
-        </p>
+        <h3 className="font-semibold text-sm truncate mb-1">{song.title}</h3>
+        <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
       </div>
     </div>
   );

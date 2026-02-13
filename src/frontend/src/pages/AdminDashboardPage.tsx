@@ -31,10 +31,10 @@ export default function AdminDashboardPage() {
 
     try {
       await removeSong.mutateAsync(deletingSong.id);
-      toast.success('Song deleted successfully');
+      toast.success('Track deleted successfully');
       setDeletingSong(null);
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete song');
+      toast.error(error.message || 'Failed to delete track');
     }
   };
 
@@ -71,12 +71,12 @@ export default function AdminDashboardPage() {
         <div>
           <h1 className="text-4xl font-display font-bold mb-2">Admin Dashboard</h1>
           <p className="text-muted-foreground">
-            Manage your music catalog • {totalSongs !== undefined ? Number(totalSongs) : 0} total songs
+            Manage your catalog • {totalSongs !== undefined ? Number(totalSongs) : 0} total tracks
           </p>
         </div>
         <Button onClick={() => setIsCreating(true)} className="gap-2">
           <Plus className="h-4 w-4" />
-          Upload Song
+          Upload Track
         </Button>
       </div>
 
@@ -84,13 +84,13 @@ export default function AdminDashboardPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Music className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No songs yet</h3>
+            <h3 className="text-lg font-semibold mb-2">No tracks yet</h3>
             <p className="text-muted-foreground text-center mb-4">
-              Start building your catalog by uploading your first song
+              Start building your catalog by uploading your first track
             </p>
             <Button onClick={() => setIsCreating(true)} className="gap-2">
               <Plus className="h-4 w-4" />
-              Upload Song
+              Upload Track
             </Button>
           </CardContent>
         </Card>
@@ -152,7 +152,7 @@ export default function AdminDashboardPage() {
       <AlertDialog open={!!deletingSong} onOpenChange={(open) => !open && setDeletingSong(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Song</AlertDialogTitle>
+            <AlertDialogTitle>Delete Track</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete "{deletingSong?.title}"? This action cannot be undone.
             </AlertDialogDescription>

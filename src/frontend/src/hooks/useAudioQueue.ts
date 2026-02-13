@@ -15,6 +15,12 @@ interface AudioQueueState {
   volume: number;
   currentTime: number;
   duration: number;
+  isNowPlayingOpen: boolean;
+  seekRequest: number | null;
+  transitionContext: {
+    sourceRect?: DOMRect;
+    sourceImageUrl?: string;
+  } | null;
   setQueue: (items: QueueItem[], startIndex?: number) => void;
   setCurrentIndex: (index: number) => void;
   next: () => void;
@@ -28,6 +34,11 @@ interface AudioQueueState {
   getCurrentItem: () => QueueItem | null;
   removeCurrent: () => void;
   closePlayer: () => void;
+  openNowPlaying: () => void;
+  closeNowPlaying: () => void;
+  requestSeek: (time: number) => void;
+  clearSeekRequest: () => void;
+  setTransitionContext: (context: { sourceRect?: DOMRect; sourceImageUrl?: string } | null) => void;
 }
 
 export const useAudioQueue = create<AudioQueueState>((set, get) => ({
@@ -37,6 +48,9 @@ export const useAudioQueue = create<AudioQueueState>((set, get) => ({
   volume: 0.7,
   currentTime: 0,
   duration: 0,
+  isNowPlayingOpen: false,
+  seekRequest: null,
+  transitionContext: null,
   setQueue: (items, startIndex = 0) => set({ queue: items, currentIndex: startIndex, currentTime: 0, duration: 0, isPlaying: false }),
   setCurrentIndex: (index) => set({ currentIndex: index, currentTime: 0, duration: 0 }),
   next: () => {
@@ -68,16 +82,15 @@ export const useAudioQueue = create<AudioQueueState>((set, get) => ({
     const newQueue = queue.filter((_, index) => index !== currentIndex);
     
     if (newQueue.length === 0) {
-      // Queue is empty, reset everything
       set({ 
         queue: [], 
         currentIndex: -1, 
         isPlaying: false, 
         currentTime: 0, 
-        duration: 0 
+        duration: 0,
+        isNowPlayingOpen: false,
       });
     } else if (currentIndex >= newQueue.length) {
-      // Removed last item, go to new last item
       set({ 
         queue: newQueue, 
         currentIndex: newQueue.length - 1, 
@@ -85,7 +98,6 @@ export const useAudioQueue = create<AudioQueueState>((set, get) => ({
         duration: 0 
       });
     } else {
-      // Stay at same index (which now points to next song)
       set({ 
         queue: newQueue, 
         currentIndex, 
@@ -101,6 +113,13 @@ export const useAudioQueue = create<AudioQueueState>((set, get) => ({
       isPlaying: false,
       currentTime: 0,
       duration: 0,
+      isNowPlayingOpen: false,
+      transitionContext: null,
     });
   },
+  openNowPlaying: () => set({ isNowPlayingOpen: true }),
+  closeNowPlaying: () => set({ isNowPlayingOpen: false }),
+  requestSeek: (time) => set({ seekRequest: time }),
+  clearSeekRequest: () => set({ seekRequest: null }),
+  setTransitionContext: (context) => set({ transitionContext: context }),
 }));

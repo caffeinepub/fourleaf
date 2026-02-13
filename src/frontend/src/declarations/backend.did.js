@@ -51,6 +51,7 @@ export const SongMetadata = IDL.Record({
   'title' : IDL.Text,
   'duration' : IDL.Nat,
   'album' : IDL.Text,
+  'audioFile' : ExternalBlob,
   'coverImage' : IDL.Opt(ExternalBlob),
   'artist' : IDL.Text,
 });
@@ -169,6 +170,7 @@ export const idlFactory = ({ IDL }) => {
     'title' : IDL.Text,
     'duration' : IDL.Nat,
     'album' : IDL.Text,
+    'audioFile' : ExternalBlob,
     'coverImage' : IDL.Opt(ExternalBlob),
     'artist' : IDL.Text,
   });

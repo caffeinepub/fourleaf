@@ -1,81 +1,53 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-13T07:38:21.609Z",
-  "summary": "Core three-panel layout components were added (LeftSidebar, RightDetailsPanel) and AppLayout/LibraryPage/CatalogSongRowCard were updated toward the Spotify-style shell and tracklist. However, the mobile/responsive navigation accessibility and the exact required nav items are not fully met, and several unrelated functional enhancements were introduced beyond the layout-only request.",
+  "generatedAt": "2026-02-13T14:27:35.576Z",
+  "summary": "REQ-1 is only partially implemented: frontend upload dialogs and React Query hooks were added/updated, but the backend still restricts public catalog uploads to admins and the diff does not clearly show required non-dismissible upload dialogs. REQ-2 is partially met via an SVG clover in FourleafBrand, but the branding component still renders visible “Fourleaf” text in non-icon variants, which conflicts with the minimal mark/no-text constraint.",
   "missing_requirements": [
     {
-      "id": "REQ-2",
-      "requirement": "Left sidebar must include primary navigation actions (Library, My Library, Pricing, Admin when available) routing to '/', '/my-library', '/pricing', '/admin'.",
-      "reason": "The sidebar navigation items shown are 'Home', 'My Library', and 'Pricing'; there is no 'Library' item as specified (even though '/' exists).",
+      "id": "REQ-1",
+      "requirement": "Authenticated users can upload an audio file to the public catalog from the public Library page (\"Upload Track\") and see it appear in the public catalog list (and total track count updates) without authorization errors.",
+      "reason": "Backend implementation shown enforces admin-only access for `uploadSong`, which would block regular authenticated users from uploading to the public catalog as required.",
       "evidence": [
-        "frontend/src/components/layout/LeftSidebar.tsx"
+        "backend/main.mo (\"uploadSong\" comment and guard: `if (not AccessControl.isAdmin(...)) Runtime.trap(\"Unauthorized: Only admins can upload songs\")`)"
       ]
     },
     {
-      "id": "REQ-6",
-      "requirement": "On smaller viewports, left sidebar adapts (collapsed or stacked) while navigation remains accessible, and layout remains usable without horizontal scrolling.",
-      "reason": "Left sidebar is entirely hidden on small viewports (\"hidden lg:flex\"), but the diff summary does not show any alternative/collapsed/stacked navigation UI for mobile to keep navigation accessible.",
+      "id": "REQ-1",
+      "requirement": "During upload, the upload dialog cannot be dismissed via outside click/escape while uploading (to prevent partial/duplicate uploads).",
+      "reason": "The dialog components are shown using `Dialog`/`DialogContent`, but the diff excerpt does not show any configuration that disables outside-click/escape dismissal while `isUploading` is true (e.g., preventing `onOpenChange`, disabling `modal` close, or intercepting escape/outside events).",
       "evidence": [
-        "frontend/src/components/layout/LeftSidebar.tsx",
-        "frontend/src/components/layout/AppLayout.tsx"
+        "frontend/src/components/catalog/PublicSongUploadDialog.tsx (uses `Dialog` but no shown non-dismiss configuration; file truncated)",
+        "frontend/src/components/personal/PersonalSongUploadDialog.tsx (uses `Dialog` but no shown non-dismiss configuration; file truncated)"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "No logo text/taglines—only the minimal clover mark (no text) as part of the logo rendering.",
+      "reason": "`FourleafBrand` renders a visible text label “Fourleaf” in `variant === 'compact'` and the default (`'full'`) rendering, which violates the “no text”/minimal mark constraint for the logo rendering.",
+      "evidence": [
+        "frontend/src/components/branding/FourleafBrand.tsx (renders `<span ...>Fourleaf</span>` in 'compact' and default variants)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Enhanced React Query hooks to allow anonymous streaming / graceful null returns for public streaming queries.",
-      "reason": "BuildRequest explicitly scoped this as a layout-only update with backend unchanged; these behavioral changes were not requested.",
+      "description": "Brand/logo text label “Fourleaf” added alongside the mark in non-icon variants of the branding component.",
+      "reason": "The request explicitly disallows logo text/taglines and calls for a minimal clover mark; the diff adds visible text in the branding component.",
       "evidence": [
-        "frontend-file-summaries.txt (frontend/src/hooks/useQueries.ts)"
-      ]
-    },
-    {
-      "description": "Audio queue/player state changes including new actions like removeCurrent and closePlayer (full reset).",
-      "reason": "Not requested as part of the layout work; BuildRequest says no real-time features and focuses on layout/presentation only.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/hooks/useAudioQueue.ts)"
-      ]
-    },
-    {
-      "description": "Download gating UX changes (loading state handling, tooltip messaging).",
-      "reason": "REQ-4 only requires preserving existing download actions; additional gating/UX behavior changes were not requested.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/components/catalog/DownloadButton.tsx)"
-      ]
-    },
-    {
-      "description": "AudioPlayerBar feature expansion (close button, robust error handling changes, control disabling behavior).",
-      "reason": "Not required by any REQ; the request is about the page chrome/layout and track presentation.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/components/player/AudioPlayerBar.tsx)"
-      ]
-    },
-    {
-      "description": "Admin dashboard and song editor dialog behavior changes (upload/edit/delete handling, progress normalization, dialog state fixes).",
-      "reason": "Not requested; admin was only mentioned as a navigation item in the sidebar.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/pages/AdminDashboardPage.tsx)",
-        "frontend-file-summaries.txt (frontend/src/components/admin/SongEditorDialog.tsx)"
-      ]
-    },
-    {
-      "description": "Pricing page content changes (trial/tier copy, badges, value justification).",
-      "reason": "Not requested; only navigation to existing '/pricing' route was required.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/pages/PricingPage.tsx)"
+        "frontend/src/components/branding/FourleafBrand.tsx (renders `<span ...>Fourleaf</span>` in 'compact' and default variants)"
       ]
     }
   ],
-  "confidence": 0.72,
+  "confidence": 0.68,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/catalog/CatalogSongRowCard.tsx",
+    "frontend/src/components/branding/FourleafBrand.tsx",
+    "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
     "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/components/layout/LeftSidebar.tsx",
-    "frontend/src/components/layout/RightDetailsPanel.tsx",
-    "frontend/src/index.css",
-    "frontend/src/pages/LibraryPage.tsx",
+    "frontend/src/components/personal/PersonalSongUploadDialog.tsx",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json"
   ]
 }

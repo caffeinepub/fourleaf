@@ -136,6 +136,7 @@ export interface SongMetadata {
     title: string;
     duration: bigint;
     album: string;
+    audioFile: ExternalBlob;
     coverImage?: ExternalBlob;
     artist: string;
 }
@@ -408,28 +409,28 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.getPersonalSongs();
-                return from_candid_vec_n24(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n23(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getPersonalSongs();
-            return from_candid_vec_n24(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n23(this._uploadFile, this._downloadFile, result);
         }
     }
     async getSong(arg0: bigint): Promise<Song | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getSong(arg0);
-                return from_candid_opt_n27(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n26(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getSong(arg0);
-            return from_candid_opt_n27(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n26(this._uploadFile, this._downloadFile, result);
         }
     }
     async getSongsByDuration(): Promise<Array<Song>> {
@@ -618,11 +619,11 @@ export class Backend implements backendInterface {
 async function from_candid_ExternalBlob_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {
     return await _downloadFile(value);
 }
-async function from_candid_PersonalSong_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PersonalSong): Promise<PersonalSong> {
-    return await from_candid_record_n26(_uploadFile, _downloadFile, value);
+async function from_candid_PersonalSong_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PersonalSong): Promise<PersonalSong> {
+    return await from_candid_record_n25(_uploadFile, _downloadFile, value);
 }
 async function from_candid_SongMetadata_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SongMetadata): Promise<SongMetadata> {
-    return await from_candid_record_n23(_uploadFile, _downloadFile, value);
+    return await from_candid_record_n16(_uploadFile, _downloadFile, value);
 }
 async function from_candid_Song_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Song): Promise<Song> {
     return await from_candid_record_n16(_uploadFile, _downloadFile, value);
@@ -639,7 +640,7 @@ async function from_candid_opt_n17(_uploadFile: (file: ExternalBlob) => Promise<
 function from_candid_opt_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : value[0];
 }
-async function from_candid_opt_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Song]): Promise<Song | null> {
+async function from_candid_opt_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Song]): Promise<Song | null> {
     return value.length === 0 ? null : await from_candid_Song_n15(_uploadFile, _downloadFile, value[0]);
 }
 function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [boolean]): boolean | null {
@@ -675,31 +676,7 @@ async function from_candid_record_n16(_uploadFile: (file: ExternalBlob) => Promi
         artist: value.artist
     };
 }
-async function from_candid_record_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    id: bigint;
-    title: string;
-    duration: bigint;
-    album: string;
-    coverImage: [] | [_ExternalBlob];
-    artist: string;
-}): Promise<{
-    id: bigint;
-    title: string;
-    duration: bigint;
-    album: string;
-    coverImage?: ExternalBlob;
-    artist: string;
-}> {
-    return {
-        id: value.id,
-        title: value.title,
-        duration: value.duration,
-        album: value.album,
-        coverImage: record_opt_to_undefined(await from_candid_opt_n17(_uploadFile, _downloadFile, value.coverImage)),
-        artist: value.artist
-    };
-}
-async function from_candid_record_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+async function from_candid_record_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
     title: string;
     duration: bigint;
@@ -756,8 +733,8 @@ async function from_candid_vec_n14(_uploadFile: (file: ExternalBlob) => Promise<
 async function from_candid_vec_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_SongMetadata>): Promise<Array<SongMetadata>> {
     return await Promise.all(value.map(async (x)=>await from_candid_SongMetadata_n22(_uploadFile, _downloadFile, x)));
 }
-async function from_candid_vec_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_PersonalSong>): Promise<Array<PersonalSong>> {
-    return await Promise.all(value.map(async (x)=>await from_candid_PersonalSong_n25(_uploadFile, _downloadFile, x)));
+async function from_candid_vec_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_PersonalSong>): Promise<Array<PersonalSong>> {
+    return await Promise.all(value.map(async (x)=>await from_candid_PersonalSong_n24(_uploadFile, _downloadFile, x)));
 }
 async function to_candid_ExternalBlob_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ExternalBlob): Promise<_ExternalBlob> {
     return await _uploadFile(value);

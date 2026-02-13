@@ -5,6 +5,7 @@ import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { useHeaderSearch } from '../../hooks/useHeaderSearch';
 import { useHomeBrowsing } from '../../hooks/useHomeBrowsing';
 import { useState, useEffect, useRef } from 'react';
+import { useUISounds } from '../../hooks/useUISounds';
 
 export default function HeaderSearchBar() {
   const navigate = useNavigate();
@@ -14,12 +15,15 @@ export default function HeaderSearchBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const { playClick } = useUISounds();
 
   const handleHomeClick = () => {
+    playClick();
     navigate({ to: '/' });
   };
 
   const handleStartBrowsing = () => {
+    playClick();
     setIsMenuOpen(false);
     if (routerState.location.pathname !== '/') {
       navigate({ to: '/' });
@@ -31,6 +35,7 @@ export default function HeaderSearchBar() {
   };
 
   const handleBrowseAll = () => {
+    playClick();
     setIsMenuOpen(false);
     if (routerState.location.pathname !== '/') {
       navigate({ to: '/' });
@@ -44,6 +49,7 @@ export default function HeaderSearchBar() {
   };
 
   const handleMenuToggle = () => {
+    playClick();
     setIsMenuOpen(!isMenuOpen);
   };
 

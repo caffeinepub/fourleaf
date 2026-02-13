@@ -3,8 +3,10 @@ import Map "mo:core/Map";
 import Nat "mo:core/Nat";
 import Order "mo:core/Order";
 import Array "mo:core/Array";
+import Iter "mo:core/Iter";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
+
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 import MixinStorage "blob-storage/Mixin";
@@ -62,6 +64,7 @@ actor {
     album : Text;
     duration : Nat;
     coverImage : ?Storage.ExternalBlob;
+    audioFile : Storage.ExternalBlob;
   };
 
   let songs = Map.empty<Nat, Song>();
@@ -96,6 +99,7 @@ actor {
     userProfiles.add(caller, profile);
   };
 
+  // Admin upload to public catalog
   public shared ({ caller }) func uploadSong(songUpdate : Song.Update) : async Nat {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only admins can upload songs");
@@ -112,10 +116,12 @@ actor {
     };
 
     songs.add(nextSongId, song);
+    let uploadedId = nextSongId;
     nextSongId += 1;
-    song.id;
+    uploadedId;
   };
 
+  // User upload to personal library
   public shared ({ caller }) func uploadPersonalSong(songUpdate : Song.Update) : async Nat {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can upload personal songs");
@@ -133,14 +139,15 @@ actor {
     };
 
     personalSongs.add(nextPersonalSongId, song);
+    let uploadedId = nextPersonalSongId;
     nextPersonalSongId += 1;
-    song.id;
+    uploadedId;
   };
 
-  // Public catalog upload - any authenticated user can upload to public catalog
+  // Public catalog upload - admin only (same as uploadSong, kept for API compatibility)
   public shared ({ caller }) func uploadPublicSong(songUpdate : Song.Update) : async Nat {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can upload public songs");
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can upload to public catalog");
     };
 
     let song : Song = {
@@ -154,8 +161,9 @@ actor {
     };
 
     songs.add(nextSongId, song);
+    let uploadedId = nextSongId;
     nextSongId += 1;
-    song.id;
+    uploadedId;
   };
 
   public shared ({ caller }) func editSong(songId : Nat, songUpdate : Song.Update) : async () {
@@ -268,6 +276,10 @@ actor {
   };
 
   public query ({ caller }) func isPersonalSongOwner(songId : Nat) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can check song ownership");
+    };
+
     switch (personalSongs.get(songId)) {
       case null { false };
       case (?song) {
@@ -364,6 +376,7 @@ actor {
           album = song.album;
           duration = song.duration;
           coverImage = song.coverImage;
+          audioFile = song.audioFile;
         };
       }
     );

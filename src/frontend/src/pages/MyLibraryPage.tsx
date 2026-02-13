@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useGetPersonalSongMetadata, useRemovePersonalSong } from '../hooks/useQueries';
+import { useGetPersonalSongs, useRemovePersonalSong } from '../hooks/useQueries';
 import { useAudioQueue } from '../hooks/useAudioQueue';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useHeaderSearch } from '../hooks/useHeaderSearch';
@@ -10,47 +10,41 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import PersonalSongUploadDialog from '../components/personal/PersonalSongUploadDialog';
 import { toast } from 'sonner';
-import type { SongMetadata } from '../backend';
+import type { PersonalSong } from '../backend';
 
 export default function MyLibraryPage() {
   const { identity, login, loginStatus } = useInternetIdentity();
-  const { data: personalSongs, isLoading } = useGetPersonalSongMetadata();
+  const { data: personalSongs, isLoading } = useGetPersonalSongs();
   const { setQueue, play, getCurrentItem } = useAudioQueue();
   const { query } = useHeaderSearch();
   const removePersonalSong = useRemovePersonalSong();
   const currentItem = getCurrentItem();
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
-  const isAuthenticated = !!identity;
-  const isLoggingIn = loginStatus === 'logging-in';
-
   const filteredSongs = useMemo(() => {
     if (!personalSongs) return [];
     if (!query.trim()) return personalSongs;
 
-    const lowerQuery = query.toLowerCase();
-    return personalSongs.filter(
-      (song) =>
-        song.title.toLowerCase().includes(lowerQuery) ||
-        song.artist.toLowerCase().includes(lowerQuery) ||
-        song.album.toLowerCase().includes(lowerQuery)
+    const lowerQuery = query.toLowerCase().trim();
+    return personalSongs.filter((song) =>
+      song.title.toLowerCase().includes(lowerQuery) ||
+      song.artist.toLowerCase().includes(lowerQuery) ||
+      song.album.toLowerCase().includes(lowerQuery)
     );
   }, [personalSongs, query]);
 
-  const handlePlaySong = (song: SongMetadata, index: number) => {
-    if (filteredSongs) {
-      const queueItems = filteredSongs.map(s => ({ source: 'personal' as const, song: s }));
-      setQueue(queueItems, index);
-      play();
-    }
+  const handlePlaySong = (song: PersonalSong, index: number) => {
+    const queueItems = filteredSongs.map(s => ({ source: 'personal' as const, song: s }));
+    setQueue(queueItems, index);
+    play();
   };
 
   const handleRemoveSong = async (songId: bigint) => {
     try {
       await removePersonalSong.mutateAsync(songId);
-      toast.success('Song removed successfully');
+      toast.success('Track removed from your library');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to remove song');
+      toast.error(error.message || 'Failed to remove track');
     }
   };
 
@@ -61,18 +55,23 @@ export default function MyLibraryPage() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (!isAuthenticated) {
+  if (!identity) {
     return (
-      <div className="container py-16">
-        <Card>
-          <CardContent className="py-16 text-center">
-            <LogIn className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h2 className="text-2xl font-semibold mb-2">Login Required</h2>
-            <p className="text-muted-foreground mb-6">
-              Please log in to access your personal music library and upload your own songs.
+      <div className="container py-12 max-w-2xl">
+        <Card className="border-primary/30">
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <LogIn className="h-12 w-12 text-primary mb-4" />
+            <h2 className="text-2xl font-display font-bold mb-2">Sign In Required</h2>
+            <p className="text-muted-foreground text-center mb-6">
+              Sign in to access your personal music library and upload your own tracks.
             </p>
-            <Button onClick={login} disabled={isLoggingIn}>
-              {isLoggingIn ? 'Logging in...' : 'Login with Internet Identity'}
+            <Button
+              onClick={login}
+              disabled={loginStatus === 'logging-in'}
+              size="lg"
+              className="gap-2"
+            >
+              {loginStatus === 'logging-in' ? 'Signing in...' : 'Sign In'}
             </Button>
           </CardContent>
         </Card>
@@ -82,156 +81,93 @@ export default function MyLibraryPage() {
 
   if (isLoading) {
     return (
-      <div className="container py-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <Skeleton className="h-10 w-64 mb-2" />
-            <Skeleton className="h-5 w-96" />
-          </div>
-          <Skeleton className="h-10 w-32" />
+      <div className="container py-8 max-w-screen-2xl">
+        <div className="mb-8">
+          <Skeleton className="h-10 w-64 mb-2" />
+          <Skeleton className="h-6 w-48" />
         </div>
         <div className="space-y-3">
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-20 w-full" />
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-24 w-full" />
           ))}
         </div>
       </div>
     );
   }
 
-  if (!personalSongs || personalSongs.length === 0) {
-    return (
-      <div className="container py-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-display font-bold mb-2">My Library</h1>
-            <p className="text-muted-foreground">Your personal music collection</p>
-          </div>
-          <Button onClick={() => setUploadDialogOpen(true)} className="gap-2">
-            <Upload className="h-4 w-4" />
-            Upload Song
-          </Button>
-        </div>
-
-        <Card>
-          <CardContent className="py-16 text-center">
-            <Music className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h2 className="text-2xl font-semibold mb-2">You have no personal songs yet</h2>
-            <p className="text-muted-foreground mb-6">
-              Upload your own music files to build your personal library and enjoy them anytime.
-            </p>
-            <Button onClick={() => setUploadDialogOpen(true)} className="gap-2">
-              <Upload className="h-4 w-4" />
-              Upload Your First Song
-            </Button>
-          </CardContent>
-        </Card>
-
-        <PersonalSongUploadDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen} />
-      </div>
-    );
-  }
-
   return (
-    <div className="container py-8">
-      <div className="mb-8 flex items-center justify-between">
+    <div className="container py-8 max-w-screen-2xl">
+      <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-4xl font-display font-bold mb-2">My Library</h1>
           <p className="text-muted-foreground">
-            {query.trim() ? (
-              <>
-                {filteredSongs.length} {filteredSongs.length === 1 ? 'song' : 'songs'} found
-                {' • '}
-                {personalSongs.length} total
-              </>
-            ) : (
-              <>
-                {personalSongs.length} {personalSongs.length === 1 ? 'song' : 'songs'} in your collection
-              </>
-            )}
+            Your personal collection • {filteredSongs.length} {filteredSongs.length === 1 ? 'track' : 'tracks'}
           </p>
         </div>
         <Button onClick={() => setUploadDialogOpen(true)} className="gap-2">
           <Upload className="h-4 w-4" />
-          Upload Song
+          Upload Track
         </Button>
       </div>
 
-      <Alert className="mb-6 border-primary/50 bg-primary/5">
-        <Music className="h-4 w-4 text-primary" />
-        <AlertDescription>
-          Your personal songs are private and only accessible to you. They won't appear in the public Music Library.
-        </AlertDescription>
-      </Alert>
-
       {filteredSongs.length === 0 ? (
-        <Card>
-          <CardContent className="py-16 text-center">
-            <Music className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h2 className="text-2xl font-semibold mb-2">No songs found</h2>
-            <p className="text-muted-foreground">
-              Try adjusting your search query to find what you're looking for.
-            </p>
-          </CardContent>
-        </Card>
+        <Alert>
+          <Music className="h-4 w-4" />
+          <AlertDescription>
+            {query.trim() 
+              ? 'No tracks match your search.'
+              : 'Your library is empty. Upload your first track to get started!'}
+          </AlertDescription>
+        </Alert>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {filteredSongs.map((song, index) => {
-            const isCurrentSong = currentItem?.source === 'personal' && currentItem.song.id === song.id;
+            const isCurrentSong = currentItem?.song.id === song.id;
             const coverUrl = song.coverImage?.getDirectURL();
 
             return (
-              <Card
-                key={song.id.toString()}
-                className={`transition-all hover:shadow-md ${
-                  isCurrentSong ? 'ring-2 ring-primary shadow-glow-sm' : ''
-                }`}
+              <Card 
+                key={Number(song.id)}
+                className={isCurrentSong ? 'border-primary/50 bg-accent/20' : ''}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
-                    <Button
-                      size="icon"
-                      variant={isCurrentSong ? 'default' : 'outline'}
-                      onClick={() => handlePlaySong(song, index)}
-                      className="shrink-0"
-                    >
-                      <Play className="h-4 w-4" />
-                    </Button>
+                <CardContent className="flex items-center gap-4 p-4">
+                  <Button
+                    size="icon"
+                    variant={isCurrentSong ? 'default' : 'ghost'}
+                    onClick={() => handlePlaySong(song, index)}
+                    className="shrink-0"
+                  >
+                    <Play className="h-4 w-4" />
+                  </Button>
 
-                    {coverUrl ? (
-                      <img
-                        src={coverUrl}
-                        alt={song.title}
-                        className="h-14 w-14 rounded object-cover shrink-0"
-                      />
-                    ) : (
-                      <div className="h-14 w-14 rounded bg-muted flex items-center justify-center shrink-0">
-                        <Music className="h-6 w-6 text-muted-foreground" />
-                      </div>
-                    )}
-
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold truncate">{song.title}</h3>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {song.artist} • {song.album}
-                      </p>
+                  {coverUrl ? (
+                    <img
+                      src={coverUrl}
+                      alt={song.title}
+                      className="h-16 w-16 rounded object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="h-16 w-16 rounded bg-muted flex items-center justify-center shrink-0">
+                      <Music className="h-6 w-6 text-muted-foreground" />
                     </div>
+                  )}
 
-                    <div className="flex items-center gap-3 shrink-0">
-                      <span className="text-sm text-muted-foreground hidden sm:block">
-                        {formatDuration(song.duration)}
-                      </span>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleRemoveSong(song.id)}
-                        disabled={removePersonalSong.isPending}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold truncate">{song.title}</h3>
+                    <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {song.album} • {formatDuration(song.duration)}
+                    </p>
                   </div>
+
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleRemoveSong(song.id)}
+                    className="text-destructive hover:text-destructive shrink-0"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </CardContent>
               </Card>
             );
@@ -239,7 +175,10 @@ export default function MyLibraryPage() {
         </div>
       )}
 
-      <PersonalSongUploadDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen} />
+      <PersonalSongUploadDialog
+        open={uploadDialogOpen}
+        onOpenChange={setUploadDialogOpen}
+      />
     </div>
   );
 }

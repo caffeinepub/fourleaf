@@ -6,6 +6,8 @@ import LibraryPage from './pages/LibraryPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import PricingPage from './pages/PricingPage';
 import MyLibraryPage from './pages/MyLibraryPage';
+import PlayerLayoutPage from './pages/PlayerLayoutPage';
+import NowPlayingPage from './pages/NowPlayingPage';
 import AdminRouteGuard from './components/admin/AdminRouteGuard';
 
 const rootRoute = createRootRoute({
@@ -30,6 +32,18 @@ const myLibraryRoute = createRoute({
   component: MyLibraryPage,
 });
 
+const playerLayoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/player-layout',
+  component: PlayerLayoutPage,
+});
+
+const nowPlayingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/now-playing',
+  component: NowPlayingPage,
+});
+
 const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
@@ -40,7 +54,14 @@ const adminRoute = createRoute({
   ),
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, pricingRoute, myLibraryRoute, adminRoute]);
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  pricingRoute,
+  myLibraryRoute,
+  playerLayoutRoute,
+  nowPlayingRoute,
+  adminRoute,
+]);
 
 const router = createRouter({ routeTree });
 

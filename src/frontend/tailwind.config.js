@@ -41,6 +41,10 @@ export default {
                     DEFAULT: 'oklch(var(--accent) / <alpha-value>)',
                     foreground: 'oklch(var(--accent-foreground))'
                 },
+                highlight: {
+                    DEFAULT: 'oklch(var(--highlight) / <alpha-value>)',
+                    foreground: 'oklch(var(--highlight-foreground))'
+                },
                 popover: {
                     DEFAULT: 'oklch(var(--popover))',
                     foreground: 'oklch(var(--popover-foreground))'
@@ -56,13 +60,13 @@ export default {
                 sm: 'calc(var(--radius) - 4px)'
             },
             fontFamily: {
-                sans: ['Inter', 'system-ui', 'sans-serif'],
-                display: ['Poppins', 'Inter', 'system-ui', 'sans-serif']
+                sans: ['system-ui', '-apple-system', 'sans-serif'],
+                display: ['Outfit', 'system-ui', 'sans-serif']
             },
             boxShadow: {
-                'glow-sm': '0 0 10px oklch(var(--primary) / 0.3)',
-                'glow-md': '0 0 20px oklch(var(--primary) / 0.4)',
-                'glow-lg': '0 0 30px oklch(var(--primary) / 0.5)'
+                'glow-sm': '0 0 12px oklch(var(--primary) / 0.25)',
+                'glow-md': '0 0 24px oklch(var(--primary) / 0.35)',
+                'glow-lg': '0 0 36px oklch(var(--primary) / 0.45)'
             },
             keyframes: {
                 'accordion-down': {
@@ -75,7 +79,7 @@ export default {
                 },
                 'pulse-glow': {
                     '0%, 100%': { opacity: '1' },
-                    '50%': { opacity: '0.6' }
+                    '50%': { opacity: '0.7' }
                 }
             },
             animation: {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useUploadPublicSong } from '../../hooks/useQueries';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -25,7 +25,10 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
   const [duration, setDuration] = useState('');
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [audioProgress, setAudioProgress] = useState(0);
+  const [coverProgress, setCoverProgress] = useState(0);
+  const audioInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   const isAuthenticated = !!identity;
   const isLoggingIn = loginStatus === 'logging-in';
@@ -35,7 +38,6 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
     const file = e.target.files?.[0];
     if (file) {
       setAudioFile(file);
-      // Try to extract duration from audio file
       const audio = new Audio();
       audio.src = URL.createObjectURL(file);
       audio.addEventListener('loadedmetadata', () => {
@@ -52,6 +54,23 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
     }
   };
 
+  const resetForm = () => {
+    setTitle('');
+    setArtist('');
+    setAlbum('');
+    setDuration('');
+    setAudioFile(null);
+    setCoverImage(null);
+    setAudioProgress(0);
+    setCoverProgress(0);
+    if (audioInputRef.current) {
+      audioInputRef.current.value = '';
+    }
+    if (coverInputRef.current) {
+      coverInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -60,35 +79,55 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
       return;
     }
 
+    if (!title.trim()) {
+      toast.error('Please enter a song title');
+      return;
+    }
+
+    if (!artist.trim()) {
+      toast.error('Please enter an artist name');
+      return;
+    }
+
+    if (!album.trim()) {
+      toast.error('Please enter an album name');
+      return;
+    }
+
+    if (!duration.trim() || Number(duration) <= 0) {
+      toast.error('Please enter a valid duration');
+      return;
+    }
+
     if (!audioFile) {
       toast.error('Please select an audio file');
       return;
     }
 
-    if (!title.trim() || !artist.trim() || !album.trim()) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-
     try {
+      setAudioProgress(0);
+      setCoverProgress(0);
+
       const audioBytes = new Uint8Array(await audioFile.arrayBuffer());
       const audioBlob = ExternalBlob.fromBytes(audioBytes).withUploadProgress((percentage) => {
-        // Normalize progress to 0-100 range
-        const normalizedProgress = percentage > 1 ? percentage : percentage * 100;
-        setUploadProgress(Math.round(normalizedProgress));
+        const normalized = Math.min(100, Math.max(0, percentage > 1 ? percentage : percentage * 100));
+        setAudioProgress(Math.round(normalized));
       });
 
       let coverBlob: ExternalBlob | undefined;
       if (coverImage) {
         const coverBytes = new Uint8Array(await coverImage.arrayBuffer());
-        coverBlob = ExternalBlob.fromBytes(coverBytes);
+        coverBlob = ExternalBlob.fromBytes(coverBytes).withUploadProgress((percentage) => {
+          const normalized = Math.min(100, Math.max(0, percentage > 1 ? percentage : percentage * 100));
+          setCoverProgress(Math.round(normalized));
+        });
       }
 
       const songUpdate: Update = {
         title: title.trim(),
         artist: artist.trim(),
         album: album.trim(),
-        duration: BigInt(duration || 0),
+        duration: BigInt(duration),
         audioFile: audioBlob,
         coverImage: coverBlob,
       };
@@ -96,18 +135,22 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
       await uploadPublicSong.mutateAsync(songUpdate);
       toast.success('Song uploaded successfully and is now publicly available for streaming!');
       
-      // Reset form
-      setTitle('');
-      setArtist('');
-      setAlbum('');
-      setDuration('');
-      setAudioFile(null);
-      setCoverImage(null);
-      setUploadProgress(0);
+      resetForm();
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error.message || 'Failed to upload song');
-      setUploadProgress(0);
+      console.error('Upload error:', error);
+      const errorMsg = error.message || 'Failed to upload song';
+      
+      if (errorMsg.includes('permission') || errorMsg.includes('Unauthorized')) {
+        toast.error('You do not have permission to upload songs to the public catalog');
+      } else if (errorMsg.includes('logged in')) {
+        toast.error('Please log in to upload songs');
+      } else {
+        toast.error(errorMsg);
+      }
+      
+      setAudioProgress(0);
+      setCoverProgress(0);
     }
   };
 
@@ -117,10 +160,22 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
     }
   };
 
+  const handleInteractOutside = (e: Event) => {
+    if (isUploading) {
+      e.preventDefault();
+    }
+  };
+
+  const handleEscapeKeyDown = (e: KeyboardEvent) => {
+    if (isUploading) {
+      e.preventDefault();
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent>
+        <DialogContent onInteractOutside={handleInteractOutside} onEscapeKeyDown={handleEscapeKeyDown}>
           <DialogHeader>
             <DialogTitle>Login Required</DialogTitle>
             <DialogDescription>
@@ -137,9 +192,13 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
     );
   }
 
+  const totalProgress = coverImage 
+    ? Math.round((audioProgress * 0.7) + (coverProgress * 0.3))
+    : audioProgress;
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onInteractOutside={handleInteractOutside} onEscapeKeyDown={handleEscapeKeyDown}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-primary" />
@@ -159,7 +218,6 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Song title"
-                required
                 disabled={isUploading}
               />
             </div>
@@ -171,7 +229,6 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
                 value={artist}
                 onChange={(e) => setArtist(e.target.value)}
                 placeholder="Artist name"
-                required
                 disabled={isUploading}
               />
             </div>
@@ -183,7 +240,6 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
                 value={album}
                 onChange={(e) => setAlbum(e.target.value)}
                 placeholder="Album name"
-                required
                 disabled={isUploading}
               />
             </div>
@@ -196,7 +252,6 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
                 placeholder="Duration in seconds (auto-detected if possible)"
-                required
                 disabled={isUploading}
               />
             </div>
@@ -205,11 +260,11 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
               <Label htmlFor="audioFile">Audio File *</Label>
               <div className="flex items-center gap-2">
                 <Input
+                  ref={audioInputRef}
                   id="audioFile"
                   type="file"
                   accept="audio/*"
                   onChange={handleAudioFileChange}
-                  required
                   disabled={isUploading}
                   className="flex-1"
                 />
@@ -226,6 +281,7 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
               <Label htmlFor="coverImage">Cover Image (optional)</Label>
               <div className="flex items-center gap-2">
                 <Input
+                  ref={coverInputRef}
                   id="coverImage"
                   type="file"
                   accept="image/*"
@@ -243,17 +299,29 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
             </div>
           </div>
 
-          {isUploading && uploadProgress > 0 && (
+          {isUploading && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Uploading...</span>
-                <span className="font-medium">{uploadProgress}%</span>
+                <span className="font-medium">{totalProgress}%</span>
               </div>
-              <Progress value={uploadProgress} />
+              <Progress value={totalProgress} className="h-2" />
+              {coverImage && (
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <div className="flex justify-between">
+                    <span>Audio:</span>
+                    <span>{audioProgress}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Cover:</span>
+                    <span>{coverProgress}%</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          <div className="flex justify-end gap-3">
+          <div className="flex gap-3 justify-end">
             <Button
               type="button"
               variant="outline"
@@ -264,7 +332,7 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
             </Button>
             <Button type="submit" disabled={isUploading} className="gap-2">
               <Upload className="h-4 w-4" />
-              {isUploading ? 'Uploading...' : 'Upload to Public Catalog'}
+              {isUploading ? 'Uploading...' : 'Upload Song'}
             </Button>
           </div>
         </form>
