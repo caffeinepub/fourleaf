@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Build a Spotify-style three-panel dark-themed layout (left sidebar, center content with gradient header and tracklist, right details panel).",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-replace-the-current-top-header-centric-page-chrome-with-a-spotify-style-three-panel-shell-a-narrow-left-sidebar-a-large-center-main-content-area-and-a-right-details-panel-all-on-a-deep-dark-background-using-tailwind-css",
+      "title": "Replace the current top-header-centric page chrome with a Spotify-style three-panel shell: a narrow left sidebar, a large center main content area, and a right details panel, all on a deep dark background using Tailwind CSS.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-left-sidebar-as-stacked-card-like-sections-with-rounded-corners-and-a-slightly-lighter-gray-black-background-include-primary-navigation-actions-library-my-library-pricing-admin-when-available-using-the-existing-icon-set-and-routing",
+      "title": "Implement the left sidebar as stacked, card-like sections with rounded corners and a slightly lighter gray-black background; include primary navigation actions (Library, My Library, Pricing, Admin when available) using the existing icon set and routing.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-center-main-content-area-to-include-a-prominent-header-region-with-a-red-to-black-gradient-background-and-a-bold-large-title-area-playlist-style-header-above-the-tracklist-list-content",
+      "title": "Update the center main content area to include a prominent header region with a red-to-black gradient background and a bold, large title area (playlist-style header) above the tracklist/list content.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-render-the-main-tracklist-in-a-structured-row-layout-table-like-where-each-row-clearly-presents-song-thumbnail-title-album-name-and-duration-while-preserving-existing-play-controls-and-download-actions",
+      "title": "Render the main tracklist in a structured row layout (table-like) where each row clearly presents: song thumbnail, title, album name, and duration, while preserving existing play controls and download actions.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-right-details-panel-as-a-vertical-container-that-shows-a-large-image-and-descriptive-text-when-a-song-is-currently-playing-populate-the-panel-from-the-current-item-cover-art-as-image-and-song-artist-album-as-the-description-otherwise-show-an-empty-state-message",
+      "title": "Implement the right details panel as a vertical container that shows a large image and descriptive text; when a song is currently playing, populate the panel from the current item (cover art as image and song/artist/album as the description), otherwise show an empty-state message.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-the-three-panel-layout-responsive-on-smaller-viewports-collapse-hide-the-right-details-panel-and-allow-the-left-sidebar-to-collapse-into-a-compact-mode-or-stack-while-keeping-the-main-content-usable-without-horizontal-scrolling",
+      "title": "Make the three-panel layout responsive: on smaller viewports, collapse/hide the right details panel and allow the left sidebar to collapse into a compact mode or stack while keeping the main content usable without horizontal scrolling.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Implement Spotify-style three-panel layout with dark theme, gradient header, tracklist, and right-side details panel (icons + sans-serif styling).",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Implement Spotify-style three-panel layout (sidebar + main + details)",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 0.75rem;
+        /* Fresh green and charcoal palette - Light mode */
+        --background: 0.98 0 0;
+        --foreground: 0.20 0 0;
+        --card: 1 0 0;
+        --card-foreground: 0.20 0 0;
+        --popover: 1 0 0;
+        --popover-foreground: 0.20 0 0;
+        --primary: 0.65 0.18 145;
+        --primary-foreground: 0.98 0 0;
+        --secondary: 0.92 0 0;
+        --secondary-foreground: 0.20 0 0;
+        --muted: 0.94 0 0;
+        --muted-foreground: 0.50 0 0;
+        --accent: 0.70 0.20 145;
+        --accent-foreground: 0.98 0 0;
+        --destructive: 0.55 0.22 25;
+        --destructive-foreground: 0.98 0 0;
+        --border: 0.88 0 0;
+        --input: 0.88 0 0;
+        --ring: 0.65 0.18 145;
+        --chart-1: 0.65 0.18 145;
+        --chart-2: 0.60 0.15 160;
+        --chart-3: 0.55 0.12 140;
+        --chart-4: 0.70 0.20 150;
+        --chart-5: 0.50 0.10 135;
+    }
+
+    .dark {
+        /* Deep dark background with charcoal surfaces - Spotify-style */
+        --background: 0.12 0 0;
+        --foreground: 0.95 0 0;
+        --card: 0.18 0 0;
+        --card-foreground: 0.95 0 0;
+        --popover: 0.20 0 0;
+        --popover-foreground: 0.95 0 0;
+        --primary: 0.70 0.20 145;
+        --primary-foreground: 0.15 0 0;
+        --secondary: 0.28 0 0;
+        --secondary-foreground: 0.95 0 0;
+        --muted: 0.22 0 0;
+        --muted-foreground: 0.65 0 0;
+        --accent: 0.26 0 0;
+        --accent-foreground: 0.95 0 0;
+        --destructive: 0.60 0.24 25;
+        --destructive-foreground: 0.95 0 0;
+        --border: 0.25 0 0;
+        --input: 0.25 0 0;
+        --ring: 0.70 0.20 145;
+        --chart-1: 0.70 0.20 145;
+        --chart-2: 0.65 0.18 160;
+        --chart-3: 0.60 0.15 140;
+        --chart-4: 0.75 0.22 150;
+        --chart-5: 0.55 0.12 135;
+    }
+
+    * {
+        @apply border-border;
+    }
+    
+    body {
+        @apply bg-background text-foreground;
+    }
+
+    /* Remove background texture for cleaner Spotify-style look */
+    .dark body {
+        background-image: none;
+    }
+}
+
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
+
+    /* Hide scrollbar while maintaining scroll functionality */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* Snap scroll utilities */
+    .snap-x {
+        scroll-snap-type: x mandatory;
+    }
+
+    .snap-start {
+        scroll-snap-align: start;
+    }
+
+    .snap-center {
+        scroll-snap-align: center;
+    }
+}

@@ -1,0 +1,130 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-replace-the-current-top-header-centric-page-chrome-with-a-spotify-style-three-panel-shell-a-narrow-left-sidebar-a-large-center-main-content-area-and-a-right-details-panel-all-on-a-deep-dark-background-using-tailwind-css",
+      "featureTitle": "Replace the current top-header-centric page chrome with a Spotify-style three-panel shell: a narrow left sidebar, a large center main content area, and a right details panel, all on a deep dark background using Tailwind CSS.",
+      "files": [
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-the-left-sidebar-as-stacked-card-like-sections-with-rounded-corners-and-a-slightly-lighter-gray-black-background-include-primary-navigation-actions-library-my-library-pricing-admin-when-available-using-the-existing-icon-set-and-routing",
+      "featureTitle": "Implement the left sidebar as stacked, card-like sections with rounded corners and a slightly lighter gray-black background; include primary navigation actions (Library, My Library, Pricing, Admin when available) using the existing icon set and routing.",
+      "files": [
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/components/layout/LeftSidebar.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-center-main-content-area-to-include-a-prominent-header-region-with-a-red-to-black-gradient-background-and-a-bold-large-title-area-playlist-style-header-above-the-tracklist-list-content",
+      "featureTitle": "Update the center main content area to include a prominent header region with a red-to-black gradient background and a bold, large title area (playlist-style header) above the tracklist/list content.",
+      "files": [
+        "frontend/src/pages/LibraryPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-render-the-main-tracklist-in-a-structured-row-layout-table-like-where-each-row-clearly-presents-song-thumbnail-title-album-name-and-duration-while-preserving-existing-play-controls-and-download-actions",
+      "featureTitle": "Render the main tracklist in a structured row layout (table-like) where each row clearly presents: song thumbnail, title, album name, and duration, while preserving existing play controls and download actions.",
+      "files": [
+        "frontend/src/components/catalog/CatalogSongRowCard.tsx",
+        "frontend/src/pages/LibraryPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-the-right-details-panel-as-a-vertical-container-that-shows-a-large-image-and-descriptive-text-when-a-song-is-currently-playing-populate-the-panel-from-the-current-item-cover-art-as-image-and-song-artist-album-as-the-description-otherwise-show-an-empty-state-message",
+      "featureTitle": "Implement the right details panel as a vertical container that shows a large image and descriptive text; when a song is currently playing, populate the panel from the current item (cover art as image and song/artist/album as the description), otherwise show an empty-state message.",
+      "files": [
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/components/layout/RightDetailsPanel.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-make-the-three-panel-layout-responsive-on-smaller-viewports-collapse-hide-the-right-details-panel-and-allow-the-left-sidebar-to-collapse-into-a-compact-mode-or-stack-while-keeping-the-main-content-usable-without-horizontal-scrolling",
+      "featureTitle": "Make the three-panel layout responsive: on smaller viewports, collapse/hide the right details panel and allow the left sidebar to collapse into a compact mode or stack while keeping the main content usable without horizontal scrolling.",
+      "files": [
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/components/layout/LeftSidebar.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

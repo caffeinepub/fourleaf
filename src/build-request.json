@@ -1,0 +1,135 @@
+{
+  "kind": "build_request",
+  "title": "Implement Spotify-style three-panel layout (sidebar + main + details)",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Replace the current top-header-centric page chrome with a Spotify-style three-panel shell: a narrow left sidebar, a large center main content area, and a right details panel, all on a deep dark background using Tailwind CSS.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10",
+          "msg-15"
+        ],
+        "quotes": [
+          "To create a Spotify-style layout like this, you should start by setting up a main container with a dark background color, ideally a deep black. You need to divide the screen into three primary sections... left sidebar... main content... details panel on the right.",
+          "build the layout"
+        ]
+      },
+      "acceptanceCriteria": [
+        "App renders a full-height (min-h-screen) three-column layout on desktop widths (left sidebar, center content, right details panel).",
+        "Overall page background is deep dark/near-black; side panels are visually distinct surfaces from the background.",
+        "Center content still renders routed pages via the existing TanStack Router <Outlet />."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement the left sidebar as stacked, card-like sections with rounded corners and a slightly lighter gray-black background; include primary navigation actions (Library, My Library, Pricing, Admin when available) using the existing icon set and routing.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10"
+        ],
+        "quotes": [
+          "For the sidebars, design separate card-like boxes with rounded corners and a slightly lighter grey-black background to make them stand out against the main backdrop.",
+          "apply ... professional icon sets like FontAwesome or Phosphor icons"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Left sidebar contains at least two distinct rounded 'cards'/sections (e.g., navigation and library/shortcuts) with a lighter surface than the page background.",
+        "Navigation items route to existing paths: '/', '/my-library', '/pricing', and '/admin' (admin item only shown when the existing admin check allows it).",
+        "Icons are shown next to nav items (use the project’s existing icon approach; do not introduce a new icon library)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Update the center main content area to include a prominent header region with a red-to-black gradient background and a bold, large title area (playlist-style header) above the tracklist/list content.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10"
+        ],
+        "quotes": [
+          "In the central section, create a prominent header with a color gradient that fades from a vibrant shade like red into black, placing the playlist title there in a bold, large font."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Library page center area displays a gradient header (red → black) with a large, bold title.",
+        "Gradient header is visually distinct from the rest of the page and remains readable in dark mode.",
+        "Header layout does not break existing interactions (search, play actions, upload dialog triggers)."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Render the main tracklist in a structured row layout (table-like) where each row clearly presents: song thumbnail, title, album name, and duration, while preserving existing play controls and download actions.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10"
+        ],
+        "quotes": [
+          "To display the tracklist, use a structured table or a list layout where each row contains columns for the song thumbnail, title, album name, and duration."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Tracklist rows show thumbnail, title, album, and duration as separate, consistently aligned columns on desktop widths.",
+        "Existing play action per track remains available and functional.",
+        "Existing download action remains available and functional for each track row.",
+        "On small screens, the row layout responsively collapses without horizontal overflow (e.g., hide less important columns like album and/or duration)."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Implement the right details panel as a vertical container that shows a large image and descriptive text; when a song is currently playing, populate the panel from the current item (cover art as image and song/artist/album as the description), otherwise show an empty-state message.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10"
+        ],
+        "quotes": [
+          "For the right-hand panel, use a vertical container to house a large artist image and their description."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Right panel renders as a distinct rounded card/surface on desktop widths.",
+        "If there is a currently playing item, the panel shows a large image (use the current track cover when available) and text describing the current track (at minimum: title and artist; include album when available).",
+        "If nothing is playing, the panel shows a clear empty state message in English (e.g., 'Nothing playing')."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Make the three-panel layout responsive: on smaller viewports, collapse/hide the right details panel and allow the left sidebar to collapse into a compact mode or stack while keeping the main content usable without horizontal scrolling.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10",
+          "msg-15"
+        ],
+        "quotes": [
+          "divide the screen into three primary sections",
+          "build the layout"
+        ]
+      },
+      "acceptanceCriteria": [
+        "On mobile widths, there is no horizontal scrolling caused by the layout.",
+        "Right details panel is hidden or moved below main content on small screens.",
+        "Left sidebar adapts (collapsed or stacked) while navigation remains accessible."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify files under frontend/src/components/ui (shadcn components must be composed, not edited).",
+    "Do not edit immutable hook files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
+    "Keep the backend unchanged (no new canister methods required) for this layout-only update."
+  ],
+  "nonGoals": [
+    "Do not add new authentication providers (Internet Identity remains the only auth).",
+    "Do not implement real-time features (e.g., websockets) as part of this layout work.",
+    "Do not redesign or change backend song data models; only present existing fields (title/artist/album/duration/cover) in the new layout."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

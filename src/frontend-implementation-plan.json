@@ -1,0 +1,129 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Spotify-style three-panel layout shell (sidebar + main + details)",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Replace the top-header-centric chrome with a full-height three-panel shell on a deep dark background while keeping routed content rendering via <Outlet />.",
+      "acceptanceCriteria": [
+        "App renders a full-height (min-h-screen) three-column layout on desktop widths (left sidebar, center content, right details panel).",
+        "Overall page background is deep dark/near-black; side panels are visually distinct surfaces from the background.",
+        "Center content still renders routed pages via the existing TanStack Router <Outlet />."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Refactor the layout to a Spotify-style shell: left sidebar + center main (hosting the router <Outlet />) + right details panel. Remove the sticky header/footer chrome, keep ProfileSetupDialog and AudioPlayerBar present, and ensure the shell uses min-h-screen with a deep dark background and distinct panel surfaces."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Adjust global dark-mode background styling to a deep near-black appearance appropriate for the new shell (and reduce/remove conflicting global background treatments that prevent a uniform dark backdrop)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Implement the left sidebar as stacked rounded sections containing primary navigation with existing icons and routing, showing Admin only when allowed.",
+      "acceptanceCriteria": [
+        "Left sidebar contains at least two distinct rounded 'cards'/sections (e.g., navigation and library/shortcuts) with a lighter surface than the page background.",
+        "Navigation items route to existing paths: '/', '/my-library', '/pricing', and '/admin' (admin item only shown when the existing admin check allows it).",
+        "Icons are shown next to nav items (use the project’s existing icon approach; do not introduce a new icon library)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/LeftSidebar.tsx",
+          "operation": "create",
+          "description": "Create a LeftSidebar component rendering stacked, card-like sections with rounded corners and a slightly lighter surface. Include navigation actions (Library, My Library, Pricing, Admin) with the existing lucide-react icon approach and TanStack Router navigation. For the admin item visibility, use the existing authorization-derived admin check already exposed in the app (via current hooks). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/layout/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Wire LeftSidebar into the new three-panel shell and ensure nav links use existing routing. Ensure Admin link is conditionally displayed using the existing admin check (authorization component-backed). Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add a playlist-style prominent gradient header (red-to-black) with a large bold title to the center area on the Library page.",
+      "acceptanceCriteria": [
+        "Library page center area displays a gradient header (red → black) with a large, bold title.",
+        "Gradient header is visually distinct from the rest of the page and remains readable in dark mode.",
+        "Header layout does not break existing interactions (search, play actions, upload dialog triggers)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/LibraryPage.tsx",
+          "operation": "modify",
+          "description": "Update the Library page layout to include a prominent playlist-style header region at the top of the center content with a red→black gradient background and large bold title, while preserving existing search-driven behavior, play actions, and upload dialog triggers."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Render the main tracklist as structured, aligned columns (thumbnail, title, album, duration) while preserving play controls and download actions with responsive collapse on small screens.",
+      "acceptanceCriteria": [
+        "Tracklist rows show thumbnail, title, album, and duration as separate, consistently aligned columns on desktop widths.",
+        "Existing play action per track remains available and functional.",
+        "Existing download action remains available and functional for each track row.",
+        "On small screens, the row layout responsively collapses without horizontal overflow (e.g., hide less important columns like album and/or duration)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/catalog/CatalogSongRowCard.tsx",
+          "operation": "modify",
+          "description": "Refactor CatalogSongRowCard from a simple flex row into a table-like/grid row with consistently aligned columns for cover thumbnail, title, album, duration, plus existing play and download controls. Use the existing blob-storage ExternalBlob capability (getDirectURL) for cover thumbnails where available. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/LibraryPage.tsx",
+          "operation": "modify",
+          "description": "Optionally add a column header row (visible on desktop widths) and adjust tracklist container spacing so the new structured rows read as a coherent table-like list while maintaining existing filtering/search and playback wiring."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Implement a right details panel that shows the currently playing track’s cover and metadata, or an English empty-state when nothing is playing.",
+      "acceptanceCriteria": [
+        "Right panel renders as a distinct rounded card/surface on desktop widths.",
+        "If there is a currently playing item, the panel shows a large image (use the current track cover when available) and text describing the current track (at minimum: title and artist; include album when available).",
+        "If nothing is playing, the panel shows a clear empty state message in English (e.g., 'Nothing playing')."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/RightDetailsPanel.tsx",
+          "operation": "create",
+          "description": "Create a RightDetailsPanel component that reads the current playing item from the existing audio queue store and renders a distinct rounded surface with a large cover image and descriptive text (title/artist/album when available). Use the blob-storage ExternalBlob capability (getDirectURL) for the cover image when present; otherwise render a sensible placeholder. Show an English empty state (e.g., 'Nothing playing') when no item is active. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/layout/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Wire RightDetailsPanel into the three-panel shell as the right column on desktop widths and ensure it visually reads as a distinct card-like surface."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Make the three-panel shell responsive by hiding/collapsing the right details panel and adapting the left sidebar so navigation remains accessible without horizontal scrolling.",
+      "acceptanceCriteria": [
+        "On mobile widths, there is no horizontal scrolling caused by the layout.",
+        "Right details panel is hidden or moved below main content on small screens.",
+        "Left sidebar adapts (collapsed or stacked) while navigation remains accessible."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Implement responsive behavior for the shell: hide (or move below) the right details panel on small viewports and adapt the left sidebar into a stacked/compact mode (e.g., top-stacked or icon-forward layout) while ensuring the center content remains usable and the overall layout prevents horizontal overflow."
+        },
+        {
+          "path": "frontend/src/components/layout/LeftSidebar.tsx",
+          "operation": "modify",
+          "description": "Add responsive styles/structure to support the compact/stacked sidebar mode on small screens while keeping all required navigation actions accessible."
+        }
+      ]
+    }
+  ]
+}
