@@ -24,7 +24,7 @@ export default function LeftSidebar() {
   };
 
   return (
-    <aside className="w-64 shrink-0 hidden lg:flex flex-col gap-2 p-2">
+    <aside className="w-[250px] shrink-0 flex flex-col gap-2 p-2 sticky top-0 h-screen overflow-y-auto">
       {/* Brand Section */}
       <div className="bg-card/80 backdrop-blur rounded-lg px-5 py-4 border border-border/50">
         <FourleafBrand variant="full" />
@@ -37,11 +37,11 @@ export default function LeftSidebar() {
             <Button
               key={item.path}
               variant="ghost"
-              className="w-full justify-start gap-3 text-base font-medium hover:bg-accent/50"
+              className="w-full justify-start gap-3 text-sm md:text-base font-medium hover:bg-accent/50 min-h-[44px] px-3 py-2"
               onClick={() => handleNavClick(item.path)}
             >
-              <item.icon className="h-5 w-5" />
-              {item.label}
+              <item.icon className="h-5 w-5 shrink-0" />
+              <span className="truncate">{item.label}</span>
             </Button>
           ))}
         </nav>
@@ -50,18 +50,18 @@ export default function LeftSidebar() {
       {/* Library/Admin Section */}
       <div className="bg-card/80 backdrop-blur rounded-lg p-3 border border-border/50 flex-1 flex flex-col">
         <div className="flex items-center gap-2 mb-3 px-3">
-          <Music className="h-5 w-5 text-muted-foreground" />
-          <h3 className="font-semibold text-sm">Your Library</h3>
+          <Music className="h-5 w-5 text-muted-foreground shrink-0" />
+          <h3 className="font-semibold text-sm truncate">Your Library</h3>
         </div>
         <div className="flex flex-col gap-1 mb-4">
           {isAdmin && (
             <Button
               variant="ghost"
-              className="w-full justify-start gap-3 text-base font-medium hover:bg-accent/50"
+              className="w-full justify-start gap-3 text-sm md:text-base font-medium hover:bg-accent/50 min-h-[44px] px-3 py-2"
               onClick={() => handleNavClick('/admin')}
             >
-              <Shield className="h-5 w-5" />
-              Admin
+              <Shield className="h-5 w-5 shrink-0" />
+              <span className="truncate">Admin</span>
             </Button>
           )}
         </div>

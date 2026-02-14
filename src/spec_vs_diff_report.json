@@ -1,53 +1,36 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-13T14:27:35.576Z",
-  "summary": "REQ-1 is only partially implemented: frontend upload dialogs and React Query hooks were added/updated, but the backend still restricts public catalog uploads to admins and the diff does not clearly show required non-dismissible upload dialogs. REQ-2 is partially met via an SVG clover in FourleafBrand, but the branding component still renders visible “Fourleaf” text in non-icon variants, which conflicts with the minimal mark/no-text constraint.",
+  "generatedAt": "2026-02-14T05:48:45.740Z",
+  "summary": "REQ-1/2/4/5 appear implemented via a persistent flex row layout (sidebar + main), fixed 250px sidebar with shrink-0, sticky pinned sidebar behavior, consistent dark card styling, and horizontal overflow enabled on the main content. REQ-3 (specifically improving UI Sound Effects panel control touch targets) is not evidenced. REQ-6 is only partially evidenced: LoginButton is right-aligned in the main header, but Upload Track alignment changes on pages are not shown in the provided diffs.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Authenticated users can upload an audio file to the public catalog from the public Library page (\"Upload Track\") and see it appear in the public catalog list (and total track count updates) without authorization errors.",
-      "reason": "Backend implementation shown enforces admin-only access for `uploadSong`, which would block regular authenticated users from uploading to the public catalog as required.",
+      "id": "REQ-3",
+      "requirement": "Adjust left sidebar navigation/button touch targets for mobile, including making the UI Sound Effects panel controls comfortably usable with a thumb on small screens.",
+      "reason": "Nav items were adjusted (min-h-[44px], responsive text), but there is no evidence of any changes to the UI Sound Effects panel controls themselves (UISoundControls) to improve mobile touch targets/padding/font sizing.",
       "evidence": [
-        "backend/main.mo (\"uploadSong\" comment and guard: `if (not AccessControl.isAdmin(...)) Runtime.trap(\"Unauthorized: Only admins can upload songs\")`)"
+        "frontend/src/components/layout/LeftSidebar.tsx"
       ]
     },
     {
-      "id": "REQ-1",
-      "requirement": "During upload, the upload dialog cannot be dismissed via outside click/escape while uploading (to prevent partial/duplicate uploads).",
-      "reason": "The dialog components are shown using `Dialog`/`DialogContent`, but the diff excerpt does not show any configuration that disables outside-click/escape dismissal while `isUploading` is true (e.g., preventing `onOpenChange`, disabling `modal` close, or intercepting escape/outside events).",
+      "id": "REQ-6",
+      "requirement": "Ensure header actions (Sign Out/Sign In and Upload Track) remain right-aligned within the main content region and do not overlap the pinned sidebar at any breakpoint.",
+      "reason": "AppLayout shows the LoginButton right-aligned in a header within the main content area, but the diff content for LibraryPage/MyLibraryPage is truncated and does not show concrete layout/class changes for the Upload Track button positioning to verify it won’t overlap the pinned sidebar on narrow widths.",
       "evidence": [
-        "frontend/src/components/catalog/PublicSongUploadDialog.tsx (uses `Dialog` but no shown non-dismiss configuration; file truncated)",
-        "frontend/src/components/personal/PersonalSongUploadDialog.tsx (uses `Dialog` but no shown non-dismiss configuration; file truncated)"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "requirement": "No logo text/taglines—only the minimal clover mark (no text) as part of the logo rendering.",
-      "reason": "`FourleafBrand` renders a visible text label “Fourleaf” in `variant === 'compact'` and the default (`'full'`) rendering, which violates the “no text”/minimal mark constraint for the logo rendering.",
-      "evidence": [
-        "frontend/src/components/branding/FourleafBrand.tsx (renders `<span ...>Fourleaf</span>` in 'compact' and default variants)"
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/pages/LibraryPage.tsx",
+        "frontend/src/pages/MyLibraryPage.tsx"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "Brand/logo text label “Fourleaf” added alongside the mark in non-icon variants of the branding component.",
-      "reason": "The request explicitly disallows logo text/taglines and calls for a minimal clover mark; the diff adds visible text in the branding component.",
-      "evidence": [
-        "frontend/src/components/branding/FourleafBrand.tsx (renders `<span ...>Fourleaf</span>` in 'compact' and default variants)"
-      ]
-    }
-  ],
-  "confidence": 0.68,
+  "hallucinated_features": [],
+  "confidence": 0.62,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/branding/FourleafBrand.tsx",
-    "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
     "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/components/personal/PersonalSongUploadDialog.tsx",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/components/layout/LeftSidebar.tsx",
+    "frontend/src/pages/LibraryPage.tsx",
+    "frontend/src/pages/MyLibraryPage.tsx",
     "project_state.json"
   ]
 }

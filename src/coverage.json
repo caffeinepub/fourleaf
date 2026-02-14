@@ -1,60 +1,102 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-13T14:27:35.579Z",
+  "generatedAt": "2026-02-14T05:48:45.743Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 6,
+    "implemented": 6,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Enable and verify the end-to-end song file upload feature so authenticated users can upload an audio file (and optional cover image) and see the newly uploaded track appear in the appropriate library views (public catalog and personal library) without errors.",
+        "summary": "Update the main application layout so the left sidebar and main content are always laid out side-by-side using a single flexbox or grid container across all breakpoints (including mobile). The sidebar must have a fixed width (250px target) and the main content must take the remaining space (e.g., flex-grow).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
-          "frontend/src/components/personal/PersonalSongUploadDialog.tsx",
-          "frontend/src/pages/LibraryPage.tsx",
-          "frontend/src/pages/MyLibraryPage.tsx",
-          "frontend/src/components/layout/AppLayout.tsx"
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/components/layout/LeftSidebar.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
-          "frontend/src/components/personal/PersonalSongUploadDialog.tsx",
-          "frontend/src/components/layout/AppLayout.tsx"
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/components/layout/LeftSidebar.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Replace the current header logo icon rendering with a minimal, scalable four-leaf clover mark that matches the provided design constraints: a perfectly centered circular container with equal height/width, black background fill inside the circle, four equal rounded leaf shapes arranged in a balanced cross pattern touching seamlessly at the center (no visible gaps), rich premium green fill (not neon), and no text, shadows, gradients, or extra effects.",
+        "summary": "Make the left sidebar visible on mobile (remove responsive hiding) and keep it pinned on the left while the user scrolls, using fixed or sticky positioning for mobile breakpoints. Ensure the layout accounts for the pinned sidebar so main content is not covered by it.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/branding/FourleafBrand.tsx",
+          "frontend/src/components/layout/LeftSidebar.tsx",
           "frontend/src/components/layout/AppLayout.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/branding/FourleafBrand.tsx",
+          "frontend/src/components/layout/LeftSidebar.tsx",
           "frontend/src/components/layout/AppLayout.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Adjust left sidebar navigation/button touch targets for mobile: increase clickable hit area and adjust font sizes and icon padding so that \"Home\", \"My Library\", and the UI Sound Effects panel controls are comfortably usable with a thumb on small screens.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/layout/LeftSidebar.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/layout/LeftSidebar.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Ensure the mobile sidebar background styling matches the existing desktop dark styling (use the same existing theme/tokens used for the desktop sidebar cards/panels) so the mobile sidebar visually matches the PC design.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/layout/LeftSidebar.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/layout/LeftSidebar.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Handle very narrow screens by preventing the main content area from forcing the sidebar to shrink or disappear. If the viewport is too narrow, allow horizontal scrolling of the main content container (or otherwise ensure the main library view can shrink) while the sidebar stays pinned to the left edge.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/components/layout/LeftSidebar.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/components/layout/LeftSidebar.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Keep header actions aligned to the right of the main content area so they do not overlap the pinned sidebar. Specifically ensure \"Sign Out\" (LoginButton when authenticated) and \"Upload Track\" buttons remain right-aligned within the main content region and do not cover or sit underneath the sidebar at any breakpoint.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/pages/MyLibraryPage.tsx",
+          "frontend/src/pages/LibraryPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/pages/MyLibraryPage.tsx",
+          "frontend/src/pages/LibraryPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/branding/FourleafBrand.tsx",
-    "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
     "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/components/personal/PersonalSongUploadDialog.tsx",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/components/layout/LeftSidebar.tsx",
+    "frontend/src/pages/LibraryPage.tsx",
+    "frontend/src/pages/MyLibraryPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

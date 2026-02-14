@@ -1,12 +1,15 @@
 # Specification
 
 ## Summary
-**Goal:** Enable authenticated users to upload audio tracks end-to-end and update the header branding to a minimal, circular four-leaf clover mark.
+**Goal:** Keep the left sidebar always visible and pinned on mobile while maintaining a side-by-side (two-column) layout across all screen sizes.
 
 **Planned changes:**
-- Verify/complete the full upload flow from both the Public Library and My Library upload dialogs so an authenticated user can upload an audio file (optionally with cover image) and see the new track appear in the correct library lists and counts.
-- Ensure unauthenticated users see a login-required upload state and no upload attempt is made.
-- Ensure upload progress is shown and the upload dialog cannot be dismissed via outside click/escape while uploading; surface backend authorization errors as readable English UI errors.
-- Replace the current header logo rendering in `frontend/src/components/branding/FourleafBrand.tsx` with a perfectly circular black container and a crisp, scalable clover mark composed of four identical rounded green leaves meeting seamlessly at center (no text, shadows, gradients, or extra effects), and keep it centered across breakpoints including mobile AppLayout.
+- Update the main layout container to consistently render the left sidebar and main content side-by-side using a single flexbox/grid structure at all breakpoints, with a fixed sidebar width (~250px) and main content filling remaining space.
+- Remove any responsive CSS/Tailwind behavior that hides the left sidebar on mobile, and apply sticky/fixed positioning on mobile so the sidebar stays pinned while the main content scrolls.
+- Ensure the main content area is offset/sized so it never renders underneath or is covered by the pinned sidebar, including header areas.
+- Increase mobile touch target sizing within the sidebar (nav items like “Home” and “My Library”, plus UI Sound Effects controls) by adjusting padding, font sizes, and icon spacing for comfortable thumb use.
+- Match mobile sidebar background styling to the existing desktop dark sidebar styling by reusing the same existing theme variables/classes.
+- Handle very narrow screens by preventing sidebar shrink/collapse; allow main content horizontal scrolling (only when needed) so the sidebar remains pinned and consistent.
+- Keep header actions (e.g., Sign Out/Sign In and Upload Track) right-aligned within the main content region and ensure they never overlap or sit under the sidebar at any breakpoint.
 
-**User-visible outcome:** Logged-in users can upload a track from either library view and immediately see it listed in the appropriate catalogs, and the app header shows a centered, minimal circular clover logo that stays crisp on desktop and mobile.
+**User-visible outcome:** On mobile and desktop, users always see a fixed-width left sidebar pinned to the left while browsing; the main content and header actions remain visible to the right without overlap, and sidebar controls are easier to tap on small screens.

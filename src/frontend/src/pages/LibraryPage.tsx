@@ -20,7 +20,7 @@ import type { Song } from '../backend';
 export default function LibraryPage() {
   const { data: songs, isLoading } = useGetAllSongs();
   const { data: totalSongs } = useGetTotalSongs();
-  const { setQueue, play, getCurrentItem } = useAudioQueue();
+  const { setQueue, play, getCurrentItem, isPlaying } = useAudioQueue();
   const { query, setQuery } = useHeaderSearch();
   const { activeTab, requestScrollToBrowsing, setActiveTab } = useHomeBrowsing();
   const { prefetchCatalogSong } = usePrefetchSongAudio();
@@ -114,19 +114,19 @@ export default function LibraryPage() {
           aria-hidden="true"
         />
         <div className="container max-w-screen-2xl relative z-10">
-          <div className="flex items-end justify-between gap-4 flex-wrap">
-            <div>
-              <h1 className="text-4xl lg:text-6xl font-bold font-display mb-2 drop-shadow-lg text-primary">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold font-display mb-2 drop-shadow-lg text-primary">
                 Discover Music
               </h1>
-              <p className="text-lg text-foreground/90 drop-shadow">
+              <p className="text-base sm:text-lg text-foreground/90 drop-shadow">
                 {totalSongs ? `${totalSongs.toString()} tracks available` : 'Explore the collection'}
               </p>
             </div>
             <Button
               onClick={() => setUploadDialogOpen(true)}
               size="lg"
-              className="gap-2 shadow-lg"
+              className="gap-2 shadow-lg shrink-0"
             >
               <Upload className="h-5 w-5" />
               Upload Track
@@ -162,10 +162,9 @@ export default function LibraryPage() {
                 <HorizontalSnapRow>
                   {recommendedSongs.map((song) => (
                     <StreamingCard
-                      key={song.id.toString()}
+                      key={Number(song.id)}
                       song={song}
                       onPlay={() => handlePlayFromCard(song, recommendedSongs)}
-                      isPlaying={currentItem?.song.id === song.id}
                     />
                   ))}
                 </HorizontalSnapRow>
@@ -174,95 +173,68 @@ export default function LibraryPage() {
 
             {latestUploads.length > 0 && (
               <StreamingSection
-                title="Fresh Uploads"
+                title="Latest Uploads"
                 icon={<TrendingUp className="h-6 w-6" />}
                 onShowAll={handleShowAll}
               >
                 <HorizontalSnapRow>
                   {latestUploads.map((song) => (
                     <StreamingCard
-                      key={song.id.toString()}
+                      key={Number(song.id)}
                       song={song}
                       onPlay={() => handlePlayFromCard(song, latestUploads)}
-                      isPlaying={currentItem?.song.id === song.id}
                     />
                   ))}
                 </HorizontalSnapRow>
               </StreamingSection>
             )}
 
-            <div ref={browsingRef} tabIndex={-1} className="outline-none mt-12">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold font-display flex items-center gap-2">
-                  <Flame className="h-6 w-6 text-primary" />
-                  All Tracks
-                </h2>
-              </div>
-
-              {displayedSongs.length === 0 ? (
-                <Alert>
-                  <Music className="h-4 w-4" />
-                  <AlertDescription>
-                    {activeTab === 'Podcast' 
-                      ? 'No podcasts available yet.'
-                      : 'No tracks found. Upload your first track to get started!'}
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <div className="space-y-1">
-                  <div className="hidden lg:grid grid-cols-[auto_60px_1fr_1fr_80px_auto] gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/40">
-                    <div className="w-12">#</div>
-                    <div>Cover</div>
-                    <div>Title</div>
-                    <div>Album</div>
-                    <div className="text-center">Duration</div>
-                    <div className="w-24"></div>
-                  </div>
-
-                  {displayedSongs.map((song, index) => (
-                    <CatalogSongRowCard
-                      key={song.id.toString()}
+            {songs && songs.length > 0 && (
+              <StreamingSection
+                title="Popular This Week"
+                icon={<Flame className="h-6 w-6" />}
+                onShowAll={handleShowAll}
+              >
+                <HorizontalSnapRow>
+                  {songs.slice(0, 8).map((song) => (
+                    <StreamingCard
+                      key={Number(song.id)}
                       song={song}
-                      index={index}
-                      onPlay={() => handlePlaySong(song, index, displayedSongs)}
-                      isPlaying={currentItem?.song.id === song.id}
+                      onPlay={() => handlePlayFromCard(song, songs)}
                     />
                   ))}
-                </div>
-              )}
-            </div>
+                </HorizontalSnapRow>
+              </StreamingSection>
+            )}
           </>
-        ) : (
-          <div className="space-y-1">
-            <div className="hidden lg:grid grid-cols-[auto_60px_1fr_1fr_80px_auto] gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/40">
-              <div className="w-12">#</div>
-              <div>Cover</div>
-              <div>Title</div>
-              <div>Album</div>
-              <div className="text-center">Duration</div>
-              <div className="w-24"></div>
-            </div>
+        ) : null}
 
-            {displayedSongs.length === 0 ? (
-              <Alert className="mt-4">
-                <Music className="h-4 w-4" />
-                <AlertDescription>
-                  No tracks match your search. Try different keywords.
-                </AlertDescription>
-              </Alert>
-            ) : (
-              displayedSongs.map((song, index) => (
+        <div ref={browsingRef} tabIndex={-1} className="outline-none">
+          {displayedSongs.length === 0 ? (
+            <Alert>
+              <Music className="h-4 w-4" />
+              <AlertDescription>
+                {activeTab === 'Podcast' 
+                  ? 'No podcasts available yet.'
+                  : query.trim()
+                  ? 'No tracks match your search.'
+                  : 'No tracks available yet.'}
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <div className="space-y-2">
+              {displayedSongs.map((song, index) => (
                 <CatalogSongRowCard
-                  key={song.id.toString()}
+                  key={Number(song.id)}
                   song={song}
                   index={index}
                   onPlay={() => handlePlaySong(song, index, displayedSongs)}
-                  isPlaying={currentItem?.song.id === song.id}
+                  isPlaying={isPlaying && currentItem?.song.id === song.id}
                 />
-              ))
-            )}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <PublicSongUploadDialog

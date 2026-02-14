@@ -1,71 +1,127 @@
 {
   "kind": "build_request",
-  "title": "Enable song file uploads and implement minimal circular clover header logo",
+  "title": "Make left sidebar visible and pinned on mobile with side-by-side layout",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Enable and verify the end-to-end song file upload feature so authenticated users can upload an audio file (and optional cover image) and see the newly uploaded track appear in the appropriate library views (public catalog and personal library) without errors.",
-      "target": "both",
+      "text": "Update the main application layout so the left sidebar and main content are always laid out side-by-side using a single flexbox or grid container across all breakpoints (including mobile). The sidebar must have a fixed width (250px target) and the main content must take the remaining space (e.g., flex-grow).",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-10"
         ],
         "quotes": [
-          "Enable the song file upload feature ."
+          "To start, you must wrap your main content and the sidebar in a Flexbox or Grid container so they can sit side-by-side even on smaller screens. In your CSS, define the sidebar with a fixed width, such as 250px, and set the main content area to take up the remaining space using flex-grow."
         ]
       },
       "acceptanceCriteria": [
-        "From the public Library page, clicking \"Upload Track\" opens the public upload dialog and successfully uploads an audio file; on success, the new track appears in the public catalog list (and total track count updates).",
-        "From the My Library page, clicking \"Upload Track\" opens the personal upload dialog and successfully uploads an audio file; on success, the new track appears in the user’s personal library list.",
-        "If the user is not authenticated, upload dialogs present a login-required state and do not attempt to upload.",
-        "During upload, progress indicators update and the dialog cannot be dismissed via outside click/escape while uploading (no partial/duplicate uploads).",
-        "Any backend authorization errors are surfaced as user-readable errors in the UI (English)."
+        "On widths below 768px and above, the left sidebar is visible at the left edge and the main content renders to its right in the same row.",
+        "Sidebar width remains fixed (≈250px) and does not shrink below the intended width; main content fills remaining width.",
+        "No breakpoint causes the sidebar to be removed from the document flow via hidden/display:none."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Replace the current header logo icon rendering with a minimal, scalable four-leaf clover mark that matches the provided design constraints: a perfectly centered circular container with equal height/width, black background fill inside the circle, four equal rounded leaf shapes arranged in a balanced cross pattern touching seamlessly at the center (no visible gaps), rich premium green fill (not neon), and no text, shadows, gradients, or extra effects.",
+      "text": "Make the left sidebar visible on mobile (remove responsive hiding) and keep it pinned on the left while the user scrolls, using fixed or sticky positioning for mobile breakpoints. Ensure the layout accounts for the pinned sidebar so main content is not covered by it.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-10"
         ],
         "quotes": [
-          "First create a simple circle container for the logo area so it stays perfectly centered on the website header and keeps equal height and width for balance .Inside that container, place a black background to give strong contrast and make the green four-leaf stand out clearly .Create four equal leaf shapes with smooth rounded edges so they look natural and symmetrical rather than sharp or uneven .Arrange the four petals evenly in a cross pattern so each leaf touches at the center point, forming a clean and balanced four-leaf shape .Use a rich green tone for the petals, slightly vibrant but not neon, so it feels premium and minimal instead of flashy. Keep the spacing tight at the center so the leaves connect smoothly without visible gaps. Avoid adding any text, shadows, gradients, or extra effects because the design should stay minimal and powerful. Make sure the overall logo looks sharp, clean, and scalable so it maintains clarity on both desktop and mobile screens."
+          "To ensure the sidebar appears on mobile just like it does in your second image, you need to remove any \"hidden\" or \"display: none\" properties that might be triggered by mobile breakpoints.Instead of hiding the sidebar on mobile, you should change its positioning to fixed or sticky so it stays on the left while the user scrolls through their music library. Use a media query like @media (max-width: 768px) to specifically target mobile devices, ensuring that the sidebar's width remains consistent and doesn't get squashed."
         ]
       },
       "acceptanceCriteria": [
-        "In the app header (including the mobile header in AppLayout), the logo icon is perfectly centered in its allocated header area and remains a true circle with equal width and height at all breakpoints.",
-        "The clover icon is rendered as a scalable vector (or equivalently sharp approach) and remains crisp on desktop and mobile screens.",
-        "The logo icon uses a black circular background and four identical rounded green leaves arranged symmetrically in a cross pattern; the leaves meet cleanly at the center with no visible gaps.",
-        "No text, shadows, gradients, glows, or other decorative effects are present in the logo mark.",
-        "The change is implemented via the existing branding component (frontend/src/components/branding/FourleafBrand.tsx) without modifying any immutable framework/hook files."
+        "LeftSidebar is not using Tailwind classes (or CSS) that hide it on mobile (e.g., no `hidden` at base with `lg:flex` override).",
+        "On mobile, scrolling the main content does not scroll the sidebar out of view; the sidebar remains pinned on the left (fixed or sticky).",
+        "Main content is offset (e.g., via padding/margin/column layout) so it is never obscured by the pinned sidebar."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Adjust left sidebar navigation/button touch targets for mobile: increase clickable hit area and adjust font sizes and icon padding so that \"Home\", \"My Library\", and the UI Sound Effects panel controls are comfortably usable with a thumb on small screens.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10"
+        ],
+        "quotes": [
+          "You will also need to adjust the font sizes and icon padding within the sidebar for mobile touch targets, making sure \"Home,\" \"My Library,\" and the \"UI Sound Effects\" panel are easily clickable with a thumb."
+        ]
+      },
+      "acceptanceCriteria": [
+        "On mobile, sidebar nav items have a minimum comfortable touch target (e.g., ~44px height) with adequate padding.",
+        "Typography and icon sizing in the sidebar is responsive so labels/icons are readable without crowding or truncation for common device widths.",
+        "UISoundControls remains fully accessible and usable in the sidebar on mobile without overlapping/clipping."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Ensure the mobile sidebar background styling matches the existing desktop dark styling (use the same existing theme/tokens used for the desktop sidebar cards/panels) so the mobile sidebar visually matches the PC design.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10"
+        ],
+        "quotes": [
+          "For the background of the mobile sidebar, use the same dark hex codes seen in your PC design to maintain brand consistency across all devices."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Mobile sidebar uses the same visual background treatment as desktop (same theme variables/classes used for the desktop sidebar containers).",
+        "No sudden background color shift occurs when moving between desktop and mobile widths while in the same theme mode."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Handle very narrow screens by preventing the main content area from forcing the sidebar to shrink or disappear. If the viewport is too narrow, allow horizontal scrolling of the main content container (or otherwise ensure the main library view can shrink) while the sidebar stays pinned to the left edge.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10"
+        ],
+        "quotes": [
+          "If the screen becomes too narrow, you can set the main content container to allow horizontal scrolling or simply shrink the main library view so the sidebar always stays pinned to the left edge."
+        ]
+      },
+      "acceptanceCriteria": [
+        "At very small widths, the sidebar width remains consistent and pinned; the UI does not collapse the sidebar or overlap it with main content.",
+        "Main content can scroll horizontally when necessary (only when needed) without breaking vertical scrolling of the page content."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Keep header actions aligned to the right of the main content area so they do not overlap the pinned sidebar. Specifically ensure \"Sign Out\" (LoginButton when authenticated) and \"Upload Track\" buttons remain right-aligned within the main content region and do not cover or sit underneath the sidebar at any breakpoint.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10"
+        ],
+        "quotes": [
+          "Finally, ensure that the \"Sign Out\" and \"Upload Track\" buttons in the header stay aligned to the right of the main content area so they don't overlap with your newly placed sidebar."
+        ]
+      },
+      "acceptanceCriteria": [
+        "On mobile and desktop, the authentication button (Sign Out/Sign In) is visually aligned to the right side of the main content region, not overlapping the sidebar.",
+        "On pages that show an Upload Track action in the header area (e.g., My Library), the Upload Track button remains visible, right-aligned within main content, and does not overlap the sidebar at narrow widths.",
+        "No header element is covered by the pinned sidebar when scrolling or resizing."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo; only add migration.mo if an actual stable-state change requires it.",
-    "Do not edit frontend immutable paths (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, and anything under frontend/src/components/ui).",
-    "Use English for all user-facing text."
+    "Do not edit files under frontend/src/components/ui (compose existing shadcn components instead).",
+    "Do not modify any files listed as immutable in SYSTEM_CONTEXT (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
+    "Backend is out of scope for this request; do not change Motoko canister logic or schemas."
   ],
   "nonGoals": [
-    "Adding new subscription tiers or changing download/streaming access rules.",
-    "Implementing third-party storage, external databases, or non-Internet-Computer upload infrastructure.",
-    "Adding logo text, taglines, gradients, shadows, or additional branding effects beyond the minimal clover mark."
+    "Redesigning the overall navigation structure or adding new routes/pages.",
+    "Changing authentication behavior or upload logic.",
+    "Adding new third-party libraries for layout/responsiveness."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

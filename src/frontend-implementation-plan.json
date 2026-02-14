@@ -1,71 +1,124 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Song uploads UX hardening and minimal circular clover header logo",
+  "title": "Pinned always-visible left sidebar on mobile with side-by-side layout",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Ensure authenticated users can upload audio (and optional cover) end-to-end with progress, proper auth gating, and immediate library list/count updates.",
+      "summary": "Make the app layout always render left sidebar and main content side-by-side in a single flex/grid container at all breakpoints with a fixed ~250px sidebar width.",
       "acceptanceCriteria": [
-        "From the public Library page, clicking \"Upload Track\" opens the public upload dialog and successfully uploads an audio file; on success, the new track appears in the public catalog list (and total track count updates).",
-        "From the My Library page, clicking \"Upload Track\" opens the personal upload dialog and successfully uploads an audio file; on success, the new track appears in the user’s personal library list.",
-        "If the user is not authenticated, upload dialogs present a login-required state and do not attempt to upload.",
-        "During upload, progress indicators update and the dialog cannot be dismissed via outside click/escape while uploading (no partial/duplicate uploads).",
-        "Any backend authorization errors are surfaced as user-readable errors in the UI (English)."
+        "On widths below 768px and above, the left sidebar is visible at the left edge and the main content renders to its right in the same row.",
+        "Sidebar width remains fixed (≈250px) and does not shrink below the intended width; main content fills remaining width.",
+        "No breakpoint causes the sidebar to be removed from the document flow via hidden/display:none."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Harden auth-gated queries/mutations to prevent unauthorized calls from running under anonymous identity (e.g., personal library/profile queries), and ensure upload success immediately refreshes both the catalog list and total track count. Use the authorization component patterns to gate authenticated-only data fetching, and continue using blob-storage’s ExternalBlob (withUploadProgress) for uploads and progress reporting. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
-          "operation": "modify",
-          "description": "Verify the public upload dialog enforces login-required state, prevents outside click/escape dismissal while uploading, shows reliable progress updates, and surfaces backend authorization failures as clear English error messages. Ensure the upload uses blob-storage ExternalBlob withUploadProgress and remains consistent with authorization gating. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/personal/PersonalSongUploadDialog.tsx",
-          "operation": "modify",
-          "description": "Verify the personal upload dialog enforces login-required state, prevents outside click/escape dismissal while uploading, shows reliable progress updates, and surfaces backend authorization failures as clear English error messages. Ensure the upload uses blob-storage ExternalBlob withUploadProgress and remains consistent with authorization gating. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/LibraryPage.tsx",
-          "operation": "modify",
-          "description": "Confirm the \"Upload Track\" CTA continues to open the public upload dialog and that post-upload UI updates are reflected (new track visible and total count updated) via React Query invalidation/refetch behavior. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/MyLibraryPage.tsx",
-          "operation": "modify",
-          "description": "Confirm the \"Upload Track\" CTA continues to open the personal upload dialog for authenticated users and that the personal library list updates immediately after upload without errors, relying on the auth-gated query behavior. Verify the component's usage instructions before implementing."
-        },
-        {
           "path": "frontend/src/components/layout/AppLayout.tsx",
           "operation": "modify",
-          "description": "Ensure any authenticated-only profile fetching used for the profile setup dialog does not trigger when the user is not authenticated (to avoid unauthorized traps/errors), aligning with authorization component guidance about hiding app data until logged in. Verify the component's usage instructions before implementing."
+          "description": "Refactor the layout to use one persistent side-by-side container for LeftSidebar + main content across all breakpoints (remove the mobile-only off-canvas/Sheet approach). Ensure the main content region uses flex-grow (or grid 1fr) and is placed to the right of the sidebar at all widths."
+        },
+        {
+          "path": "frontend/src/components/layout/LeftSidebar.tsx",
+          "operation": "modify",
+          "description": "Update the sidebar wrapper styling to a fixed width targeting 250px (e.g., w-[250px]) with shrink-0 so it never collapses, and remove responsive hiding classes that prevent it from being laid out side-by-side at smaller breakpoints."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Replace the header icon logo with a minimal, scalable four-leaf clover inside a perfect black circle using the existing branding component.",
+      "summary": "Keep the left sidebar visible on mobile and pinned to the left while scrolling, ensuring the main content is not covered.",
       "acceptanceCriteria": [
-        "In the app header (including the mobile header in AppLayout), the logo icon is perfectly centered in its allocated header area and remains a true circle with equal width and height at all breakpoints.",
-        "The clover icon is rendered as a scalable vector (or equivalently sharp approach) and remains crisp on desktop and mobile screens.",
-        "The logo icon uses a black circular background and four identical rounded green leaves arranged symmetrically in a cross pattern; the leaves meet cleanly at the center with no visible gaps.",
-        "No text, shadows, gradients, glows, or other decorative effects are present in the logo mark.",
-        "The change is implemented via the existing branding component (frontend/src/components/branding/FourleafBrand.tsx) without modifying any immutable framework/hook files."
+        "LeftSidebar is not using Tailwind classes (or CSS) that hide it on mobile (e.g., no `hidden` at base with `lg:flex` override).",
+        "On mobile, scrolling the main content does not scroll the sidebar out of view; the sidebar remains pinned on the left (fixed or sticky).",
+        "Main content is offset (e.g., via padding/margin/column layout) so it is never obscured by the pinned sidebar."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/branding/FourleafBrand.tsx",
+          "path": "frontend/src/components/layout/LeftSidebar.tsx",
           "operation": "modify",
-          "description": "Replace the current raster <img> rendering for the icon variant with a crisp, scalable vector implementation: a perfectly circular container (equal width/height) with solid black fill and a minimal four-leaf clover mark composed of four identical rounded leaves in a balanced cross pattern meeting seamlessly at center, using a rich premium green fill (no neon). Ensure no text, shadows, gradients, or extra effects are introduced. Verify the component's usage instructions before implementing."
+          "description": "Remove mobile responsive hiding (e.g., hidden/lg:flex) and apply pinned positioning behavior for mobile (sticky or fixed, as appropriate) so the sidebar remains visible on the left while the user scrolls the main content."
         },
         {
           "path": "frontend/src/components/layout/AppLayout.tsx",
           "operation": "modify",
-          "description": "Ensure the header’s logo allocation keeps the icon perfectly centered and sized with equal width/height across breakpoints (including the mobile header), so the new circular clover mark remains a true circle. Verify the component's usage instructions before implementing."
+          "description": "Ensure the main content area layout accounts for the pinned sidebar (by keeping the sidebar in the same flex/grid row and ensuring main content sits to the right), preventing overlap/coverage at all breakpoints."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Improve mobile touch targets and readability for left sidebar navigation and UI sound controls.",
+      "acceptanceCriteria": [
+        "On mobile, sidebar nav items have a minimum comfortable touch target (e.g., ~44px height) with adequate padding.",
+        "Typography and icon sizing in the sidebar is responsive so labels/icons are readable without crowding or truncation for common device widths.",
+        "UISoundControls remains fully accessible and usable in the sidebar on mobile without overlapping/clipping."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/LeftSidebar.tsx",
+          "operation": "modify",
+          "description": "Adjust nav Button classNames for mobile: increase vertical padding/min-height, tune responsive text sizing, and adjust icon sizing/padding so 'Home', 'My Library', and other items are thumb-friendly. Ensure UISoundControls container spacing prevents clipping and keeps controls usable at small widths."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Match mobile sidebar background styling to existing desktop dark styling using the same theme/tokens/classes.",
+      "acceptanceCriteria": [
+        "Mobile sidebar uses the same visual background treatment as desktop (same theme variables/classes used for the desktop sidebar containers).",
+        "No sudden background color shift occurs when moving between desktop and mobile widths while in the same theme mode."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/LeftSidebar.tsx",
+          "operation": "modify",
+          "description": "Ensure the sidebar's outer container and its card/panel sections use the same existing theme token classes already used on desktop (e.g., bg-card/bg-background + border-border variants) so the mobile sidebar matches the desktop dark appearance."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Support very narrow screens by preventing sidebar shrink and allowing main content to scroll horizontally when needed.",
+      "acceptanceCriteria": [
+        "At very small widths, the sidebar width remains consistent and pinned; the UI does not collapse the sidebar or overlap it with main content.",
+        "Main content can scroll horizontally when necessary (only when needed) without breaking vertical scrolling of the page content."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Update the main content container to support very narrow widths: keep sidebar shrink-0 and apply min-w-0 plus overflow-x-auto (in addition to existing vertical scrolling behavior) so the main region can scroll horizontally when content cannot shrink further."
+        },
+        {
+          "path": "frontend/src/components/layout/LeftSidebar.tsx",
+          "operation": "modify",
+          "description": "Reinforce sidebar non-shrinking behavior at very small widths (fixed width + shrink-0) to ensure it remains visible and does not get compressed by main content."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Keep header actions (Sign Out/LoginButton and Upload Track buttons) aligned within the main content region and never overlapping the pinned sidebar.",
+      "acceptanceCriteria": [
+        "On mobile and desktop, the authentication button (Sign Out/Sign In) is visually aligned to the right side of the main content region, not overlapping the sidebar.",
+        "On pages that show an Upload Track action in the header area (e.g., My Library), the Upload Track button remains visible, right-aligned within main content, and does not overlap the sidebar at narrow widths.",
+        "No header element is covered by the pinned sidebar when scrolling or resizing."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Move/implement the top header actions area (including LoginButton) inside the main content column (to the right of the sidebar) so it stays right-aligned within the main region and cannot overlap the pinned sidebar at any breakpoint."
+        },
+        {
+          "path": "frontend/src/pages/MyLibraryPage.tsx",
+          "operation": "modify",
+          "description": "Adjust the My Library header row layout as needed for narrow widths (e.g., ensure wrapping/spacing) so the 'Upload Track' button remains right-aligned within the main content region and never sits under/overlaps the sidebar."
+        },
+        {
+          "path": "frontend/src/pages/LibraryPage.tsx",
+          "operation": "modify",
+          "description": "Verify and adjust the Library page hero/header action layout as needed so the 'Upload Track' button remains within the main content region (to the right of the sidebar) and does not overlap at narrow widths."
         }
       ]
     }

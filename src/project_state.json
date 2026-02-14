@@ -1,27 +1,62 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Website project including a centered clover logo in the header and a song file upload feature.",
+  "summary": "Music library web app UI: implement a responsive left sidebar that stays visible/pinned on mobile and aligns main content and header actions correctly.",
   "architectural_notes": [
-    "Header logo should be a scalable vector (e.g., SVG/CSS shapes) to remain sharp on desktop and mobile.",
-    "Logo container should be a perfectly centered circle with equal width/height and black background; no text, shadows, gradients, or extra effects."
+    "Use a Flexbox or Grid wrapper for sidebar + main content; sidebar fixed width (e.g., 250px) and main content flex-grow.",
+    "Mobile breakpoint (e.g., @media (max-width: 768px)) should not hide the sidebar; use fixed or sticky positioning to keep it pinned left while scrolling.",
+    "Keep mobile sidebar styling consistent with desktop dark theme hex colors; increase touch target sizing (font/icon padding) for key nav items."
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Sidebar may be hidden on mobile due to breakpoint styles (hidden/display:none); needs to remain visible and pinned left."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-enable-and-verify-the-end-to-end-song-file-upload-feature-so-authenticated-users-can-upload-an-audio-file-and-optional-cover-image-and-see-the-newly-uploaded-track-appear-in-the-appropriate-library-views-public-catalog-and-personal-library-without-errors",
-      "title": "Enable and verify the end-to-end song file upload feature so authenticated users can upload an audio file (and optional cover image) and see the newly uploaded track appear in the appropriate library views (public catalog and personal library) without errors.",
+      "id": "feature-update-the-main-application-layout-so-the-left-sidebar-and-main-content-are-always-laid-out-side-by-side-using-a-single-flexbox-or-grid-container-across-all-breakpoints-including-mobile-the-sidebar-must-have-a-fixed-width-250px-target-and-the-main-content-must-take-the-remaining-space-e-g-flex-grow",
+      "title": "Update the main application layout so the left sidebar and main content are always laid out side-by-side using a single flexbox or grid container across all breakpoints (including mobile). The sidebar must have a fixed width (250px target) and the main content must take the remaining space (e.g., flex-grow).",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-replace-the-current-header-logo-icon-rendering-with-a-minimal-scalable-four-leaf-clover-mark-that-matches-the-provided-design-constraints-a-perfectly-centered-circular-container-with-equal-height-width-black-background-fill-inside-the-circle-four-equal-rounded-leaf-shapes-arranged-in-a-balanced-cross-pattern-touching-seamlessly-at-the-center-no-visible-gaps-rich-premium-green-fill-not-neon-and-no-text-shadows-gradients-or-extra-effects",
-      "title": "Replace the current header logo icon rendering with a minimal, scalable four-leaf clover mark that matches the provided design constraints: a perfectly centered circular container with equal height/width, black background fill inside the circle, four equal rounded leaf shapes arranged in a balanced cross pattern touching seamlessly at the center (no visible gaps), rich premium green fill (not neon), and no text, shadows, gradients, or extra effects.",
+      "id": "feature-make-the-left-sidebar-visible-on-mobile-remove-responsive-hiding-and-keep-it-pinned-on-the-left-while-the-user-scrolls-using-fixed-or-sticky-positioning-for-mobile-breakpoints-ensure-the-layout-accounts-for-the-pinned-sidebar-so-main-content-is-not-covered-by-it",
+      "title": "Make the left sidebar visible on mobile (remove responsive hiding) and keep it pinned on the left while the user scrolls, using fixed or sticky positioning for mobile breakpoints. Ensure the layout accounts for the pinned sidebar so main content is not covered by it.",
       "reqIds": [
         "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-adjust-left-sidebar-navigation-button-touch-targets-for-mobile-increase-clickable-hit-area-and-adjust-font-sizes-and-icon-padding-so-that-home-my-library-and-the-ui-sound-effects-panel-controls-are-comfortably-usable-with-a-thumb-on-small-screens",
+      "title": "Adjust left sidebar navigation/button touch targets for mobile: increase clickable hit area and adjust font sizes and icon padding so that \"Home\", \"My Library\", and the UI Sound Effects panel controls are comfortably usable with a thumb on small screens.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-mobile-sidebar-background-styling-matches-the-existing-desktop-dark-styling-use-the-same-existing-theme-tokens-used-for-the-desktop-sidebar-cards-panels-so-the-mobile-sidebar-visually-matches-the-pc-design",
+      "title": "Ensure the mobile sidebar background styling matches the existing desktop dark styling (use the same existing theme/tokens used for the desktop sidebar cards/panels) so the mobile sidebar visually matches the PC design.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-handle-very-narrow-screens-by-preventing-the-main-content-area-from-forcing-the-sidebar-to-shrink-or-disappear-if-the-viewport-is-too-narrow-allow-horizontal-scrolling-of-the-main-content-container-or-otherwise-ensure-the-main-library-view-can-shrink-while-the-sidebar-stays-pinned-to-the-left-edge",
+      "title": "Handle very narrow screens by preventing the main content area from forcing the sidebar to shrink or disappear. If the viewport is too narrow, allow horizontal scrolling of the main content container (or otherwise ensure the main library view can shrink) while the sidebar stays pinned to the left edge.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-keep-header-actions-aligned-to-the-right-of-the-main-content-area-so-they-do-not-overlap-the-pinned-sidebar-specifically-ensure-sign-out-loginbutton-when-authenticated-and-upload-track-buttons-remain-right-aligned-within-the-main-content-region-and-do-not-cover-or-sit-underneath-the-sidebar-at-any-breakpoint",
+      "title": "Keep header actions aligned to the right of the main content area so they do not overlap the pinned sidebar. Specifically ensure \"Sign Out\" (LoginButton when authenticated) and \"Upload Track\" buttons remain right-aligned within the main content region and do not cover or sit underneath the sidebar at any breakpoint.",
+      "reqIds": [
+        "REQ-6"
       ],
       "version": 1
     }
@@ -29,18 +64,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Enable song file upload feature",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Implement minimal clover logo in website header (circular container, black background, four green rounded leaves, scalable, no effects)",
+      "summary": "Make sidebar and main content layout responsive: side-by-side via Flex/Grid, fixed-width sidebar (e.g., 250px), sidebar visible/pinned (fixed/sticky) on mobile, and keep header buttons (Sign Out/Upload Track) aligned right without overlap.",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Enable song file uploads and implement minimal circular clover header logo",
+  "projectName": "Make left sidebar visible and pinned on mobile with side-by-side layout",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

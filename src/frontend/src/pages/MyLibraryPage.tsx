@@ -97,14 +97,14 @@ export default function MyLibraryPage() {
 
   return (
     <div className="container py-8 max-w-screen-2xl">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-4xl font-display font-bold mb-2">My Library</h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-3xl sm:text-4xl font-display font-bold mb-2">My Library</h1>
           <p className="text-muted-foreground">
             Your personal collection • {filteredSongs.length} {filteredSongs.length === 1 ? 'track' : 'tracks'}
           </p>
         </div>
-        <Button onClick={() => setUploadDialogOpen(true)} className="gap-2">
+        <Button onClick={() => setUploadDialogOpen(true)} className="gap-2 shrink-0">
           <Upload className="h-4 w-4" />
           Upload Track
         </Button>
