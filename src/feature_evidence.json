@@ -2,72 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-main-application-layout-so-the-left-sidebar-and-main-content-are-always-laid-out-side-by-side-using-a-single-flexbox-or-grid-container-across-all-breakpoints-including-mobile-the-sidebar-must-have-a-fixed-width-250px-target-and-the-main-content-must-take-the-remaining-space-e-g-flex-grow",
-      "featureTitle": "Update the main application layout so the left sidebar and main content are always laid out side-by-side using a single flexbox or grid container across all breakpoints (including mobile). The sidebar must have a fixed width (250px target) and the main content must take the remaining space (e.g., flex-grow).",
+      "featureId": "feature-update-the-frontend-upload-ux-to-reflect-the-new-permission-model-for-public-catalog-uploads-ensure-the-public-upload-dialog-and-its-error-handling-no-longer-assumes-admin-only-if-the-backend-now-allows-the-user-s-role-and-provide-clear-english-error-text-when-uploads-are-rejected-due-to-insufficient-permissions",
+      "featureTitle": "Update the frontend upload UX to reflect the new permission model for public catalog uploads: ensure the public upload dialog and its error handling no longer assumes “Admin-only” if the backend now allows the user’s role, and provide clear English error text when uploads are rejected due to insufficient permissions.",
       "files": [
-        "frontend/src/components/layout/AppLayout.tsx",
-        "frontend/src/components/layout/LeftSidebar.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-make-the-left-sidebar-visible-on-mobile-remove-responsive-hiding-and-keep-it-pinned-on-the-left-while-the-user-scrolls-using-fixed-or-sticky-positioning-for-mobile-breakpoints-ensure-the-layout-accounts-for-the-pinned-sidebar-so-main-content-is-not-covered-by-it",
-      "featureTitle": "Make the left sidebar visible on mobile (remove responsive hiding) and keep it pinned on the left while the user scrolls, using fixed or sticky positioning for mobile breakpoints. Ensure the layout accounts for the pinned sidebar so main content is not covered by it.",
-      "files": [
-        "frontend/src/components/layout/AppLayout.tsx",
-        "frontend/src/components/layout/LeftSidebar.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-adjust-left-sidebar-navigation-button-touch-targets-for-mobile-increase-clickable-hit-area-and-adjust-font-sizes-and-icon-padding-so-that-home-my-library-and-the-ui-sound-effects-panel-controls-are-comfortably-usable-with-a-thumb-on-small-screens",
-      "featureTitle": "Adjust left sidebar navigation/button touch targets for mobile: increase clickable hit area and adjust font sizes and icon padding so that \"Home\", \"My Library\", and the UI Sound Effects panel controls are comfortably usable with a thumb on small screens.",
-      "files": [
-        "frontend/src/components/layout/LeftSidebar.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-the-mobile-sidebar-background-styling-matches-the-existing-desktop-dark-styling-use-the-same-existing-theme-tokens-used-for-the-desktop-sidebar-cards-panels-so-the-mobile-sidebar-visually-matches-the-pc-design",
-      "featureTitle": "Ensure the mobile sidebar background styling matches the existing desktop dark styling (use the same existing theme/tokens used for the desktop sidebar cards/panels) so the mobile sidebar visually matches the PC design.",
-      "files": [
-        "frontend/src/components/layout/LeftSidebar.tsx"
+        "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
+        "frontend/src/utils/backendErrors.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -80,49 +19,6 @@
       ],
       "testIds": [
         "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-handle-very-narrow-screens-by-preventing-the-main-content-area-from-forcing-the-sidebar-to-shrink-or-disappear-if-the-viewport-is-too-narrow-allow-horizontal-scrolling-of-the-main-content-container-or-otherwise-ensure-the-main-library-view-can-shrink-while-the-sidebar-stays-pinned-to-the-left-edge",
-      "featureTitle": "Handle very narrow screens by preventing the main content area from forcing the sidebar to shrink or disappear. If the viewport is too narrow, allow horizontal scrolling of the main content container (or otherwise ensure the main library view can shrink) while the sidebar stays pinned to the left edge.",
-      "files": [
-        "frontend/src/components/layout/AppLayout.tsx",
-        "frontend/src/components/layout/LeftSidebar.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-keep-header-actions-aligned-to-the-right-of-the-main-content-area-so-they-do-not-overlap-the-pinned-sidebar-specifically-ensure-sign-out-loginbutton-when-authenticated-and-upload-track-buttons-remain-right-aligned-within-the-main-content-region-and-do-not-cover-or-sit-underneath-the-sidebar-at-any-breakpoint",
-      "featureTitle": "Keep header actions aligned to the right of the main content area so they do not overlap the pinned sidebar. Specifically ensure \"Sign Out\" (LoginButton when authenticated) and \"Upload Track\" buttons remain right-aligned within the main content region and do not cover or sit underneath the sidebar at any breakpoint.",
-      "files": [
-        "frontend/src/components/layout/AppLayout.tsx",
-        "frontend/src/pages/LibraryPage.tsx",
-        "frontend/src/pages/MyLibraryPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
       ],
       "confidence": "high"
     }

@@ -1,124 +1,94 @@
 {
   "kind": "build_request",
-  "title": "Make left sidebar visible and pinned on mobile with side-by-side layout",
+  "title": "Allow non-admin role to upload to public song catalog and verify upload authorization path",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the main application layout so the left sidebar and main content are always laid out side-by-side using a single flexbox or grid container across all breakpoints (including mobile). The sidebar must have a fixed width (250px target) and the main content must take the remaining space (e.g., flex-grow).",
-      "target": "frontend",
+      "text": "Locate and update the backend methods responsible for public catalog song uploads so that uploading is allowed for the user’s current role (not only Admin). Specifically, modify the authorization checks in `backend/main.mo` for `uploadPublicSong` (and any underlying method it calls, such as `uploadSong`) to permit the intended non-admin role(s), while still preventing anonymous uploads.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-10"
+          "msg-4"
         ],
         "quotes": [
-          "To start, you must wrap your main content and the sidebar in a Flexbox or Grid container so they can sit side-by-side even on smaller screens. In your CSS, define the sidebar with a fixed width, such as 250px, and set the main content area to take up the remaining space using flex-grow."
+          "Locate the backend controller or API endpoint responsible for handling the song upload process and check the middleware that validates user permissions.",
+          "Verify if there is a hardcoded restriction or a database check that only allows specific roles like \"Admin\" to upload to the public catalog and modify it to include my current user role."
         ]
       },
       "acceptanceCriteria": [
-        "On widths below 768px and above, the left sidebar is visible at the left edge and the main content renders to its right in the same row.",
-        "Sidebar width remains fixed (≈250px) and does not shrink below the intended width; main content fills remaining width.",
-        "No breakpoint causes the sidebar to be removed from the document flow via hidden/display:none."
+        "A signed-in non-admin user with the intended role can successfully call `uploadPublicSong` and receive a new song ID.",
+        "Anonymous callers are rejected with an authorization error.",
+        "Admin users can still upload as before.",
+        "If `uploadPublicSong` delegates to `uploadSong`, both methods’ permission logic is consistent (no hidden admin-only gate remains)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Make the left sidebar visible on mobile (remove responsive hiding) and keep it pinned on the left while the user scrolls, using fixed or sticky positioning for mobile breakpoints. Ensure the layout accounts for the pinned sidebar so main content is not covered by it.",
-      "target": "frontend",
+      "text": "Add backend-level, developer-facing introspection to confirm which identity/role the canister is using during upload calls, so upload failures can be diagnosed without guessing. Provide a query method that returns the caller Principal and enough role/permission information to confirm whether the caller should be allowed to upload to the public catalog.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-10"
+          "msg-4"
         ],
         "quotes": [
-          "To ensure the sidebar appears on mobile just like it does in your second image, you need to remove any \"hidden\" or \"display: none\" properties that might be triggered by mobile breakpoints.Instead of hiding the sidebar on mobile, you should change its positioning to fixed or sticky so it stays on the left while the user scrolls through their music library. Use a media query like @media (max-width: 768px) to specifically target mobile devices, ensuring that the sidebar's width remains consistent and doesn't get squashed."
+          "Review the authentication headers or session tokens being sent with the upload request to ensure the backend correctly identifies the user's permission level during the file transfer."
         ]
       },
       "acceptanceCriteria": [
-        "LeftSidebar is not using Tailwind classes (or CSS) that hide it on mobile (e.g., no `hidden` at base with `lg:flex` override).",
-        "On mobile, scrolling the main content does not scroll the sidebar out of view; the sidebar remains pinned on the left (fixed or sticky).",
-        "Main content is offset (e.g., via padding/margin/column layout) so it is never obscured by the pinned sidebar."
+        "There is a query method that, when called from the frontend while logged in, returns the caller Principal and the caller’s effective permission/role state used by the authorization checks.",
+        "The method does not expose secrets (e.g., no admin secret/token values are returned).",
+        "This query can be invoked successfully from the frontend actor when authenticated."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Adjust left sidebar navigation/button touch targets for mobile: increase clickable hit area and adjust font sizes and icon padding so that \"Home\", \"My Library\", and the UI Sound Effects panel controls are comfortably usable with a thumb on small screens.",
-      "target": "frontend",
+      "text": "Verify and align the public-catalog upload data path so a successful upload results in a new public song record being inserted into the public catalog collection and subsequently returned by existing public catalog queries (e.g., `getAllSongs`, `getTotalSongs`, and streaming). Ensure no additional flags (e.g., `is_public` / `catalog_access`) are required or inadvertently default to a value that blocks catalog inclusion.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-10"
+          "msg-4"
         ],
         "quotes": [
-          "You will also need to adjust the font sizes and icon padding within the sidebar for mobile touch targets, making sure \"Home,\" \"My Library,\" and the \"UI Sound Effects\" panel are easily clickable with a thumb."
+          "Identify the logic in the file upload service that checks for the is_public or catalog_access flag and ensure it is set to allow successful uploads when the request is sent.",
+          "Check the storage configuration to ensure the directory for the public catalog has the correct write permissions and that the database schema allows inserting new song records from the frontend."
         ]
       },
       "acceptanceCriteria": [
-        "On mobile, sidebar nav items have a minimum comfortable touch target (e.g., ~44px height) with adequate padding.",
-        "Typography and icon sizing in the sidebar is responsive so labels/icons are readable without crowding or truncation for common device widths.",
-        "UISoundControls remains fully accessible and usable in the sidebar on mobile without overlapping/clipping."
+        "After a successful `uploadPublicSong`, `getAllSongs` includes the newly uploaded song metadata.",
+        "`getTotalSongs` increments accordingly after upload.",
+        "`streamSongAudio` works for the newly uploaded public song.",
+        "No hidden/publication flag prevents the song from being visible in the public catalog."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Ensure the mobile sidebar background styling matches the existing desktop dark styling (use the same existing theme/tokens used for the desktop sidebar cards/panels) so the mobile sidebar visually matches the PC design.",
+      "text": "Update the frontend upload UX to reflect the new permission model for public catalog uploads: ensure the public upload dialog and its error handling no longer assumes “Admin-only” if the backend now allows the user’s role, and provide clear English error text when uploads are rejected due to insufficient permissions.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-10"
+          "msg-4"
         ],
         "quotes": [
-          "For the background of the mobile sidebar, use the same dark hex codes seen in your PC design to maintain brand consistency across all devices."
+          "Verify if there is a hardcoded restriction or a database check that only allows specific roles like \"Admin\" to upload to the public catalog and modify it to include my current user role."
         ]
       },
       "acceptanceCriteria": [
-        "Mobile sidebar uses the same visual background treatment as desktop (same theme variables/classes used for the desktop sidebar containers).",
-        "No sudden background color shift occurs when moving between desktop and mobile widths while in the same theme mode."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Handle very narrow screens by preventing the main content area from forcing the sidebar to shrink or disappear. If the viewport is too narrow, allow horizontal scrolling of the main content container (or otherwise ensure the main library view can shrink) while the sidebar stays pinned to the left edge.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-10"
-        ],
-        "quotes": [
-          "If the screen becomes too narrow, you can set the main content container to allow horizontal scrolling or simply shrink the main library view so the sidebar always stays pinned to the left edge."
-        ]
-      },
-      "acceptanceCriteria": [
-        "At very small widths, the sidebar width remains consistent and pinned; the UI does not collapse the sidebar or overlap it with main content.",
-        "Main content can scroll horizontally when necessary (only when needed) without breaking vertical scrolling of the page content."
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Keep header actions aligned to the right of the main content area so they do not overlap the pinned sidebar. Specifically ensure \"Sign Out\" (LoginButton when authenticated) and \"Upload Track\" buttons remain right-aligned within the main content region and do not cover or sit underneath the sidebar at any breakpoint.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-10"
-        ],
-        "quotes": [
-          "Finally, ensure that the \"Sign Out\" and \"Upload Track\" buttons in the header stay aligned to the right of the main content area so they don't overlap with your newly placed sidebar."
-        ]
-      },
-      "acceptanceCriteria": [
-        "On mobile and desktop, the authentication button (Sign Out/Sign In) is visually aligned to the right side of the main content region, not overlapping the sidebar.",
-        "On pages that show an Upload Track action in the header area (e.g., My Library), the Upload Track button remains visible, right-aligned within main content, and does not overlap the sidebar at narrow widths.",
-        "No header element is covered by the pinned sidebar when scrolling or resizing."
+        "When a permitted non-admin user uploads via `PublicSongUploadDialog`, the dialog completes successfully and shows the success toast.",
+        "When a user without permission attempts to upload, the dialog shows a clear permission error in English (no misleading “Admin-only” messaging if the role model is broader).",
+        "No changes are made to immutable hook sources (e.g., `frontend/src/hooks/useActor.ts`)."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (compose existing shadcn components instead).",
-    "Do not modify any files listed as immutable in SYSTEM_CONTEXT (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
-    "Backend is out of scope for this request; do not change Motoko canister logic or schemas."
+    "Backend must remain a single Motoko actor in `backend/main.mo`; do not introduce additional backend services.",
+    "Do not modify frontend files under `frontend/src/hooks/useActor.ts`, `frontend/src/hooks/useInternetIdentity.ts(x)`, `frontend/src/main.tsx`, or `frontend/src/components/ui` (immutable paths).",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Redesigning the overall navigation structure or adding new routes/pages.",
-    "Changing authentication behavior or upload logic.",
-    "Adding new third-party libraries for layout/responsiveness."
+    "Adding third-party auth providers (only Internet Identity is supported).",
+    "Introducing an external database or filesystem directory permission system (state remains inside the canister).",
+    "Building real-time upload progress via websockets or push mechanisms beyond the existing progress callbacks."
   ],
   "imageRequirements": {
     "required": [],

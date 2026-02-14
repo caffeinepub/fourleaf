@@ -1,62 +1,22 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Music library web app UI: implement a responsive left sidebar that stays visible/pinned on mobile and aligns main content and header actions correctly.",
+  "summary": "Music app backend: troubleshoot and adjust song upload flow so the current user role (not just Admin) can upload to the public catalog; verify permission middleware, upload service flags, storage write access, DB inserts, and auth/session identification.",
   "architectural_notes": [
-    "Use a Flexbox or Grid wrapper for sidebar + main content; sidebar fixed width (e.g., 250px) and main content flex-grow.",
-    "Mobile breakpoint (e.g., @media (max-width: 768px)) should not hide the sidebar; use fixed or sticky positioning to keep it pinned left while scrolling.",
-    "Keep mobile sidebar styling consistent with desktop dark theme hex colors; increase touch target sizing (font/icon padding) for key nav items."
+    "Song upload authorization is enforced via controller/API endpoint middleware; role-based access control must permit intended non-Admin roles for public catalog uploads.",
+    "Upload service logic depends on flags such as is_public and/or catalog_access to route/allow public catalog uploads.",
+    "Public catalog storage directory permissions and DB insert capability are required for successful uploads."
   ],
   "known_issues": [
-    "Sidebar may be hidden on mobile due to breakpoint styles (hidden/display:none); needs to remain visible and pinned left."
+    "Current user role cannot upload to/modify the public catalog (appears restricted to Admin or failing permission validation during upload)."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-the-main-application-layout-so-the-left-sidebar-and-main-content-are-always-laid-out-side-by-side-using-a-single-flexbox-or-grid-container-across-all-breakpoints-including-mobile-the-sidebar-must-have-a-fixed-width-250px-target-and-the-main-content-must-take-the-remaining-space-e-g-flex-grow",
-      "title": "Update the main application layout so the left sidebar and main content are always laid out side-by-side using a single flexbox or grid container across all breakpoints (including mobile). The sidebar must have a fixed width (250px target) and the main content must take the remaining space (e.g., flex-grow).",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-make-the-left-sidebar-visible-on-mobile-remove-responsive-hiding-and-keep-it-pinned-on-the-left-while-the-user-scrolls-using-fixed-or-sticky-positioning-for-mobile-breakpoints-ensure-the-layout-accounts-for-the-pinned-sidebar-so-main-content-is-not-covered-by-it",
-      "title": "Make the left sidebar visible on mobile (remove responsive hiding) and keep it pinned on the left while the user scrolls, using fixed or sticky positioning for mobile breakpoints. Ensure the layout accounts for the pinned sidebar so main content is not covered by it.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-adjust-left-sidebar-navigation-button-touch-targets-for-mobile-increase-clickable-hit-area-and-adjust-font-sizes-and-icon-padding-so-that-home-my-library-and-the-ui-sound-effects-panel-controls-are-comfortably-usable-with-a-thumb-on-small-screens",
-      "title": "Adjust left sidebar navigation/button touch targets for mobile: increase clickable hit area and adjust font sizes and icon padding so that \"Home\", \"My Library\", and the UI Sound Effects panel controls are comfortably usable with a thumb on small screens.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-ensure-the-mobile-sidebar-background-styling-matches-the-existing-desktop-dark-styling-use-the-same-existing-theme-tokens-used-for-the-desktop-sidebar-cards-panels-so-the-mobile-sidebar-visually-matches-the-pc-design",
-      "title": "Ensure the mobile sidebar background styling matches the existing desktop dark styling (use the same existing theme/tokens used for the desktop sidebar cards/panels) so the mobile sidebar visually matches the PC design.",
+      "id": "feature-update-the-frontend-upload-ux-to-reflect-the-new-permission-model-for-public-catalog-uploads-ensure-the-public-upload-dialog-and-its-error-handling-no-longer-assumes-admin-only-if-the-backend-now-allows-the-user-s-role-and-provide-clear-english-error-text-when-uploads-are-rejected-due-to-insufficient-permissions",
+      "title": "Update the frontend upload UX to reflect the new permission model for public catalog uploads: ensure the public upload dialog and its error handling no longer assumes “Admin-only” if the backend now allows the user’s role, and provide clear English error text when uploads are rejected due to insufficient permissions.",
       "reqIds": [
         "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-handle-very-narrow-screens-by-preventing-the-main-content-area-from-forcing-the-sidebar-to-shrink-or-disappear-if-the-viewport-is-too-narrow-allow-horizontal-scrolling-of-the-main-content-container-or-otherwise-ensure-the-main-library-view-can-shrink-while-the-sidebar-stays-pinned-to-the-left-edge",
-      "title": "Handle very narrow screens by preventing the main content area from forcing the sidebar to shrink or disappear. If the viewport is too narrow, allow horizontal scrolling of the main content container (or otherwise ensure the main library view can shrink) while the sidebar stays pinned to the left edge.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-keep-header-actions-aligned-to-the-right-of-the-main-content-area-so-they-do-not-overlap-the-pinned-sidebar-specifically-ensure-sign-out-loginbutton-when-authenticated-and-upload-track-buttons-remain-right-aligned-within-the-main-content-region-and-do-not-cover-or-sit-underneath-the-sidebar-at-any-breakpoint",
-      "title": "Keep header actions aligned to the right of the main content area so they do not overlap the pinned sidebar. Specifically ensure \"Sign Out\" (LoginButton when authenticated) and \"Upload Track\" buttons remain right-aligned within the main content region and do not cover or sit underneath the sidebar at any breakpoint.",
-      "reqIds": [
-        "REQ-6"
       ],
       "version": 1
     }
@@ -64,12 +24,48 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Make sidebar and main content layout responsive: side-by-side via Flex/Grid, fixed-width sidebar (e.g., 250px), sidebar visible/pinned (fixed/sticky) on mobile, and keep header buttons (Sign Out/Upload Track) aligned right without overlap.",
+      "summary": "Allow current non-Admin user role to upload songs to the public catalog by updating backend permission checks (controller/middleware) and related upload logic.",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Validate and correct song upload pipeline dependencies: is_public/catalog_access flag handling, storage write permissions for public catalog directory, and DB schema/insert support from frontend.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Ensure upload requests correctly authenticate/authorize user role during file transfer by validating auth headers/session tokens handling.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Locate and update the backend methods responsible for public catalog song uploads so that uploading is allowed for the user’s current role (not only Admin). Specifically, modify the authorization checks in `backend/main.mo` for `uploadPublicSong` (and any underlying method it calls, such as `uploadSong`) to permit the intended non-admin role(s), while still preventing anonymous uploads.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Add backend-level, developer-facing introspection to confirm which identity/role the canister is using during upload calls, so upload failures can be diagnosed without guessing. Provide a query method that returns the caller Principal and enough role/permission information to confirm whether the caller should be allowed to upload to the public catalog.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Verify and align the public-catalog upload data path so a successful upload results in a new public song record being inserted into the public catalog collection and subsequently returned by existing public catalog queries (e.g., `getAllSongs`, `getTotalSongs`, and streaming). Ensure no additional flags (e.g., `is_public` / `catalog_access`) are required or inadvertently default to a value that blocks catalog inclusion.",
+      "reqIds": [
+        "REQ-3"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Make left sidebar visible and pinned on mobile with side-by-side layout",
+  "projectName": "Allow non-admin role to upload to public song catalog and verify upload authorization path",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

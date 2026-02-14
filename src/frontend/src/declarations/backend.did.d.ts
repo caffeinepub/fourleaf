@@ -85,27 +85,27 @@ export interface _SERVICE {
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'downloadPersonalSongAudio' : ActorMethod<[bigint], ExternalBlob>,
   'downloadSongAudio' : ActorMethod<[bigint], ExternalBlob>,
-  'editPersonalSong' : ActorMethod<[bigint, Update], undefined>,
-  'editSong' : ActorMethod<[bigint, Update], undefined>,
   'getAllSongs' : ActorMethod<[], Array<Song>>,
-  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getPersonalSongMetadata' : ActorMethod<[], Array<SongMetadata>>,
   'getPersonalSongs' : ActorMethod<[], Array<PersonalSong>>,
   'getSong' : ActorMethod<[bigint], [] | [Song]>,
   'getSongsByDuration' : ActorMethod<[], Array<Song>>,
   'getTotalSongs' : ActorMethod<[], bigint>,
-  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'getUploadPermissionsDebug' : ActorMethod<
+    [],
+    {
+      'principal' : Principal,
+      'role' : UserRole,
+      'canUploadToPublicCatalog' : boolean,
+    }
+  >,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'isPersonalSongOwner' : ActorMethod<[bigint], boolean>,
-  'removePersonalSong' : ActorMethod<[bigint], undefined>,
-  'removeSong' : ActorMethod<[bigint], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'streamPersonalSongAudio' : ActorMethod<[bigint], ExternalBlob>,
   'streamSongAudio' : ActorMethod<[bigint], [] | [ExternalBlob]>,
-  'uploadPersonalSong' : ActorMethod<[Update], bigint>,
   'uploadPublicSong' : ActorMethod<[Update], bigint>,
-  'uploadSong' : ActorMethod<[Update], bigint>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

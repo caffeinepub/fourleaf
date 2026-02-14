@@ -14,7 +14,7 @@ import type { PersonalSong } from '../backend';
 
 export default function MyLibraryPage() {
   const { identity, login, loginStatus } = useInternetIdentity();
-  const { data: personalSongs, isLoading } = useGetPersonalSongs();
+  const { data: personalSongs, isLoading, refetch } = useGetPersonalSongs();
   const { setQueue, play, getCurrentItem } = useAudioQueue();
   const { query } = useHeaderSearch();
   const removePersonalSong = useRemovePersonalSong();
@@ -45,6 +45,13 @@ export default function MyLibraryPage() {
       toast.success('Track removed from your library');
     } catch (error: any) {
       toast.error(error.message || 'Failed to remove track');
+    }
+  };
+
+  const handleUploadDialogClose = (open: boolean) => {
+    setUploadDialogOpen(open);
+    if (!open) {
+      refetch();
     }
   };
 
@@ -177,7 +184,7 @@ export default function MyLibraryPage() {
 
       <PersonalSongUploadDialog
         open={uploadDialogOpen}
-        onOpenChange={setUploadDialogOpen}
+        onOpenChange={handleUploadDialogClose}
       />
     </div>
   );

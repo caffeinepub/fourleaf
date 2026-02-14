@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useUploadSong, useEditSong } from '../../hooks/useQueries';
+import { useState, useEffect, useRef } from 'react';
+import { useUploadPublicSong, useEditSong } from '../../hooks/useQueries';
 import {
   Dialog,
   DialogContent,
@@ -23,7 +23,7 @@ interface SongEditorDialogProps {
 }
 
 export default function SongEditorDialog({ song, open, onOpenChange }: SongEditorDialogProps) {
-  const uploadSong = useUploadSong();
+  const uploadPublicSong = useUploadPublicSong();
   const editSong = useEditSong();
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
@@ -33,6 +33,8 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [audioProgress, setAudioProgress] = useState(0);
   const [coverProgress, setCoverProgress] = useState(0);
+  const audioInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   const isEditing = !!song;
 
@@ -52,6 +54,13 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
     }
     setAudioProgress(0);
     setCoverProgress(0);
+    
+    if (audioInputRef.current) {
+      audioInputRef.current.value = '';
+    }
+    if (coverInputRef.current) {
+      coverInputRef.current.value = '';
+    }
   }, [song, open]);
 
   const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,20 +135,38 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
         await editSong.mutateAsync({ songId: song.id, songUpdate });
         toast.success('Song updated successfully');
       } else {
-        await uploadSong.mutateAsync(songUpdate);
+        await uploadPublicSong.mutateAsync(songUpdate);
         toast.success('Song uploaded successfully');
       }
 
       onOpenChange(false);
     } catch (error: any) {
       const errorMessage = error.message || 'Failed to save song';
-      toast.error(errorMessage.includes('Unauthorized') ? 'You do not have permission to perform this action' : errorMessage);
+      toast.error(errorMessage);
       setAudioProgress(0);
       setCoverProgress(0);
     }
   };
 
-  const isUploading = uploadSong.isPending || editSong.isPending;
+  const handleClose = () => {
+    if (!isUploading) {
+      onOpenChange(false);
+    }
+  };
+
+  const handleInteractOutside = (e: Event) => {
+    if (isUploading) {
+      e.preventDefault();
+    }
+  };
+
+  const handleEscapeKeyDown = (e: KeyboardEvent) => {
+    if (isUploading) {
+      e.preventDefault();
+    }
+  };
+
+  const isUploading = uploadPublicSong.isPending || editSong.isPending;
 
   const totalProgress = coverImage && audioFile
     ? Math.round((audioProgress * 0.7) + (coverProgress * 0.3))
@@ -147,9 +174,15 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
     ? audioProgress
     : 0;
 
+  const showProgress = isUploading && (audioProgress > 0 || coverProgress > 0 || audioFile !== null);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent 
+        className="sm:max-w-lg max-h-[90vh] overflow-y-auto"
+        onInteractOutside={handleInteractOutside}
+        onEscapeKeyDown={handleEscapeKeyDown}
+      >
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Edit Song' : 'Upload New Song'}</DialogTitle>
           <DialogDescription>
@@ -212,6 +245,7 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
             </Label>
             <div className="flex items-center gap-2">
               <Input
+                ref={audioInputRef}
                 id="audio"
                 type="file"
                 accept="audio/*"
@@ -219,7 +253,7 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
                 className="flex-1"
                 disabled={isUploading}
               />
-              {audioFile && <Music className="h-5 w-5 text-primary" />}
+              {audioFile && <Music className="h-5 w-5 text-primary shrink-0" />}
             </div>
           </div>
 
@@ -227,6 +261,7 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
             <Label htmlFor="cover">Cover Image (optional)</Label>
             <div className="flex items-center gap-2">
               <Input
+                ref={coverInputRef}
                 id="cover"
                 type="file"
                 accept="image/*"
@@ -234,11 +269,11 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
                 className="flex-1"
                 disabled={isUploading}
               />
-              {coverImage && <ImageIcon className="h-5 w-5 text-primary" />}
+              {coverImage && <ImageIcon className="h-5 w-5 text-primary shrink-0" />}
             </div>
           </div>
 
-          {isUploading && totalProgress > 0 && (
+          {showProgress && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Uploading...</span>
@@ -250,7 +285,7 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isUploading}>
+          <Button variant="outline" onClick={handleClose} disabled={isUploading}>
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={isUploading} className="gap-2">

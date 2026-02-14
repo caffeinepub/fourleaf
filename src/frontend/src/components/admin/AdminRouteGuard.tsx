@@ -2,9 +2,10 @@ import { ReactNode } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { useIsCallerAdmin } from '../../hooks/useQueries';
-import { AlertCircle, ShieldAlert } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import RequestAdminAccessCard from './RequestAdminAccessCard';
 
 interface AdminRouteGuardProps {
   children: ReactNode;
@@ -58,23 +59,13 @@ export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
 
   if (!isAdmin) {
     return (
-      <div className="container max-w-2xl py-16">
-        <Card className="border-destructive/50">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <ShieldAlert className="h-6 w-6 text-destructive" />
-              <CardTitle>Access Denied</CardTitle>
-            </div>
-            <CardDescription>
-              You do not have administrator privileges to access this area. Only admins can upload and manage songs.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline" onClick={() => navigate({ to: '/' })}>
-              Go to Library
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="container max-w-2xl py-16 space-y-4">
+        <RequestAdminAccessCard />
+        <div className="flex justify-center">
+          <Button variant="outline" onClick={() => navigate({ to: '/' })}>
+            Go to Library
+          </Button>
+        </div>
       </div>
     );
   }

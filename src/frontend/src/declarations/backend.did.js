@@ -25,14 +25,6 @@ export const UserRole = IDL.Variant({
   'guest' : IDL.Null,
 });
 export const ExternalBlob = IDL.Vec(IDL.Nat8);
-export const Update = IDL.Record({
-  'title' : IDL.Text,
-  'duration' : IDL.Nat,
-  'album' : IDL.Text,
-  'audioFile' : ExternalBlob,
-  'coverImage' : IDL.Opt(ExternalBlob),
-  'artist' : IDL.Text,
-});
 export const Song = IDL.Record({
   'id' : IDL.Nat,
   'title' : IDL.Text,
@@ -41,10 +33,6 @@ export const Song = IDL.Record({
   'audioFile' : ExternalBlob,
   'coverImage' : IDL.Opt(ExternalBlob),
   'artist' : IDL.Text,
-});
-export const UserProfile = IDL.Record({
-  'hasActiveSubscription' : IDL.Bool,
-  'name' : IDL.Text,
 });
 export const SongMetadata = IDL.Record({
   'id' : IDL.Nat,
@@ -61,6 +49,18 @@ export const PersonalSong = IDL.Record({
   'duration' : IDL.Nat,
   'album' : IDL.Text,
   'owner' : IDL.Principal,
+  'audioFile' : ExternalBlob,
+  'coverImage' : IDL.Opt(ExternalBlob),
+  'artist' : IDL.Text,
+});
+export const UserProfile = IDL.Record({
+  'hasActiveSubscription' : IDL.Bool,
+  'name' : IDL.Text,
+});
+export const Update = IDL.Record({
+  'title' : IDL.Text,
+  'duration' : IDL.Nat,
+  'album' : IDL.Text,
   'audioFile' : ExternalBlob,
   'coverImage' : IDL.Opt(ExternalBlob),
   'artist' : IDL.Text,
@@ -97,31 +97,30 @@ export const idlService = IDL.Service({
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'downloadPersonalSongAudio' : IDL.Func([IDL.Nat], [ExternalBlob], ['query']),
   'downloadSongAudio' : IDL.Func([IDL.Nat], [ExternalBlob], []),
-  'editPersonalSong' : IDL.Func([IDL.Nat, Update], [], []),
-  'editSong' : IDL.Func([IDL.Nat, Update], [], []),
   'getAllSongs' : IDL.Func([], [IDL.Vec(Song)], ['query']),
-  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getPersonalSongMetadata' : IDL.Func([], [IDL.Vec(SongMetadata)], ['query']),
   'getPersonalSongs' : IDL.Func([], [IDL.Vec(PersonalSong)], ['query']),
   'getSong' : IDL.Func([IDL.Nat], [IDL.Opt(Song)], ['query']),
   'getSongsByDuration' : IDL.Func([], [IDL.Vec(Song)], ['query']),
   'getTotalSongs' : IDL.Func([], [IDL.Nat], ['query']),
-  'getUserProfile' : IDL.Func(
-      [IDL.Principal],
-      [IDL.Opt(UserProfile)],
+  'getUploadPermissionsDebug' : IDL.Func(
+      [],
+      [
+        IDL.Record({
+          'principal' : IDL.Principal,
+          'role' : UserRole,
+          'canUploadToPublicCatalog' : IDL.Bool,
+        }),
+      ],
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'isPersonalSongOwner' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
-  'removePersonalSong' : IDL.Func([IDL.Nat], [], []),
-  'removeSong' : IDL.Func([IDL.Nat], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'streamPersonalSongAudio' : IDL.Func([IDL.Nat], [ExternalBlob], ['query']),
   'streamSongAudio' : IDL.Func([IDL.Nat], [IDL.Opt(ExternalBlob)], ['query']),
-  'uploadPersonalSong' : IDL.Func([Update], [IDL.Nat], []),
   'uploadPublicSong' : IDL.Func([Update], [IDL.Nat], []),
-  'uploadSong' : IDL.Func([Update], [IDL.Nat], []),
 });
 
 export const idlInitArgs = [];
@@ -144,14 +143,6 @@ export const idlFactory = ({ IDL }) => {
     'guest' : IDL.Null,
   });
   const ExternalBlob = IDL.Vec(IDL.Nat8);
-  const Update = IDL.Record({
-    'title' : IDL.Text,
-    'duration' : IDL.Nat,
-    'album' : IDL.Text,
-    'audioFile' : ExternalBlob,
-    'coverImage' : IDL.Opt(ExternalBlob),
-    'artist' : IDL.Text,
-  });
   const Song = IDL.Record({
     'id' : IDL.Nat,
     'title' : IDL.Text,
@@ -160,10 +151,6 @@ export const idlFactory = ({ IDL }) => {
     'audioFile' : ExternalBlob,
     'coverImage' : IDL.Opt(ExternalBlob),
     'artist' : IDL.Text,
-  });
-  const UserProfile = IDL.Record({
-    'hasActiveSubscription' : IDL.Bool,
-    'name' : IDL.Text,
   });
   const SongMetadata = IDL.Record({
     'id' : IDL.Nat,
@@ -180,6 +167,18 @@ export const idlFactory = ({ IDL }) => {
     'duration' : IDL.Nat,
     'album' : IDL.Text,
     'owner' : IDL.Principal,
+    'audioFile' : ExternalBlob,
+    'coverImage' : IDL.Opt(ExternalBlob),
+    'artist' : IDL.Text,
+  });
+  const UserProfile = IDL.Record({
+    'hasActiveSubscription' : IDL.Bool,
+    'name' : IDL.Text,
+  });
+  const Update = IDL.Record({
+    'title' : IDL.Text,
+    'duration' : IDL.Nat,
+    'album' : IDL.Text,
     'audioFile' : ExternalBlob,
     'coverImage' : IDL.Opt(ExternalBlob),
     'artist' : IDL.Text,
@@ -220,10 +219,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'downloadSongAudio' : IDL.Func([IDL.Nat], [ExternalBlob], []),
-    'editPersonalSong' : IDL.Func([IDL.Nat, Update], [], []),
-    'editSong' : IDL.Func([IDL.Nat, Update], [], []),
     'getAllSongs' : IDL.Func([], [IDL.Vec(Song)], ['query']),
-    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getPersonalSongMetadata' : IDL.Func(
         [],
@@ -234,21 +230,23 @@ export const idlFactory = ({ IDL }) => {
     'getSong' : IDL.Func([IDL.Nat], [IDL.Opt(Song)], ['query']),
     'getSongsByDuration' : IDL.Func([], [IDL.Vec(Song)], ['query']),
     'getTotalSongs' : IDL.Func([], [IDL.Nat], ['query']),
-    'getUserProfile' : IDL.Func(
-        [IDL.Principal],
-        [IDL.Opt(UserProfile)],
+    'getUploadPermissionsDebug' : IDL.Func(
+        [],
+        [
+          IDL.Record({
+            'principal' : IDL.Principal,
+            'role' : UserRole,
+            'canUploadToPublicCatalog' : IDL.Bool,
+          }),
+        ],
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'isPersonalSongOwner' : IDL.Func([IDL.Nat], [IDL.Bool], ['query']),
-    'removePersonalSong' : IDL.Func([IDL.Nat], [], []),
-    'removeSong' : IDL.Func([IDL.Nat], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'streamPersonalSongAudio' : IDL.Func([IDL.Nat], [ExternalBlob], ['query']),
     'streamSongAudio' : IDL.Func([IDL.Nat], [IDL.Opt(ExternalBlob)], ['query']),
-    'uploadPersonalSong' : IDL.Func([Update], [IDL.Nat], []),
     'uploadPublicSong' : IDL.Func([Update], [IDL.Nat], []),
-    'uploadSong' : IDL.Func([Update], [IDL.Nat], []),
   });
 };
 

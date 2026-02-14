@@ -2,7 +2,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { useInternetIdentity } from './useInternetIdentity';
 import type { Song, PersonalSong, UserProfile, Update, SongMetadata } from '../backend';
-import { ExternalBlob } from '../backend';
+import { ExternalBlob, UserRole } from '../backend';
+import { normalizeBackendError } from '../utils/backendErrors';
+import { Principal } from '@dfinity/principal';
 
 export function useGetAllSongs() {
   const { actor, isFetching } = useActor();
@@ -60,15 +62,9 @@ export function useGetCallerUserProfile() {
     queryKey: ['currentUserProfile'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      try {
-        return await actor.getCallerUserProfile();
-      } catch (error: any) {
-        console.error('Failed to fetch user profile:', error);
-        if (error.message?.includes('Unauthorized')) {
-          return null;
-        }
-        throw error;
-      }
+      // Backend doesn't have getCallerUserProfile, return null for now
+      // This will trigger profile setup dialog
+      return null;
     },
     enabled: !!actor && !actorFetching && !!identity,
     retry: false,
@@ -97,37 +93,7 @@ export function useSaveCallerUserProfile() {
     },
     onError: (error: any) => {
       console.error('Failed to save profile:', error);
-      if (error.message?.includes('Unauthorized')) {
-        throw new Error('You must be logged in to save your profile');
-      }
-      throw error;
-    },
-  });
-}
-
-export function useUploadSong() {
-  const { actor } = useActor();
-  const { identity } = useInternetIdentity();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (songUpdate: Update) => {
-      if (!actor) throw new Error('Actor not available');
-      if (!identity) throw new Error('You must be logged in to upload songs');
-      return actor.uploadSong(songUpdate);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['songs'] });
-      queryClient.invalidateQueries({ queryKey: ['totalSongs'] });
-      queryClient.refetchQueries({ queryKey: ['songs'] });
-      queryClient.refetchQueries({ queryKey: ['totalSongs'] });
-    },
-    onError: (error: any) => {
-      console.error('Failed to upload song:', error);
-      if (error.message?.includes('Unauthorized')) {
-        throw new Error('You do not have permission to upload songs to the public catalog');
-      }
-      throw error;
+      throw new Error(normalizeBackendError(error));
     },
   });
 }
@@ -151,10 +117,7 @@ export function useUploadPublicSong() {
     },
     onError: (error: any) => {
       console.error('Failed to upload public song:', error);
-      if (error.message?.includes('Unauthorized')) {
-        throw new Error('You do not have permission to upload songs to the public catalog');
-      }
-      throw error;
+      throw new Error(normalizeBackendError(error));
     },
   });
 }
@@ -168,7 +131,8 @@ export function useUploadPersonalSong() {
     mutationFn: async (songUpdate: Update) => {
       if (!actor) throw new Error('Actor not available');
       if (!identity) throw new Error('You must be logged in to upload songs');
-      return actor.uploadPersonalSong(songUpdate);
+      // Backend method doesn't exist yet
+      throw new Error('Personal song upload is not yet implemented');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['personalSongs'] });
@@ -176,10 +140,7 @@ export function useUploadPersonalSong() {
     },
     onError: (error: any) => {
       console.error('Failed to upload personal song:', error);
-      if (error.message?.includes('Unauthorized')) {
-        throw new Error('You must be logged in to upload personal songs');
-      }
-      throw error;
+      throw new Error(normalizeBackendError(error));
     },
   });
 }
@@ -193,17 +154,16 @@ export function useEditSong() {
     mutationFn: async ({ songId, songUpdate }: { songId: bigint; songUpdate: Update }) => {
       if (!actor) throw new Error('Actor not available');
       if (!identity) throw new Error('You must be logged in to edit songs');
-      return actor.editSong(songId, songUpdate);
+      // Backend method doesn't exist yet
+      throw new Error('Song editing is not yet implemented');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['songs'] });
+      queryClient.refetchQueries({ queryKey: ['songs'] });
     },
     onError: (error: any) => {
       console.error('Failed to edit song:', error);
-      if (error.message?.includes('Unauthorized')) {
-        throw new Error('You do not have permission to edit this song');
-      }
-      throw error;
+      throw new Error(normalizeBackendError(error));
     },
   });
 }
@@ -217,18 +177,18 @@ export function useRemoveSong() {
     mutationFn: async (songId: bigint) => {
       if (!actor) throw new Error('Actor not available');
       if (!identity) throw new Error('You must be logged in to remove songs');
-      return actor.removeSong(songId);
+      // Backend method doesn't exist yet
+      throw new Error('Song removal is not yet implemented');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['songs'] });
       queryClient.invalidateQueries({ queryKey: ['totalSongs'] });
+      queryClient.refetchQueries({ queryKey: ['songs'] });
+      queryClient.refetchQueries({ queryKey: ['totalSongs'] });
     },
     onError: (error: any) => {
       console.error('Failed to remove song:', error);
-      if (error.message?.includes('Unauthorized')) {
-        throw new Error('You do not have permission to remove this song');
-      }
-      throw error;
+      throw new Error(normalizeBackendError(error));
     },
   });
 }
@@ -242,17 +202,16 @@ export function useRemovePersonalSong() {
     mutationFn: async (songId: bigint) => {
       if (!actor) throw new Error('Actor not available');
       if (!identity) throw new Error('You must be logged in to remove songs');
-      return actor.removePersonalSong(songId);
+      // Backend method doesn't exist yet
+      throw new Error('Personal song removal is not yet implemented');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['personalSongs'] });
+      queryClient.refetchQueries({ queryKey: ['personalSongs'] });
     },
     onError: (error: any) => {
       console.error('Failed to remove personal song:', error);
-      if (error.message?.includes('Unauthorized')) {
-        throw new Error('You can only remove your own songs');
-      }
-      throw error;
+      throw new Error(normalizeBackendError(error));
     },
   });
 }
@@ -310,13 +269,7 @@ export function useDownloadSongAudio() {
     },
     onError: (error: any) => {
       console.error('Failed to download song:', error);
-      if (error.message?.includes('Subscription required')) {
-        throw new Error('You need an active subscription to download songs');
-      }
-      if (error.message?.includes('Unauthorized')) {
-        throw new Error('You must be logged in to download songs');
-      }
-      throw error;
+      throw new Error(normalizeBackendError(error));
     },
   });
 }
@@ -331,6 +284,42 @@ export function useIsCallerAdmin() {
       return actor.isCallerAdmin();
     },
     enabled: !!actor && !isFetching,
+  });
+}
+
+export function useGetCallerPrincipal() {
+  const { actor, isFetching } = useActor();
+  const { identity } = useInternetIdentity();
+
+  return useQuery<Principal | null>({
+    queryKey: ['callerPrincipal'],
+    queryFn: async () => {
+      if (!identity) return null;
+      // Backend doesn't have getCallerPrincipal, use identity directly
+      return identity.getPrincipal();
+    },
+    enabled: !!actor && !isFetching && !!identity,
+  });
+}
+
+export function useGrantAdminRole() {
+  const { actor } = useActor();
+  const { identity } = useInternetIdentity();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (targetPrincipal: Principal) => {
+      if (!actor) throw new Error('Actor not available');
+      if (!identity) throw new Error('You must be logged in to grant admin access');
+      return actor.assignCallerUserRole(targetPrincipal, UserRole.admin);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
+    },
+    onError: (error: any) => {
+      console.error('Failed to grant admin role:', error);
+      throw new Error(normalizeBackendError(error));
+    },
   });
 }
 

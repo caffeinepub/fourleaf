@@ -14,12 +14,14 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
 import SongEditorDialog from '../components/admin/SongEditorDialog';
+import GrantAdminControl from '../components/admin/GrantAdminControl';
 import { toast } from 'sonner';
 import type { Song } from '../backend';
 
 export default function AdminDashboardPage() {
-  const { data: songs, isLoading } = useGetAllSongs();
+  const { data: songs, isLoading, refetch } = useGetAllSongs();
   const { data: totalSongs } = useGetTotalSongs();
   const removeSong = useRemoveSong();
   const [editingSong, setEditingSong] = useState<Song | null>(null);
@@ -49,6 +51,7 @@ export default function AdminDashboardPage() {
     if (!open) {
       setIsCreating(false);
       setEditingSong(null);
+      refetch();
     }
   };
 
@@ -66,8 +69,8 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="container py-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="container py-8 space-y-8">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-display font-bold mb-2">Admin Dashboard</h1>
           <p className="text-muted-foreground">
@@ -80,73 +83,79 @@ export default function AdminDashboardPage() {
         </Button>
       </div>
 
-      {!songs || songs.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Music className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No tracks yet</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              Start building your catalog by uploading your first track
-            </p>
-            <Button onClick={() => setIsCreating(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Upload Track
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-3">
-          {songs.map((song) => {
-            const coverUrl = song.coverImage?.getDirectURL();
-            return (
-              <Card key={Number(song.id)}>
-                <CardContent className="flex items-center gap-4 p-4">
-                  {coverUrl ? (
-                    <img
-                      src={coverUrl}
-                      alt={song.title}
-                      className="h-16 w-16 rounded object-cover shrink-0"
-                    />
-                  ) : (
-                    <div className="h-16 w-16 rounded bg-muted flex items-center justify-center shrink-0">
-                      <Music className="h-6 w-6 text-muted-foreground" />
+      <GrantAdminControl />
+
+      <Separator />
+
+      <div>
+        <h2 className="text-2xl font-display font-bold mb-4">Catalog Tracks</h2>
+        {!songs || songs.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <Music className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No tracks yet</h3>
+              <p className="text-muted-foreground text-center mb-4">
+                Start building your catalog by uploading your first track
+              </p>
+              <Button onClick={() => setIsCreating(true)} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Upload Track
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            {songs.map((song) => {
+              const coverUrl = song.coverImage?.getDirectURL();
+              return (
+                <Card key={Number(song.id)}>
+                  <CardContent className="flex items-center gap-4 p-4">
+                    {coverUrl ? (
+                      <img
+                        src={coverUrl}
+                        alt={song.title}
+                        className="h-16 w-16 rounded object-cover shrink-0"
+                      />
+                    ) : (
+                      <div className="h-16 w-16 rounded bg-muted flex items-center justify-center shrink-0">
+                        <Music className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold truncate">{song.title}</h3>
+                      <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {song.album} • {formatDuration(song.duration)}
+                      </p>
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold truncate">{song.title}</h3>
-                    <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {song.album} • {formatDuration(song.duration)}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => setEditingSong(song)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => setDeletingSong(song)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
+                    <div className="flex gap-2 shrink-0">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setEditingSong(song)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setDeletingSong(song)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       <SongEditorDialog
-        song={editingSong}
         open={isCreating || !!editingSong}
         onOpenChange={handleDialogClose}
+        song={editingSong}
       />
 
       <AlertDialog open={!!deletingSong} onOpenChange={(open) => !open && setDeletingSong(null)}>
@@ -159,7 +168,10 @@ export default function AdminDashboardPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

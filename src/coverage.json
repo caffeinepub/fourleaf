@@ -1,102 +1,65 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-14T05:48:45.743Z",
+  "generatedAt": "2026-02-14T06:39:12.544Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 6,
-    "implemented": 6,
+    "total": 4,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the main application layout so the left sidebar and main content are always laid out side-by-side using a single flexbox or grid container across all breakpoints (including mobile). The sidebar must have a fixed width (250px target) and the main content must take the remaining space (e.g., flex-grow).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/components/layout/LeftSidebar.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/components/layout/LeftSidebar.tsx"
-        ]
+        "summary": "Locate and update the backend methods responsible for public catalog song uploads so that uploading is allowed for the user’s current role (not only Admin). Specifically, modify the authorization checks in `backend/main.mo` for `uploadPublicSong` (and any underlying method it calls, such as `uploadSong`) to permit the intended non-admin role(s), while still preventing anonymous uploads.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Make the left sidebar visible on mobile (remove responsive hiding) and keep it pinned on the left while the user scrolls, using fixed or sticky positioning for mobile breakpoints. Ensure the layout accounts for the pinned sidebar so main content is not covered by it.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/layout/LeftSidebar.tsx",
-          "frontend/src/components/layout/AppLayout.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/layout/LeftSidebar.tsx",
-          "frontend/src/components/layout/AppLayout.tsx"
-        ]
+        "summary": "Add backend-level, developer-facing introspection to confirm which identity/role the canister is using during upload calls, so upload failures can be diagnosed without guessing. Provide a query method that returns the caller Principal and enough role/permission information to confirm whether the caller should be allowed to upload to the public catalog.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-3",
-        "summary": "Adjust left sidebar navigation/button touch targets for mobile: increase clickable hit area and adjust font sizes and icon padding so that \"Home\", \"My Library\", and the UI Sound Effects panel controls are comfortably usable with a thumb on small screens.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/layout/LeftSidebar.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/layout/LeftSidebar.tsx"
-        ]
+        "summary": "Verify and align the public-catalog upload data path so a successful upload results in a new public song record being inserted into the public catalog collection and subsequently returned by existing public catalog queries (e.g., `getAllSongs`, `getTotalSongs`, and streaming). Ensure no additional flags (e.g., `is_public` / `catalog_access`) are required or inadvertently default to a value that blocks catalog inclusion.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-4",
-        "summary": "Ensure the mobile sidebar background styling matches the existing desktop dark styling (use the same existing theme/tokens used for the desktop sidebar cards/panels) so the mobile sidebar visually matches the PC design.",
+        "summary": "Update the frontend upload UX to reflect the new permission model for public catalog uploads: ensure the public upload dialog and its error handling no longer assumes “Admin-only” if the backend now allows the user’s role, and provide clear English error text when uploads are rejected due to insufficient permissions.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/layout/LeftSidebar.tsx"
+          "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
+          "frontend/src/utils/backendErrors.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/layout/LeftSidebar.tsx"
-        ]
-      },
-      {
-        "id": "REQ-5",
-        "summary": "Handle very narrow screens by preventing the main content area from forcing the sidebar to shrink or disappear. If the viewport is too narrow, allow horizontal scrolling of the main content container (or otherwise ensure the main library view can shrink) while the sidebar stays pinned to the left edge.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/components/layout/LeftSidebar.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/components/layout/LeftSidebar.tsx"
-        ]
-      },
-      {
-        "id": "REQ-6",
-        "summary": "Keep header actions aligned to the right of the main content area so they do not overlap the pinned sidebar. Specifically ensure \"Sign Out\" (LoginButton when authenticated) and \"Upload Track\" buttons remain right-aligned within the main content region and do not cover or sit underneath the sidebar at any breakpoint.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/pages/MyLibraryPage.tsx",
-          "frontend/src/pages/LibraryPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/pages/MyLibraryPage.tsx",
-          "frontend/src/pages/LibraryPage.tsx"
+          "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
+          "frontend/src/utils/backendErrors.ts"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/components/layout/LeftSidebar.tsx",
-    "frontend/src/pages/LibraryPage.tsx",
-    "frontend/src/pages/MyLibraryPage.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/admin/SongEditorDialog.tsx",
+    "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/utils/backendErrors.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

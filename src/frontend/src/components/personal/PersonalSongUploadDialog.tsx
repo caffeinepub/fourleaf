@@ -140,12 +140,7 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
     } catch (error: any) {
       console.error('Upload error:', error);
       const errorMsg = error.message || 'Failed to upload song';
-      
-      if (errorMsg.includes('logged in') || errorMsg.includes('Unauthorized')) {
-        toast.error('Please log in to upload personal songs');
-      } else {
-        toast.error(errorMsg);
-      }
+      toast.error(errorMsg);
       
       setAudioProgress(0);
       setCoverProgress(0);
@@ -190,136 +185,125 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
     );
   }
 
-  const totalProgress = coverImage 
+  const totalProgress = coverImage && audioFile
     ? Math.round((audioProgress * 0.7) + (coverProgress * 0.3))
-    : audioProgress;
+    : audioFile
+    ? audioProgress
+    : 0;
+
+  const showProgress = isUploading && (audioProgress > 0 || coverProgress > 0 || audioFile !== null);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onInteractOutside={handleInteractOutside} onEscapeKeyDown={handleEscapeKeyDown}>
+      <DialogContent 
+        className="sm:max-w-lg max-h-[90vh] overflow-y-auto"
+        onInteractOutside={handleInteractOutside}
+        onEscapeKeyDown={handleEscapeKeyDown}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Lock className="h-5 w-5 text-muted-foreground" />
-            Upload Personal Song
+            <Lock className="h-5 w-5 text-primary" />
+            Upload Personal Track
           </DialogTitle>
           <DialogDescription>
-            Add your own music to your private library. Your songs are private and only accessible to you.
+            Upload a track to your private library. Only you can access and play this track.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title *</Label>
+        <form onSubmit={handleSubmit} className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Title *</Label>
+            <Input
+              id="title"
+              placeholder="Song title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              disabled={isUploading}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="artist">Artist *</Label>
+            <Input
+              id="artist"
+              placeholder="Artist name"
+              value={artist}
+              onChange={(e) => setArtist(e.target.value)}
+              disabled={isUploading}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="album">Album *</Label>
+            <Input
+              id="album"
+              placeholder="Album name"
+              value={album}
+              onChange={(e) => setAlbum(e.target.value)}
+              disabled={isUploading}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="duration">Duration (seconds) *</Label>
+            <Input
+              id="duration"
+              type="number"
+              placeholder="Duration in seconds"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              disabled={isUploading}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="audio">Audio File *</Label>
+            <div className="flex items-center gap-2">
               <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Song title"
+                ref={audioInputRef}
+                id="audio"
+                type="file"
+                accept="audio/*"
+                onChange={handleAudioFileChange}
+                className="flex-1"
                 disabled={isUploading}
+                required
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="artist">Artist *</Label>
-              <Input
-                id="artist"
-                value={artist}
-                onChange={(e) => setArtist(e.target.value)}
-                placeholder="Artist name"
-                disabled={isUploading}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="album">Album *</Label>
-              <Input
-                id="album"
-                value={album}
-                onChange={(e) => setAlbum(e.target.value)}
-                placeholder="Album name"
-                disabled={isUploading}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="duration">Duration (seconds) *</Label>
-              <Input
-                id="duration"
-                type="number"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                placeholder="Duration in seconds (auto-detected if possible)"
-                disabled={isUploading}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="audioFile">Audio File *</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  ref={audioInputRef}
-                  id="audioFile"
-                  type="file"
-                  accept="audio/*"
-                  onChange={handleAudioFileChange}
-                  disabled={isUploading}
-                  className="flex-1"
-                />
-                <Music className="h-5 w-5 text-muted-foreground shrink-0" />
-              </div>
-              {audioFile && (
-                <p className="text-sm text-muted-foreground">
-                  Selected: {audioFile.name}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="coverImage">Cover Image (optional)</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  ref={coverInputRef}
-                  id="coverImage"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleCoverImageChange}
-                  disabled={isUploading}
-                  className="flex-1"
-                />
-                <ImageIcon className="h-5 w-5 text-muted-foreground shrink-0" />
-              </div>
-              {coverImage && (
-                <p className="text-sm text-muted-foreground">
-                  Selected: {coverImage.name}
-                </p>
-              )}
+              {audioFile && <Music className="h-5 w-5 text-primary shrink-0" />}
             </div>
           </div>
 
-          {isUploading && (
-            <div className="space-y-2">
+          <div className="space-y-2">
+            <Label htmlFor="cover">Cover Image (optional)</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                ref={coverInputRef}
+                id="cover"
+                type="file"
+                accept="image/*"
+                onChange={handleCoverImageChange}
+                className="flex-1"
+                disabled={isUploading}
+              />
+              {coverImage && <ImageIcon className="h-5 w-5 text-primary shrink-0" />}
+            </div>
+          </div>
+
+          {showProgress && (
+            <div className="space-y-2 pt-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Uploading...</span>
                 <span className="font-medium">{totalProgress}%</span>
               </div>
               <Progress value={totalProgress} className="h-2" />
-              {coverImage && (
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <div className="flex justify-between">
-                    <span>Audio:</span>
-                    <span>{audioProgress}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Cover:</span>
-                    <span>{coverProgress}%</span>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
-          <div className="flex gap-3 justify-end">
+          <div className="flex justify-end gap-2 pt-4">
             <Button
               type="button"
               variant="outline"
@@ -328,9 +312,13 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isUploading} className="gap-2">
+            <Button
+              type="submit"
+              disabled={isUploading}
+              className="gap-2"
+            >
               <Upload className="h-4 w-4" />
-              {isUploading ? 'Uploading...' : 'Upload Song'}
+              {isUploading ? 'Uploading...' : 'Upload Track'}
             </Button>
           </div>
         </form>

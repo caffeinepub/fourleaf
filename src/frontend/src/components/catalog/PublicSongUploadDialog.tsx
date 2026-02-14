@@ -139,15 +139,9 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
       onOpenChange(false);
     } catch (error: any) {
       console.error('Upload error:', error);
+      // The error is already normalized by the mutation hook
       const errorMsg = error.message || 'Failed to upload song';
-      
-      if (errorMsg.includes('permission') || errorMsg.includes('Unauthorized')) {
-        toast.error('You do not have permission to upload songs to the public catalog');
-      } else if (errorMsg.includes('logged in')) {
-        toast.error('Please log in to upload songs');
-      } else {
-        toast.error(errorMsg);
-      }
+      toast.error(errorMsg);
       
       setAudioProgress(0);
       setCoverProgress(0);

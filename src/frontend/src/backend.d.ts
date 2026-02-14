@@ -63,25 +63,22 @@ export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     downloadPersonalSongAudio(songId: bigint): Promise<ExternalBlob>;
     downloadSongAudio(songId: bigint): Promise<ExternalBlob>;
-    editPersonalSong(songId: bigint, songUpdate: Update): Promise<void>;
-    editSong(songId: bigint, songUpdate: Update): Promise<void>;
     getAllSongs(): Promise<Array<Song>>;
-    getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getPersonalSongMetadata(): Promise<Array<SongMetadata>>;
     getPersonalSongs(): Promise<Array<PersonalSong>>;
     getSong(id: bigint): Promise<Song | null>;
     getSongsByDuration(): Promise<Array<Song>>;
     getTotalSongs(): Promise<bigint>;
-    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    getUploadPermissionsDebug(): Promise<{
+        principal: Principal;
+        role: UserRole;
+        canUploadToPublicCatalog: boolean;
+    }>;
     isCallerAdmin(): Promise<boolean>;
     isPersonalSongOwner(songId: bigint): Promise<boolean>;
-    removePersonalSong(songId: bigint): Promise<void>;
-    removeSong(songId: bigint): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     streamPersonalSongAudio(songId: bigint): Promise<ExternalBlob>;
     streamSongAudio(songId: bigint): Promise<ExternalBlob | null>;
-    uploadPersonalSong(songUpdate: Update): Promise<bigint>;
     uploadPublicSong(songUpdate: Update): Promise<bigint>;
-    uploadSong(songUpdate: Update): Promise<bigint>;
 }

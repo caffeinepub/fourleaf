@@ -1,36 +1,58 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-14T05:48:45.740Z",
-  "summary": "REQ-1/2/4/5 appear implemented via a persistent flex row layout (sidebar + main), fixed 250px sidebar with shrink-0, sticky pinned sidebar behavior, consistent dark card styling, and horizontal overflow enabled on the main content. REQ-3 (specifically improving UI Sound Effects panel control touch targets) is not evidenced. REQ-6 is only partially evidenced: LoginButton is right-aligned in the main header, but Upload Track alignment changes on pages are not shown in the provided diffs.",
+  "generatedAt": "2026-02-14T06:39:12.542Z",
+  "summary": "Diff updates backend uploadPublicSong authorization to allow callers with #user permission (non-admin) and adds frontend-side error normalization to avoid admin-only messaging. However, required backend introspection query and verification/alignment of the public-catalog insert/query path are not evidenced in the truncated diff.",
   "missing_requirements": [
     {
-      "id": "REQ-3",
-      "requirement": "Adjust left sidebar navigation/button touch targets for mobile, including making the UI Sound Effects panel controls comfortably usable with a thumb on small screens.",
-      "reason": "Nav items were adjusted (min-h-[44px], responsive text), but there is no evidence of any changes to the UI Sound Effects panel controls themselves (UISoundControls) to improve mobile touch targets/padding/font sizing.",
+      "id": "REQ-2",
+      "requirement": "Add a backend query method for developer-facing introspection that returns caller Principal and effective role/permission state used by upload authorization checks (no secrets).",
+      "reason": "The diff snippet for backend/main.mo shows no new query method returning caller Principal/role/permission info for diagnosing upload authorization; frontend/useQueries.ts even contains comments about missing backend methods, suggesting the introspection endpoint is still absent.",
       "evidence": [
-        "frontend/src/components/layout/LeftSidebar.tsx"
+        "backend/main.mo",
+        "frontend/src/hooks/useQueries.ts"
       ]
     },
     {
-      "id": "REQ-6",
-      "requirement": "Ensure header actions (Sign Out/Sign In and Upload Track) remain right-aligned within the main content region and do not overlap the pinned sidebar at any breakpoint.",
-      "reason": "AppLayout shows the LoginButton right-aligned in a header within the main content area, but the diff content for LibraryPage/MyLibraryPage is truncated and does not show concrete layout/class changes for the Upload Track button positioning to verify it won’t overlap the pinned sidebar on narrow widths.",
+      "id": "REQ-3",
+      "requirement": "Verify/align the public-catalog upload data path so uploadPublicSong inserts into the public catalog collection and is returned by getAllSongs/getTotalSongs/streamSongAudio without hidden flags blocking visibility.",
+      "reason": "The diff shows uploadPublicSong calls uploadSong(songUpdate), but the actual implementation of uploadSong and any catalog insertion/flag logic is not visible in the provided truncated backend/main.mo content. There is not enough evidence in the diff summary to confirm that a successful upload results in insertion into the public songs collection and visibility via existing queries.",
       "evidence": [
-        "frontend/src/components/layout/AppLayout.tsx",
-        "frontend/src/pages/LibraryPage.tsx",
-        "frontend/src/pages/MyLibraryPage.tsx"
+        "backend/main.mo (truncated)"
       ]
     }
   ],
-  "hallucinated_features": [],
-  "confidence": 0.62,
+  "hallucinated_features": [
+    {
+      "description": "Added/modified personal-library functionality and authorization checks (getPersonalSongs, isPersonalSongOwner, streamPersonalSongAudio) not requested by the BuildRequest.",
+      "reason": "BuildRequest is focused on public catalog upload authorization, introspection, and ensuring public catalog inclusion; it does not request adding or changing personal song features.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "description": "Admin SongEditorDialog improvements (upload progress normalization, prevent accidental close during upload, switching to useUploadPublicSong) beyond the requested PublicSongUploadDialog UX changes.",
+      "reason": "REQ-4 specifically calls out updating the public upload dialog UX; changes to admin/SongEditorDialog are not requested.",
+      "evidence": [
+        "frontend/src/components/admin/SongEditorDialog.tsx"
+      ]
+    },
+    {
+      "description": "Broad styling/branding/theme changes described in frontend-file-summaries.txt (colors, layout, fonts, branding) not requested.",
+      "reason": "No requirement requests UI re-theming/branding changes; the BuildRequest is narrowly about upload permissions and related UX messaging.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    }
+  ],
+  "confidence": 0.68,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/components/layout/LeftSidebar.tsx",
-    "frontend/src/pages/LibraryPage.tsx",
-    "frontend/src/pages/MyLibraryPage.tsx",
+    "frontend/src/components/admin/SongEditorDialog.tsx",
+    "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/utils/backendErrors.ts",
     "project_state.json"
   ]
 }
