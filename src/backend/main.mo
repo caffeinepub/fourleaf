@@ -23,9 +23,9 @@ actor {
       audioFile : Storage.ExternalBlob;
     };
 
-    public func compareByDuration(song_1 : Song, song_2 : Song) : Order.Order {
-      switch (Nat.compare(song_1.duration, song_2.duration)) {
-        case (#equal) { Text.compare(song_1.title, song_2.title) };
+    public func compareByDuration(song1 : Song, song2 : Song) : Order.Order {
+      switch (Nat.compare(song1.duration, song2.duration)) {
+        case (#equal) { Text.compare(song1.title, song2.title) };
         case (order) { order };
       };
     };
@@ -79,16 +79,50 @@ actor {
   include MixinAuthorization(accessControlState);
   include MixinStorage();
 
-  public shared ({ caller }) func uploadPublicSong(songUpdate : Song.Update) : async Nat {
+  public shared ({ caller }) func uploadPersonalSong(songUpdate : Song.Update) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can upload personal songs");
+    };
+
+    let personalSong : PersonalSong = {
+      id = nextPersonalSongId;
+      title = songUpdate.title;
+      artist = songUpdate.artist;
+      album = songUpdate.album;
+      duration = songUpdate.duration;
+      coverImage = songUpdate.coverImage;
+      audioFile = songUpdate.audioFile;
+      owner = caller;
+    };
+
+    personalSongs.add(nextPersonalSongId, personalSong);
+    nextPersonalSongId += 1;
+  };
+
+  public shared ({ caller }) func uploadPublicSong(songUpdate : Song.Update) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can upload songs");
     };
-    uploadSong(songUpdate);
+
+    let song : Song = {
+      id = nextSongId;
+      title = songUpdate.title;
+      artist = songUpdate.artist;
+      album = songUpdate.album;
+      duration = songUpdate.duration;
+      coverImage = songUpdate.coverImage;
+      audioFile = songUpdate.audioFile;
+    };
+
+    songs.add(nextSongId, song);
+    nextSongId += 1;
   };
 
   public query ({ caller }) func getPersonalSongs() : async [PersonalSong] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can access personal songs");
+      Runtime.trap(
+        "Unauthorized: Only authenticated users can access personal songs"
+      );
     };
 
     let ownedSongs = personalSongs.values().toArray().filter(
@@ -99,7 +133,9 @@ actor {
 
   public query ({ caller }) func isPersonalSongOwner(songId : Nat) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can check song ownership");
+      Runtime.trap(
+        "Unauthorized: Only authenticated users can check song ownership"
+      );
     };
 
     switch (personalSongs.get(songId)) {
@@ -109,13 +145,15 @@ actor {
   };
 
   // Public streaming - no authentication required for public catalog songs
-  public query func streamSongAudio(songId : Nat) : async ?Storage.ExternalBlob {
+  public query ({ caller }) func streamSongAudio(songId : Nat) : async ?Storage.ExternalBlob {
     songs.get(songId).map(func(song) { song.audioFile });
   };
 
   public query ({ caller }) func streamPersonalSongAudio(songId : Nat) : async Storage.ExternalBlob {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can stream personal songs");
+      Runtime.trap(
+        "Unauthorized: Only authenticated users can stream personal songs"
+      );
     };
 
     switch (personalSongs.get(songId)) {
@@ -138,11 +176,15 @@ actor {
 
     switch (userProfiles.get(caller)) {
       case null {
-        Runtime.trap("Subscription required: Please create a profile and subscribe to download songs");
+        Runtime.trap(
+          "Subscription required: Please create a profile and subscribe to download songs"
+        );
       };
       case (?profile) {
         if (not profile.hasActiveSubscription) {
-          Runtime.trap("Subscription required: You need an active subscription to download songs");
+          Runtime.trap(
+            "Subscription required: You need an active subscription to download songs"
+          );
         };
       };
     };
@@ -159,7 +201,9 @@ actor {
 
   public query ({ caller }) func downloadPersonalSongAudio(songId : Nat) : async Storage.ExternalBlob {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can download personal songs");
+      Runtime.trap(
+        "Unauthorized: Only authenticated users can download personal songs"
+      );
     };
 
     switch (personalSongs.get(songId)) {
@@ -182,27 +226,27 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Internal helper for all song uploads
-  func uploadSong(songUpdate : Song.Update) : Nat {
-    let song : Song = {
-      id = nextSongId;
-      title = songUpdate.title;
-      artist = songUpdate.artist;
-      album = songUpdate.album;
-      duration = songUpdate.duration;
-      coverImage = songUpdate.coverImage;
-      audioFile = songUpdate.audioFile;
-    };
+  // Explicit query for the caller's profile - NO AUTHORIZATION CHECK NEEDED
+  // This is the key function for the implementation plan: it allows ANY caller
+  // (including guests/anonymous) to check if they have a profile, so the frontend
+  // can decide whether to show the "Welcome to Fourleaf!" profile setup dialog.
+  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+    userProfiles.get(caller);
+  };
 
-    songs.add(nextSongId, song);
-    let uploadedId = nextSongId;
-    nextSongId += 1;
-    uploadedId;
+  // Query to get another user's profile - admin only
+  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
+    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Can only view your own profile");
+    };
+    userProfiles.get(user);
   };
 
   public query ({ caller }) func getPersonalSongMetadata() : async [SongMetadata] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can access personal song metadata");
+      Runtime.trap(
+        "Unauthorized: Only authenticated users can access personal song metadata"
+      );
     };
 
     personalSongs.values().toArray().filter(
@@ -222,8 +266,6 @@ actor {
     );
   };
 
-  ////  Queries for public catalog uploads   ////
-
   // For developer troubleshooting
   public query ({ caller }) func getUploadPermissionsDebug() : async {
     principal : Principal;
@@ -233,7 +275,11 @@ actor {
     {
       principal = caller;
       role = AccessControl.getUserRole(accessControlState, caller);
-      canUploadToPublicCatalog = AccessControl.hasPermission(accessControlState, caller, #user);
+      canUploadToPublicCatalog = AccessControl.hasPermission(
+        accessControlState,
+        caller,
+        #user,
+      );
     };
   };
 

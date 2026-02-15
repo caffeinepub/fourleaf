@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-frontend-upload-ux-to-reflect-the-new-permission-model-for-public-catalog-uploads-ensure-the-public-upload-dialog-and-its-error-handling-no-longer-assumes-admin-only-if-the-backend-now-allows-the-user-s-role-and-provide-clear-english-error-text-when-uploads-are-rejected-due-to-insufficient-permissions",
-      "featureTitle": "Update the frontend upload UX to reflect the new permission model for public catalog uploads: ensure the public upload dialog and its error handling no longer assumes “Admin-only” if the backend now allows the user’s role, and provide clear English error text when uploads are rejected due to insufficient permissions.",
+      "featureId": "feature-update-the-app-header-so-the-hamburger-menu-icon-button-is-placed-directly-next-to-the-fourleaf-brand-logo-text-forming-a-single-left-aligned-cluster-while-keeping-the-login-button-right-aligned-reuse-the-existing-icon-asset-at-assets-generated-hamburger-menu-dim-24x24-svg-and-preserve-current-behavior-clicking-the-icon-opens-the-mobile-left-sidebar-drawer",
+      "featureTitle": "Update the app header so the hamburger menu icon button is placed directly next to the Fourleaf brand (logo/text), forming a single left-aligned cluster, while keeping the Login button right-aligned. Reuse the existing icon asset at \"/assets/generated/hamburger-menu.dim_24x24.svg\" and preserve current behavior (clicking the icon opens the mobile left sidebar drawer).",
       "files": [
-        "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
-        "frontend/src/utils/backendErrors.ts"
+        "frontend/src/components/layout/AppLayout.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -18,7 +17,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-4"
+        "REQ-1"
       ],
       "confidence": "high"
     }

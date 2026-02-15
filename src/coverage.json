@@ -1,65 +1,34 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-14T06:39:12.544Z",
+  "generatedAt": "2026-02-15T11:49:11.819Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
+    "total": 1,
     "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Locate and update the backend methods responsible for public catalog song uploads so that uploading is allowed for the user’s current role (not only Admin). Specifically, modify the authorization checks in `backend/main.mo` for `uploadPublicSong` (and any underlying method it calls, such as `uploadSong`) to permit the intended non-admin role(s), while still preventing anonymous uploads.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Add backend-level, developer-facing introspection to confirm which identity/role the canister is using during upload calls, so upload failures can be diagnosed without guessing. Provide a query method that returns the caller Principal and enough role/permission information to confirm whether the caller should be allowed to upload to the public catalog.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Verify and align the public-catalog upload data path so a successful upload results in a new public song record being inserted into the public catalog collection and subsequently returned by existing public catalog queries (e.g., `getAllSongs`, `getTotalSongs`, and streaming). Ensure no additional flags (e.g., `is_public` / `catalog_access`) are required or inadvertently default to a value that blocks catalog inclusion.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Update the frontend upload UX to reflect the new permission model for public catalog uploads: ensure the public upload dialog and its error handling no longer assumes “Admin-only” if the backend now allows the user’s role, and provide clear English error text when uploads are rejected due to insufficient permissions.",
+        "summary": "Update the app header so the hamburger menu icon button is placed directly next to the Fourleaf brand (logo/text), forming a single left-aligned cluster, while keeping the Login button right-aligned. Reuse the existing icon asset at \"/assets/generated/hamburger-menu.dim_24x24.svg\" and preserve current behavior (clicking the icon opens the mobile left sidebar drawer).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
-          "frontend/src/utils/backendErrors.ts"
+          "frontend/src/components/layout/AppLayout.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
-          "frontend/src/utils/backendErrors.ts"
+          "frontend/src/components/layout/AppLayout.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/admin/SongEditorDialog.tsx",
-    "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/utils/backendErrors.ts",
+    "frontend/src/components/layout/AppLayout.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

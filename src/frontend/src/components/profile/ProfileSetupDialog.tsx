@@ -33,6 +33,9 @@ export default function ProfileSetupDialog() {
   }, [showProfileSetup]);
 
   const handleSave = async () => {
+    // Prevent duplicate submissions
+    if (saveProfile.isPending) return;
+
     if (!name.trim()) {
       toast.error('Please enter your name');
       return;
@@ -45,13 +48,24 @@ export default function ProfileSetupDialog() {
       });
       toast.success('Profile created successfully!');
     } catch (error: any) {
+      // Keep dialog open on error and show clear error message
       toast.error(error.message || 'Failed to create profile');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !saveProfile.isPending) {
+      handleSave();
     }
   };
 
   return (
     <Dialog open={showProfileSetup}>
-      <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent 
+        className="sm:max-w-md" 
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Welcome to Fourleaf!</DialogTitle>
           <DialogDescription>
@@ -66,7 +80,8 @@ export default function ProfileSetupDialog() {
               placeholder="Enter your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+              onKeyDown={handleKeyDown}
+              disabled={saveProfile.isPending}
             />
           </div>
           <div className="flex items-center space-x-2">
@@ -74,6 +89,7 @@ export default function ProfileSetupDialog() {
               id="subscription"
               checked={hasSubscription}
               onCheckedChange={(checked) => setHasSubscription(checked === true)}
+              disabled={saveProfile.isPending}
             />
             <Label
               htmlFor="subscription"

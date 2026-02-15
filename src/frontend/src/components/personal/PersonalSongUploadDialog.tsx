@@ -10,6 +10,12 @@ import { toast } from 'sonner';
 import { Upload, Music, Image as ImageIcon, Lock } from 'lucide-react';
 import { ExternalBlob } from '../../backend';
 import type { Update } from '../../backend';
+import {
+  validateAudioFile,
+  validateCoverImage,
+  validateDuration,
+  validateRequiredField,
+} from '../../utils/uploadValidation';
 
 interface PersonalSongUploadDialogProps {
   open: boolean;
@@ -41,7 +47,14 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
       const audio = new Audio();
       audio.src = URL.createObjectURL(file);
       audio.addEventListener('loadedmetadata', () => {
-        setDuration(Math.floor(audio.duration).toString());
+        const detectedDuration = Math.floor(audio.duration);
+        if (detectedDuration > 0 && isFinite(detectedDuration)) {
+          setDuration(detectedDuration.toString());
+        }
+        URL.revokeObjectURL(audio.src);
+      });
+      audio.addEventListener('error', () => {
+        console.warn('Could not load audio metadata');
         URL.revokeObjectURL(audio.src);
       });
     }
@@ -79,28 +92,40 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
       return;
     }
 
-    if (!title.trim()) {
-      toast.error('Please enter a song title');
+    // Validate all fields
+    const titleValidation = validateRequiredField(title, 'a song title');
+    if (!titleValidation.isValid) {
+      toast.error(titleValidation.error);
       return;
     }
 
-    if (!artist.trim()) {
-      toast.error('Please enter an artist name');
+    const artistValidation = validateRequiredField(artist, 'an artist name');
+    if (!artistValidation.isValid) {
+      toast.error(artistValidation.error);
       return;
     }
 
-    if (!album.trim()) {
-      toast.error('Please enter an album name');
+    const albumValidation = validateRequiredField(album, 'an album name');
+    if (!albumValidation.isValid) {
+      toast.error(albumValidation.error);
       return;
     }
 
-    if (!duration.trim() || Number(duration) <= 0) {
-      toast.error('Please enter a valid duration');
+    const durationValidation = validateDuration(duration);
+    if (!durationValidation.isValid) {
+      toast.error(durationValidation.error);
       return;
     }
 
-    if (!audioFile) {
-      toast.error('Please select an audio file');
+    const audioValidation = validateAudioFile(audioFile);
+    if (!audioValidation.isValid) {
+      toast.error(audioValidation.error);
+      return;
+    }
+
+    const coverValidation = validateCoverImage(coverImage);
+    if (!coverValidation.isValid) {
+      toast.error(coverValidation.error);
       return;
     }
 
@@ -108,7 +133,7 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
       setAudioProgress(0);
       setCoverProgress(0);
 
-      const audioBytes = new Uint8Array(await audioFile.arrayBuffer());
+      const audioBytes = new Uint8Array(await audioFile!.arrayBuffer());
       const audioBlob = ExternalBlob.fromBytes(audioBytes).withUploadProgress((percentage) => {
         const normalized = Math.min(100, Math.max(0, percentage > 1 ? percentage : percentage * 100));
         setAudioProgress(Math.round(normalized));
@@ -133,13 +158,13 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
       };
 
       await uploadPersonalSong.mutateAsync(songUpdate);
-      toast.success('Song uploaded successfully to your private library!');
+      toast.success('Personal song uploaded successfully! Only you can access this track.');
       
       resetForm();
       onOpenChange(false);
     } catch (error: any) {
       console.error('Upload error:', error);
-      const errorMsg = error.message || 'Failed to upload song';
+      const errorMsg = error.message || 'Failed to upload personal song';
       toast.error(errorMsg);
       
       setAudioProgress(0);
@@ -172,7 +197,7 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
           <DialogHeader>
             <DialogTitle>Login Required</DialogTitle>
             <DialogDescription>
-              Please log in with Internet Identity to upload your personal songs.
+              Please log in with Internet Identity to upload personal songs.
             </DialogDescription>
           </DialogHeader>
           <div className="py-6 text-center">
@@ -185,125 +210,136 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
     );
   }
 
-  const totalProgress = coverImage && audioFile
+  const totalProgress = coverImage 
     ? Math.round((audioProgress * 0.7) + (coverProgress * 0.3))
-    : audioFile
-    ? audioProgress
-    : 0;
-
-  const showProgress = isUploading && (audioProgress > 0 || coverProgress > 0 || audioFile !== null);
+    : audioProgress;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent 
-        className="sm:max-w-lg max-h-[90vh] overflow-y-auto"
-        onInteractOutside={handleInteractOutside}
-        onEscapeKeyDown={handleEscapeKeyDown}
-      >
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onInteractOutside={handleInteractOutside} onEscapeKeyDown={handleEscapeKeyDown}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Lock className="h-5 w-5 text-primary" />
-            Upload Personal Track
+            Upload Personal Song
           </DialogTitle>
           <DialogDescription>
-            Upload a track to your private library. Only you can access and play this track.
+            Upload a song to your personal library. Only you will be able to access and stream this track.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
-            <Input
-              id="title"
-              placeholder="Song title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              disabled={isUploading}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="artist">Artist *</Label>
-            <Input
-              id="artist"
-              placeholder="Artist name"
-              value={artist}
-              onChange={(e) => setArtist(e.target.value)}
-              disabled={isUploading}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="album">Album *</Label>
-            <Input
-              id="album"
-              placeholder="Album name"
-              value={album}
-              onChange={(e) => setAlbum(e.target.value)}
-              disabled={isUploading}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="duration">Duration (seconds) *</Label>
-            <Input
-              id="duration"
-              type="number"
-              placeholder="Duration in seconds"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              disabled={isUploading}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="audio">Audio File *</Label>
-            <div className="flex items-center gap-2">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title *</Label>
               <Input
-                ref={audioInputRef}
-                id="audio"
-                type="file"
-                accept="audio/*"
-                onChange={handleAudioFileChange}
-                className="flex-1"
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Song title"
                 disabled={isUploading}
-                required
               />
-              {audioFile && <Music className="h-5 w-5 text-primary shrink-0" />}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="artist">Artist *</Label>
+              <Input
+                id="artist"
+                value={artist}
+                onChange={(e) => setArtist(e.target.value)}
+                placeholder="Artist name"
+                disabled={isUploading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="album">Album *</Label>
+              <Input
+                id="album"
+                value={album}
+                onChange={(e) => setAlbum(e.target.value)}
+                placeholder="Album name"
+                disabled={isUploading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="duration">Duration (seconds) *</Label>
+              <Input
+                id="duration"
+                type="number"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                placeholder="Duration in seconds (auto-detected if possible)"
+                disabled={isUploading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="audioFile">Audio File *</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  ref={audioInputRef}
+                  id="audioFile"
+                  type="file"
+                  accept="audio/*"
+                  onChange={handleAudioFileChange}
+                  disabled={isUploading}
+                  className="flex-1"
+                />
+                <Music className="h-5 w-5 text-muted-foreground shrink-0" />
+              </div>
+              {audioFile && (
+                <p className="text-sm text-muted-foreground">
+                  Selected: {audioFile.name}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="coverImage">Cover Image (optional)</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  ref={coverInputRef}
+                  id="coverImage"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverImageChange}
+                  disabled={isUploading}
+                  className="flex-1"
+                />
+                <ImageIcon className="h-5 w-5 text-muted-foreground shrink-0" />
+              </div>
+              {coverImage && (
+                <p className="text-sm text-muted-foreground">
+                  Selected: {coverImage.name}
+                </p>
+              )}
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="cover">Cover Image (optional)</Label>
-            <div className="flex items-center gap-2">
-              <Input
-                ref={coverInputRef}
-                id="cover"
-                type="file"
-                accept="image/*"
-                onChange={handleCoverImageChange}
-                className="flex-1"
-                disabled={isUploading}
-              />
-              {coverImage && <ImageIcon className="h-5 w-5 text-primary shrink-0" />}
-            </div>
-          </div>
-
-          {showProgress && (
-            <div className="space-y-2 pt-2">
+          {isUploading && (
+            <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Uploading...</span>
                 <span className="font-medium">{totalProgress}%</span>
               </div>
               <Progress value={totalProgress} className="h-2" />
+              {coverImage && (
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <div className="flex justify-between">
+                    <span>Audio:</span>
+                    <span>{audioProgress}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Cover:</span>
+                    <span>{coverProgress}%</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex gap-3 justify-end">
             <Button
               type="button"
               variant="outline"
@@ -312,13 +348,9 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isUploading}
-              className="gap-2"
-            >
+            <Button type="submit" disabled={isUploading} className="gap-2">
               <Upload className="h-4 w-4" />
-              {isUploading ? 'Uploading...' : 'Upload Track'}
+              {isUploading ? 'Uploading...' : 'Upload Song'}
             </Button>
           </div>
         </form>

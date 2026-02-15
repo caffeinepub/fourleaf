@@ -1,26 +1,23 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Update public catalog upload dialog UX for non-admin role permissions",
+  "title": "Reposition hamburger icon next to Fourleaf brand in header",
   "requirements": [
     {
-      "id": "REQ-4",
-      "summary": "Update public upload dialog messaging and error handling to align with broader (non-admin) upload permissions and show clear English permission errors.",
+      "id": "REQ-1",
+      "summary": "Adjust header layout so hamburger icon and Fourleaf brand form a single left-aligned cluster on mobile while keeping Login button right-aligned and preserving drawer behavior.",
       "acceptanceCriteria": [
-        "When a permitted non-admin user uploads via `PublicSongUploadDialog`, the dialog completes successfully and shows the success toast.",
-        "When a user without permission attempts to upload, the dialog shows a clear permission error in English (no misleading “Admin-only” messaging if the role model is broader).",
-        "No changes are made to immutable hook sources (e.g., `frontend/src/hooks/useActor.ts`)."
+        "On mobile breakpoints, the header shows a hamburger icon button immediately adjacent to the Fourleaf brand (logo/text) with consistent spacing and vertical alignment.",
+        "Clicking/tapping the hamburger icon still opens the mobile LeftSidebar drawer exactly as before.",
+        "The Login button remains right-aligned in the header and does not overlap the brand cluster.",
+        "The hamburger button remains hidden on desktop (md and up) if that is the current behavior, unless the app already shows it on desktop.",
+        "The hamburger icon button has an accessible aria-label (e.g., \"Open menu\")."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
+          "path": "frontend/src/components/layout/AppLayout.tsx",
           "operation": "modify",
-          "description": "Update upload failure handling to rely on normalized backend errors and present a clear, role-agnostic permission denial message for public-catalog uploads (avoid any “Admin-only” assumptions). Keep the existing success toast and login-required flow intact. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/utils/backendErrors.ts",
-          "operation": "modify",
-          "description": "Refine authorization error normalization to avoid unnecessarily implying “Admin access required” in generic permission-denied cases, so public upload surfaces clear, accurate English messaging when roles other than admin are allowed. Verify the component's usage instructions before implementing."
+          "description": "Update the header layout to render a left-aligned cluster containing (1) the existing mobile-only hamburger Button and (2) the Fourleaf brand (use existing FourleafBrand component, ideally the compact variant), with consistent spacing/alignment. Keep LoginButton right-aligned using justify-between (remove the current spacer div), preserve the existing onClick behavior that opens the mobile LeftSidebar drawer, keep the hamburger hidden on md+ as it is now, and continue using the existing icon asset path /assets/generated/hamburger-menu.dim_24x24.svg with an aria-label (e.g., \"Open menu\"). Verify the component's usage instructions before implementing."
         }
       ]
     }

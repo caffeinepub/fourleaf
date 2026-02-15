@@ -62,9 +62,7 @@ export function useGetCallerUserProfile() {
     queryKey: ['currentUserProfile'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      // Backend doesn't have getCallerUserProfile, return null for now
-      // This will trigger profile setup dialog
-      return null;
+      return actor.getCallerUserProfile();
     },
     enabled: !!actor && !actorFetching && !!identity,
     retry: false,
@@ -88,7 +86,10 @@ export function useSaveCallerUserProfile() {
       if (!identity) throw new Error('You must be logged in to save your profile');
       return actor.saveCallerUserProfile(profile);
     },
-    onSuccess: () => {
+    onSuccess: (_, profile) => {
+      // Immediately update the cache with the saved profile
+      queryClient.setQueryData(['currentUserProfile'], profile);
+      // Then invalidate to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
     },
     onError: (error: any) => {
@@ -131,8 +132,7 @@ export function useUploadPersonalSong() {
     mutationFn: async (songUpdate: Update) => {
       if (!actor) throw new Error('Actor not available');
       if (!identity) throw new Error('You must be logged in to upload songs');
-      // Backend method doesn't exist yet
-      throw new Error('Personal song upload is not yet implemented');
+      return actor.uploadPersonalSong(songUpdate);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['personalSongs'] });

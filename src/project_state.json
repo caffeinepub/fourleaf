@@ -1,22 +1,16 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Music app backend: troubleshoot and adjust song upload flow so the current user role (not just Admin) can upload to the public catalog; verify permission middleware, upload service flags, storage write access, DB inserts, and auth/session identification.",
-  "architectural_notes": [
-    "Song upload authorization is enforced via controller/API endpoint middleware; role-based access control must permit intended non-Admin roles for public catalog uploads.",
-    "Upload service logic depends on flags such as is_public and/or catalog_access to route/allow public catalog uploads.",
-    "Public catalog storage directory permissions and DB insert capability are required for successful uploads."
-  ],
-  "known_issues": [
-    "Current user role cannot upload to/modify the public catalog (appears restricted to Admin or failing permission validation during upload)."
-  ],
-  "isFixRequest": true,
+  "summary": "Fourleaf app UI enhancements",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-update-the-frontend-upload-ux-to-reflect-the-new-permission-model-for-public-catalog-uploads-ensure-the-public-upload-dialog-and-its-error-handling-no-longer-assumes-admin-only-if-the-backend-now-allows-the-user-s-role-and-provide-clear-english-error-text-when-uploads-are-rejected-due-to-insufficient-permissions",
-      "title": "Update the frontend upload UX to reflect the new permission model for public catalog uploads: ensure the public upload dialog and its error handling no longer assumes “Admin-only” if the backend now allows the user’s role, and provide clear English error text when uploads are rejected due to insufficient permissions.",
+      "id": "feature-update-the-app-header-so-the-hamburger-menu-icon-button-is-placed-directly-next-to-the-fourleaf-brand-logo-text-forming-a-single-left-aligned-cluster-while-keeping-the-login-button-right-aligned-reuse-the-existing-icon-asset-at-assets-generated-hamburger-menu-dim-24x24-svg-and-preserve-current-behavior-clicking-the-icon-opens-the-mobile-left-sidebar-drawer",
+      "title": "Update the app header so the hamburger menu icon button is placed directly next to the Fourleaf brand (logo/text), forming a single left-aligned cluster, while keeping the Login button right-aligned. Reuse the existing icon asset at \"/assets/generated/hamburger-menu.dim_24x24.svg\" and preserve current behavior (clicking the icon opens the mobile left sidebar drawer).",
       "reqIds": [
-        "REQ-4"
+        "REQ-1"
       ],
       "version": 1
     }
@@ -24,48 +18,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Allow current non-Admin user role to upload songs to the public catalog by updating backend permission checks (controller/middleware) and related upload logic.",
+      "summary": "Add a hamburger menu icon next to the Fourleaf logo",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Validate and correct song upload pipeline dependencies: is_public/catalog_access flag handling, storage write permissions for public catalog directory, and DB schema/insert support from frontend.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Ensure upload requests correctly authenticate/authorize user role during file transfer by validating auth headers/session tokens handling.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Locate and update the backend methods responsible for public catalog song uploads so that uploading is allowed for the user’s current role (not only Admin). Specifically, modify the authorization checks in `backend/main.mo` for `uploadPublicSong` (and any underlying method it calls, such as `uploadSong`) to permit the intended non-admin role(s), while still preventing anonymous uploads.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Add backend-level, developer-facing introspection to confirm which identity/role the canister is using during upload calls, so upload failures can be diagnosed without guessing. Provide a query method that returns the caller Principal and enough role/permission information to confirm whether the caller should be allowed to upload to the public catalog.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Verify and align the public-catalog upload data path so a successful upload results in a new public song record being inserted into the public catalog collection and subsequently returned by existing public catalog queries (e.g., `getAllSongs`, `getTotalSongs`, and streaming). Ensure no additional flags (e.g., `is_public` / `catalog_access`) are required or inadvertently default to a value that blocks catalog inclusion.",
-      "reqIds": [
-        "REQ-3"
-      ],
       "status": "pending"
     }
   ],
-  "projectName": "Allow non-admin role to upload to public song catalog and verify upload authorization path",
+  "projectName": "Fourleaf",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

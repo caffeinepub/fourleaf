@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Allow signed-in non-admin users with the intended role to upload songs to the public catalog, add backend introspection for diagnosing authorization, and ensure uploaded songs appear in public catalog queries.
+**Goal:** Place the hamburger menu icon button directly next to the Fourleaf brand in the header while keeping the Login button right-aligned.
 
 **Planned changes:**
-- Update backend authorization in `backend/main.mo` for `uploadPublicSong` (and any delegated upload method such as `uploadSong`) to allow the intended non-admin role(s) while still rejecting anonymous callers.
-- Add a backend query method to return the caller Principal plus the effective role/permission information used by upload authorization checks (without exposing secrets).
-- Verify and align the public-catalog upload data flow so successful uploads create a new public catalog record that appears in existing catalog queries (`getAllSongs`, `getTotalSongs`) and supports streaming (`streamSongAudio`) without being blocked by hidden/publication flags.
-- Update the frontend public upload UX (`PublicSongUploadDialog`) to match the expanded permission model and show clear English permission errors when uploads are rejected (without changing immutable hook/UI paths).
+- Update the header layout so the hamburger icon button and Fourleaf logo/text are grouped as a single left-aligned cluster with consistent spacing and vertical alignment on mobile breakpoints.
+- Reuse the existing hamburger icon asset at `/assets/generated/hamburger-menu.dim_24x24.svg` and keep the current click behavior that opens the mobile LeftSidebar drawer.
+- Preserve the existing responsive behavior for the hamburger button (hidden on desktop if currently hidden) and add an accessible aria-label (e.g., "Open menu").
 
-**User-visible outcome:** Signed-in users with the allowed non-admin role can upload songs to the public catalog successfully, see them show up in the public catalog and streaming, and get clear permission errors (plus a developer-accessible way to confirm caller identity/role used during authorization).
+**User-visible outcome:** On mobile, the hamburger menu icon appears immediately beside the Fourleaf brand in the header, still opens the left sidebar when tapped, and the Login button stays right-aligned.

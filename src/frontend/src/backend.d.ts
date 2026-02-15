@@ -64,6 +64,7 @@ export interface backendInterface {
     downloadPersonalSongAudio(songId: bigint): Promise<ExternalBlob>;
     downloadSongAudio(songId: bigint): Promise<ExternalBlob>;
     getAllSongs(): Promise<Array<Song>>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getPersonalSongMetadata(): Promise<Array<SongMetadata>>;
     getPersonalSongs(): Promise<Array<PersonalSong>>;
@@ -75,10 +76,12 @@ export interface backendInterface {
         role: UserRole;
         canUploadToPublicCatalog: boolean;
     }>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     isPersonalSongOwner(songId: bigint): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     streamPersonalSongAudio(songId: bigint): Promise<ExternalBlob>;
     streamSongAudio(songId: bigint): Promise<ExternalBlob | null>;
-    uploadPublicSong(songUpdate: Update): Promise<bigint>;
+    uploadPersonalSong(songUpdate: Update): Promise<void>;
+    uploadPublicSong(songUpdate: Update): Promise<void>;
 }

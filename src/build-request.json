@@ -1,94 +1,38 @@
 {
   "kind": "build_request",
-  "title": "Allow non-admin role to upload to public song catalog and verify upload authorization path",
+  "title": "Add hamburger menu icon next to the Fourleaf logo",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Locate and update the backend methods responsible for public catalog song uploads so that uploading is allowed for the user’s current role (not only Admin). Specifically, modify the authorization checks in `backend/main.mo` for `uploadPublicSong` (and any underlying method it calls, such as `uploadSong`) to permit the intended non-admin role(s), while still preventing anonymous uploads.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "Locate the backend controller or API endpoint responsible for handling the song upload process and check the middleware that validates user permissions.",
-          "Verify if there is a hardcoded restriction or a database check that only allows specific roles like \"Admin\" to upload to the public catalog and modify it to include my current user role."
-        ]
-      },
-      "acceptanceCriteria": [
-        "A signed-in non-admin user with the intended role can successfully call `uploadPublicSong` and receive a new song ID.",
-        "Anonymous callers are rejected with an authorization error.",
-        "Admin users can still upload as before.",
-        "If `uploadPublicSong` delegates to `uploadSong`, both methods’ permission logic is consistent (no hidden admin-only gate remains)."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Add backend-level, developer-facing introspection to confirm which identity/role the canister is using during upload calls, so upload failures can be diagnosed without guessing. Provide a query method that returns the caller Principal and enough role/permission information to confirm whether the caller should be allowed to upload to the public catalog.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "Review the authentication headers or session tokens being sent with the upload request to ensure the backend correctly identifies the user's permission level during the file transfer."
-        ]
-      },
-      "acceptanceCriteria": [
-        "There is a query method that, when called from the frontend while logged in, returns the caller Principal and the caller’s effective permission/role state used by the authorization checks.",
-        "The method does not expose secrets (e.g., no admin secret/token values are returned).",
-        "This query can be invoked successfully from the frontend actor when authenticated."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Verify and align the public-catalog upload data path so a successful upload results in a new public song record being inserted into the public catalog collection and subsequently returned by existing public catalog queries (e.g., `getAllSongs`, `getTotalSongs`, and streaming). Ensure no additional flags (e.g., `is_public` / `catalog_access`) are required or inadvertently default to a value that blocks catalog inclusion.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "Identify the logic in the file upload service that checks for the is_public or catalog_access flag and ensure it is set to allow successful uploads when the request is sent.",
-          "Check the storage configuration to ensure the directory for the public catalog has the correct write permissions and that the database schema allows inserting new song records from the frontend."
-        ]
-      },
-      "acceptanceCriteria": [
-        "After a successful `uploadPublicSong`, `getAllSongs` includes the newly uploaded song metadata.",
-        "`getTotalSongs` increments accordingly after upload.",
-        "`streamSongAudio` works for the newly uploaded public song.",
-        "No hidden/publication flag prevents the song from being visible in the public catalog."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Update the frontend upload UX to reflect the new permission model for public catalog uploads: ensure the public upload dialog and its error handling no longer assumes “Admin-only” if the backend now allows the user’s role, and provide clear English error text when uploads are rejected due to insufficient permissions.",
+      "text": "Update the app header so the hamburger menu icon button is placed directly next to the Fourleaf brand (logo/text), forming a single left-aligned cluster, while keeping the Login button right-aligned. Reuse the existing icon asset at \"/assets/generated/hamburger-menu.dim_24x24.svg\" and preserve current behavior (clicking the icon opens the mobile left sidebar drawer).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "user-1"
         ],
         "quotes": [
-          "Verify if there is a hardcoded restriction or a database check that only allows specific roles like \"Admin\" to upload to the public catalog and modify it to include my current user role."
+          "Place a hamburger menu icon next to the Fourleaf logo."
         ]
       },
       "acceptanceCriteria": [
-        "When a permitted non-admin user uploads via `PublicSongUploadDialog`, the dialog completes successfully and shows the success toast.",
-        "When a user without permission attempts to upload, the dialog shows a clear permission error in English (no misleading “Admin-only” messaging if the role model is broader).",
-        "No changes are made to immutable hook sources (e.g., `frontend/src/hooks/useActor.ts`)."
+        "On mobile breakpoints, the header shows a hamburger icon button immediately adjacent to the Fourleaf brand (logo/text) with consistent spacing and vertical alignment.",
+        "Clicking/tapping the hamburger icon still opens the mobile LeftSidebar drawer exactly as before.",
+        "The Login button remains right-aligned in the header and does not overlap the brand cluster.",
+        "The hamburger button remains hidden on desktop (md and up) if that is the current behavior, unless the app already shows it on desktop.",
+        "The hamburger icon button has an accessible aria-label (e.g., \"Open menu\")."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in `backend/main.mo`; do not introduce additional backend services.",
-    "Do not modify frontend files under `frontend/src/hooks/useActor.ts`, `frontend/src/hooks/useInternetIdentity.ts(x)`, `frontend/src/main.tsx`, or `frontend/src/components/ui` (immutable paths).",
-    "Use English for any user-facing text."
+    "Do not modify any files under frontend/src/components/ui (read-only shadcn components).",
+    "Do not change authentication behavior or routing; this is a UI placement change only.",
+    "Preserve the existing hamburger icon asset path: /assets/generated/hamburger-menu.dim_24x24.svg."
   ],
   "nonGoals": [
-    "Adding third-party auth providers (only Internet Identity is supported).",
-    "Introducing an external database or filesystem directory permission system (state remains inside the canister).",
-    "Building real-time upload progress via websockets or push mechanisms beyond the existing progress callbacks."
+    "Creating a new hamburger icon asset.",
+    "Changing how the mobile sidebar opens/closes beyond ensuring the existing behavior continues to work.",
+    "Redesigning the overall header layout beyond placing the hamburger icon next to the Fourleaf logo."
   ],
   "imageRequirements": {
     "required": [],

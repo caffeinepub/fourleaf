@@ -86,6 +86,7 @@ export interface _SERVICE {
   'downloadPersonalSongAudio' : ActorMethod<[bigint], ExternalBlob>,
   'downloadSongAudio' : ActorMethod<[bigint], ExternalBlob>,
   'getAllSongs' : ActorMethod<[], Array<Song>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getPersonalSongMetadata' : ActorMethod<[], Array<SongMetadata>>,
   'getPersonalSongs' : ActorMethod<[], Array<PersonalSong>>,
@@ -100,12 +101,14 @@ export interface _SERVICE {
       'canUploadToPublicCatalog' : boolean,
     }
   >,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'isPersonalSongOwner' : ActorMethod<[bigint], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'streamPersonalSongAudio' : ActorMethod<[bigint], ExternalBlob>,
   'streamSongAudio' : ActorMethod<[bigint], [] | [ExternalBlob]>,
-  'uploadPublicSong' : ActorMethod<[Update], bigint>,
+  'uploadPersonalSong' : ActorMethod<[Update], undefined>,
+  'uploadPublicSong' : ActorMethod<[Update], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

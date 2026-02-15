@@ -1,58 +1,29 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-14T06:39:12.542Z",
-  "summary": "Diff updates backend uploadPublicSong authorization to allow callers with #user permission (non-admin) and adds frontend-side error normalization to avoid admin-only messaging. However, required backend introspection query and verification/alignment of the public-catalog insert/query path are not evidenced in the truncated diff.",
-  "missing_requirements": [
-    {
-      "id": "REQ-2",
-      "requirement": "Add a backend query method for developer-facing introspection that returns caller Principal and effective role/permission state used by upload authorization checks (no secrets).",
-      "reason": "The diff snippet for backend/main.mo shows no new query method returning caller Principal/role/permission info for diagnosing upload authorization; frontend/useQueries.ts even contains comments about missing backend methods, suggesting the introspection endpoint is still absent.",
-      "evidence": [
-        "backend/main.mo",
-        "frontend/src/hooks/useQueries.ts"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "requirement": "Verify/align the public-catalog upload data path so uploadPublicSong inserts into the public catalog collection and is returned by getAllSongs/getTotalSongs/streamSongAudio without hidden flags blocking visibility.",
-      "reason": "The diff shows uploadPublicSong calls uploadSong(songUpdate), but the actual implementation of uploadSong and any catalog insertion/flag logic is not visible in the provided truncated backend/main.mo content. There is not enough evidence in the diff summary to confirm that a successful upload results in insertion into the public songs collection and visibility via existing queries.",
-      "evidence": [
-        "backend/main.mo (truncated)"
-      ]
-    }
-  ],
+  "generatedAt": "2026-02-15T11:49:11.817Z",
+  "summary": "REQ-1 is implemented in AppLayout: a mobile-only hamburger Button using the specified asset is placed directly next to the FourleafBrand in a left-aligned cluster, with the LoginButton remaining right-aligned and the click handler still opening the mobile sidebar.",
+  "missing_requirements": [],
   "hallucinated_features": [
     {
-      "description": "Added/modified personal-library functionality and authorization checks (getPersonalSongs, isPersonalSongOwner, streamPersonalSongAudio) not requested by the BuildRequest.",
-      "reason": "BuildRequest is focused on public catalog upload authorization, introspection, and ensuring public catalog inclusion; it does not request adding or changing personal song features.",
+      "description": "Updated internal tracking/metadata files (feature request registry/status) unrelated to the requested UI placement change.",
+      "reason": "BuildRequest only asks for a header UI placement adjustment and explicitly constrains scope to UI placement without broader changes; updating project tracking files is not requested behavior.",
       "evidence": [
-        "backend/main.mo"
+        "project_state.json"
       ]
     },
     {
-      "description": "Admin SongEditorDialog improvements (upload progress normalization, prevent accidental close during upload, switching to useUploadPublicSong) beyond the requested PublicSongUploadDialog UX changes.",
-      "reason": "REQ-4 specifically calls out updating the public upload dialog UX; changes to admin/SongEditorDialog are not requested.",
-      "evidence": [
-        "frontend/src/components/admin/SongEditorDialog.tsx"
-      ]
-    },
-    {
-      "description": "Broad styling/branding/theme changes described in frontend-file-summaries.txt (colors, layout, fonts, branding) not requested.",
-      "reason": "No requirement requests UI re-theming/branding changes; the BuildRequest is narrowly about upload permissions and related UX messaging.",
+      "description": "Updated generated/summary documentation file not required for the UI change.",
+      "reason": "Not part of the stated requirement or acceptance criteria; appears to be ancillary documentation rather than implementing the header change itself.",
       "evidence": [
         "frontend-file-summaries.txt"
       ]
     }
   ],
-  "confidence": 0.68,
+  "confidence": 0.78,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/admin/SongEditorDialog.tsx",
-    "frontend/src/components/catalog/PublicSongUploadDialog.tsx",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/utils/backendErrors.ts",
+    "frontend/src/components/layout/AppLayout.tsx",
     "project_state.json"
   ]
 }

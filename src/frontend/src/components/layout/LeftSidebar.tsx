@@ -1,12 +1,17 @@
 import { useNavigate } from '@tanstack/react-router';
-import { Music, Library, Sparkles, Shield, Home, Radio } from 'lucide-react';
+import { Music, Library, Sparkles, Shield, Home, Radio, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsCallerAdmin } from '../../hooks/useQueries';
 import FourleafBrand from '../branding/FourleafBrand';
 import UISoundControls from '../settings/UISoundControls';
 import { useUISounds } from '../../hooks/useUISounds';
 
-export default function LeftSidebar() {
+interface LeftSidebarProps {
+  isMobileOpen?: boolean;
+  onRequestClose?: () => void;
+}
+
+export default function LeftSidebar({ isMobileOpen = false, onRequestClose }: LeftSidebarProps) {
   const navigate = useNavigate();
   const { data: isAdmin } = useIsCallerAdmin();
   const { playClick } = useUISounds();
@@ -21,10 +26,46 @@ export default function LeftSidebar() {
   const handleNavClick = (path: string) => {
     playClick();
     navigate({ to: path });
+    // Close mobile sidebar after navigation
+    if (onRequestClose) {
+      onRequestClose();
+    }
+  };
+
+  const handleClose = () => {
+    playClick();
+    if (onRequestClose) {
+      onRequestClose();
+    }
   };
 
   return (
-    <aside className="w-[250px] shrink-0 flex flex-col gap-2 p-2 sticky top-0 h-screen overflow-y-auto">
+    <aside
+      className={`
+        w-[250px] shrink-0 flex flex-col gap-2 p-2 overflow-y-auto
+        
+        /* Mobile: Off-canvas drawer with transform animation */
+        fixed inset-y-0 left-0 z-50 bg-background
+        transition-transform duration-300 ease-in-out
+        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
+        
+        /* Desktop: Sticky sidebar, always visible */
+        md:translate-x-0 md:sticky md:top-0 md:h-screen
+      `}
+    >
+      {/* Close button - only visible on mobile when drawer is open */}
+      <div className="md:hidden flex justify-end mb-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleClose}
+          aria-label="Close menu"
+          className="h-10 w-10"
+        >
+          <X className="h-6 w-6" />
+        </Button>
+      </div>
+
       {/* Brand Section */}
       <div className="bg-card/80 backdrop-blur rounded-lg px-5 py-4 border border-border/50">
         <FourleafBrand variant="full" />

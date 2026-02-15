@@ -10,6 +10,12 @@ import { toast } from 'sonner';
 import { Upload, Music, Image as ImageIcon, Globe } from 'lucide-react';
 import { ExternalBlob } from '../../backend';
 import type { Update } from '../../backend';
+import {
+  validateAudioFile,
+  validateCoverImage,
+  validateDuration,
+  validateRequiredField,
+} from '../../utils/uploadValidation';
 
 interface PublicSongUploadDialogProps {
   open: boolean;
@@ -41,7 +47,14 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
       const audio = new Audio();
       audio.src = URL.createObjectURL(file);
       audio.addEventListener('loadedmetadata', () => {
-        setDuration(Math.floor(audio.duration).toString());
+        const detectedDuration = Math.floor(audio.duration);
+        if (detectedDuration > 0 && isFinite(detectedDuration)) {
+          setDuration(detectedDuration.toString());
+        }
+        URL.revokeObjectURL(audio.src);
+      });
+      audio.addEventListener('error', () => {
+        console.warn('Could not load audio metadata');
         URL.revokeObjectURL(audio.src);
       });
     }
@@ -79,28 +92,40 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
       return;
     }
 
-    if (!title.trim()) {
-      toast.error('Please enter a song title');
+    // Validate all fields
+    const titleValidation = validateRequiredField(title, 'a song title');
+    if (!titleValidation.isValid) {
+      toast.error(titleValidation.error);
       return;
     }
 
-    if (!artist.trim()) {
-      toast.error('Please enter an artist name');
+    const artistValidation = validateRequiredField(artist, 'an artist name');
+    if (!artistValidation.isValid) {
+      toast.error(artistValidation.error);
       return;
     }
 
-    if (!album.trim()) {
-      toast.error('Please enter an album name');
+    const albumValidation = validateRequiredField(album, 'an album name');
+    if (!albumValidation.isValid) {
+      toast.error(albumValidation.error);
       return;
     }
 
-    if (!duration.trim() || Number(duration) <= 0) {
-      toast.error('Please enter a valid duration');
+    const durationValidation = validateDuration(duration);
+    if (!durationValidation.isValid) {
+      toast.error(durationValidation.error);
       return;
     }
 
-    if (!audioFile) {
-      toast.error('Please select an audio file');
+    const audioValidation = validateAudioFile(audioFile);
+    if (!audioValidation.isValid) {
+      toast.error(audioValidation.error);
+      return;
+    }
+
+    const coverValidation = validateCoverImage(coverImage);
+    if (!coverValidation.isValid) {
+      toast.error(coverValidation.error);
       return;
     }
 
@@ -108,7 +133,7 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
       setAudioProgress(0);
       setCoverProgress(0);
 
-      const audioBytes = new Uint8Array(await audioFile.arrayBuffer());
+      const audioBytes = new Uint8Array(await audioFile!.arrayBuffer());
       const audioBlob = ExternalBlob.fromBytes(audioBytes).withUploadProgress((percentage) => {
         const normalized = Math.min(100, Math.max(0, percentage > 1 ? percentage : percentage * 100));
         setAudioProgress(Math.round(normalized));
@@ -139,7 +164,6 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
       onOpenChange(false);
     } catch (error: any) {
       console.error('Upload error:', error);
-      // The error is already normalized by the mutation hook
       const errorMsg = error.message || 'Failed to upload song';
       toast.error(errorMsg);
       
