@@ -9,13 +9,14 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { Upload, Music, Image as ImageIcon, Lock } from 'lucide-react';
 import { ExternalBlob } from '../../backend';
-import type { Update } from '../../backend';
 import {
   validateAudioFile,
   validateCoverImage,
   validateDuration,
   validateRequiredField,
 } from '../../utils/uploadValidation';
+import { buildSongUpdate } from '../../utils/buildSongUpdate';
+import { normalizeBackendError } from '../../utils/backendErrors';
 
 interface PersonalSongUploadDialogProps {
   open: boolean;
@@ -148,14 +149,14 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
         });
       }
 
-      const songUpdate: Update = {
+      const songUpdate = buildSongUpdate({
         title: title.trim(),
         artist: artist.trim(),
         album: album.trim(),
         duration: BigInt(duration),
         audioFile: audioBlob,
         coverImage: coverBlob,
-      };
+      });
 
       await uploadPersonalSong.mutateAsync(songUpdate);
       toast.success('Personal song uploaded successfully! Only you can access this track.');
@@ -164,7 +165,7 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
       onOpenChange(false);
     } catch (error: any) {
       console.error('Upload error:', error);
-      const errorMsg = error.message || 'Failed to upload personal song';
+      const errorMsg = normalizeBackendError(error);
       toast.error(errorMsg);
       
       setAudioProgress(0);

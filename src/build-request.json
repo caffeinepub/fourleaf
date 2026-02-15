@@ -1,41 +1,108 @@
 {
   "kind": "build_request",
-  "title": "Add hamburger menu icon next to the Fourleaf logo",
+  "title": "Add green hamburger icon next to Fourleaf brand in sidebar header with expand/collapse toggle",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the app header so the hamburger menu icon button is placed directly next to the Fourleaf brand (logo/text), forming a single left-aligned cluster, while keeping the Login button right-aligned. Reuse the existing icon asset at \"/assets/generated/hamburger-menu.dim_24x24.svg\" and preserve current behavior (clicking the icon opens the mobile left sidebar drawer).",
+      "text": "Update the sidebar header block (top section of LeftSidebar) to include a prominent hamburger menu icon positioned immediately to the left of the brand name “Fourleaf”, matching the uploaded reference layout and keeping consistent padding inside the existing header container.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "user-1"
+          "recent-messages"
         ],
         "quotes": [
-          "Place a hamburger menu icon next to the Fourleaf logo."
+          "Modify the top-left section of the sidebar to include a prominent hamburger menu icon positioned immediately to the left of the brand name Fourleaf as seen in the uploaded reference."
         ]
       },
       "acceptanceCriteria": [
-        "On mobile breakpoints, the header shows a hamburger icon button immediately adjacent to the Fourleaf brand (logo/text) with consistent spacing and vertical alignment.",
-        "Clicking/tapping the hamburger icon still opens the mobile LeftSidebar drawer exactly as before.",
-        "The Login button remains right-aligned in the header and does not overlap the brand cluster.",
-        "The hamburger button remains hidden on desktop (md and up) if that is the current behavior, unless the app already shows it on desktop.",
-        "The hamburger icon button has an accessible aria-label (e.g., \"Open menu\")."
+        "In the LeftSidebar top header block, a hamburger icon appears directly to the left of the “Fourleaf” text (not above or below it).",
+        "The hamburger icon and the brand text are vertically aligned and visually centered within the header row.",
+        "Padding/margins remain consistent with the existing header container styling (no crowding or overlap)."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement the hamburger icon visual styling as three thick horizontal bars with rounded ends, using the same vibrant green accent color already used by the Fourleaf logo elements (e.g., #22c55e).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "The hamburger icon must consist of three thick horizontal bars with rounded ends and should be styled in the same vibrant green accent color used for the logo elements."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The icon is rendered as exactly three horizontal bars.",
+        "Bars are visually thick and have rounded ends.",
+        "Icon color matches the green used in the existing Fourleaf logo elements.",
+        "Icon remains crisp at typical sizes (e.g., ~24px)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Make the new hamburger icon in the sidebar header act as the toggle to expand/collapse the sidebar navigation menu while preserving the existing dark aesthetic and keeping navigation items (e.g., Home, My Library) in the same order and general layout.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "This icon should function as a toggle for the navigation menu allowing the sidebar to expand and collapse while maintaining the dark aesthetic and the layout of the existing navigation items like Home and My Library below it."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking the hamburger icon toggles between an expanded and collapsed sidebar state.",
+        "Navigation items remain present and in the same order; collapsing only changes the sidebar presentation (e.g., width and/or label visibility), not the routes.",
+        "Collapsed state remains usable (icons still visible/clickable; labels may be hidden or minimized).",
+        "The sidebar retains the existing dark styling (background, card translucency, borders) in both states."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Add a smooth transition animation for the sidebar expand/collapse interaction that is consistent with existing UI motion patterns, and provide appropriate accessibility attributes for the toggle control.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "The transition when clicking the hamburger icon should be smooth and integrated into the overall UI design of the sidebar."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Expand/collapse animates smoothly (e.g., width/opacity) without jarring layout jumps.",
+        "Animation respects reduced-motion preferences (no/instant transition when reduced motion is enabled).",
+        "Hamburger toggle button includes clear ARIA labeling (English) and reflects state via aria-expanded.",
+        "Keyboard interaction works (toggle is focusable and activates via Enter/Space)."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/src/components/ui (read-only shadcn components).",
-    "Do not change authentication behavior or routing; this is a UI placement change only.",
-    "Preserve the existing hamburger icon asset path: /assets/generated/hamburger-menu.dim_24x24.svg."
+    "Do not edit files under frontend/src/components/ui (read-only shadcn components).",
+    "Do not modify any immutable hook files listed in SYSTEM_CONTEXT (compose with existing hooks/components instead).",
+    "Keep all backend code unchanged (no backend work required for this UI-only change)."
   ],
   "nonGoals": [
-    "Creating a new hamburger icon asset.",
-    "Changing how the mobile sidebar opens/closes beyond ensuring the existing behavior continues to work.",
-    "Redesigning the overall header layout beyond placing the hamburger icon next to the Fourleaf logo."
+    "Do not redesign the entire sidebar visual theme beyond the requested hamburger addition and collapse behavior.",
+    "Do not change navigation destinations, routes, or add new pages.",
+    "Do not introduce new authentication or backend features."
   ],
   "imageRequirements": {
     "required": [],
-    "edits": []
+    "edits": [
+      "Update the hamburger icon asset to match the new three-thick-bar rounded green style (hamburger-menu.dim_24x24.svg > hamburger-menu.dim_24x24.svg)"
+    ]
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

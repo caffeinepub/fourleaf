@@ -9,17 +9,25 @@ import ProfileSetupDialog from '../profile/ProfileSetupDialog';
 import LoginButton from '../auth/LoginButton';
 import FourleafBrand from '../branding/FourleafBrand';
 import { Button } from '@/components/ui/button';
+import { useUISounds } from '../../hooks/useUISounds';
 
 export default function AppLayout() {
   const { identity } = useInternetIdentity();
   const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
   const isAuthenticated = !!identity;
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const { playClick } = useUISounds();
 
   const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
 
-  const openMobileSidebar = () => setIsMobileSidebarOpen(true);
-  const closeMobileSidebar = () => setIsMobileSidebarOpen(false);
+  const toggleMobileSidebar = () => {
+    playClick();
+    setIsMobileSidebarOpen(prev => !prev);
+  };
+
+  const closeMobileSidebar = () => {
+    setIsMobileSidebarOpen(false);
+  };
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -31,12 +39,13 @@ export default function AppLayout() {
           onRequestClose={closeMobileSidebar}
         />
 
-        {/* Semi-transparent overlay for mobile - only shown when sidebar is open */}
+        {/* Backdrop overlay for mobile - sits below sidebar but above main content */}
         {isMobileSidebarOpen && (
           <div
             className="fixed inset-0 bg-black/50 z-40 md:hidden"
             onClick={closeMobileSidebar}
             onTouchEnd={closeMobileSidebar}
+            aria-hidden="true"
           />
         )}
 
@@ -47,19 +56,21 @@ export default function AppLayout() {
             <div className="flex h-14 items-center justify-between px-4">
               {/* Left cluster: Hamburger + Fourleaf Brand */}
               <div className="flex items-center gap-3">
-                {/* Hamburger menu button - only visible on mobile */}
+                {/* Hamburger menu toggle button - only visible on mobile */}
                 <Button
                   variant="ghost"
                   size="icon"
                   className="md:hidden shrink-0"
-                  onClick={openMobileSidebar}
-                  aria-label="Open menu"
+                  onClick={toggleMobileSidebar}
+                  aria-label={isMobileSidebarOpen ? "Close menu" : "Open menu"}
+                  aria-expanded={isMobileSidebarOpen}
+                  aria-controls="mobile-sidebar"
                 >
                   <img 
                     src="/assets/generated/hamburger-menu.dim_24x24.svg" 
                     alt="" 
-                    className="h-6 w-6 text-foreground"
-                    style={{ filter: 'brightness(0) saturate(100%)' }}
+                    className="h-6 w-6"
+                    style={{ filter: 'brightness(0) saturate(100%) invert(var(--tw-invert, 0))' }}
                   />
                 </Button>
                 

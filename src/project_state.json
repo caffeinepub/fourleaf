@@ -1,16 +1,41 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Fourleaf app UI enhancements",
+  "summary": "New project",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
+  "imageRequirements": "## Edit Images\n- Update the hamburger icon asset to match the new three-thick-bar rounded green style (hamburger-menu.dim_24x24.svg > hamburger-menu.dim_24x24.svg)",
   "existing_features": [
     {
-      "id": "feature-update-the-app-header-so-the-hamburger-menu-icon-button-is-placed-directly-next-to-the-fourleaf-brand-logo-text-forming-a-single-left-aligned-cluster-while-keeping-the-login-button-right-aligned-reuse-the-existing-icon-asset-at-assets-generated-hamburger-menu-dim-24x24-svg-and-preserve-current-behavior-clicking-the-icon-opens-the-mobile-left-sidebar-drawer",
-      "title": "Update the app header so the hamburger menu icon button is placed directly next to the Fourleaf brand (logo/text), forming a single left-aligned cluster, while keeping the Login button right-aligned. Reuse the existing icon asset at \"/assets/generated/hamburger-menu.dim_24x24.svg\" and preserve current behavior (clicking the icon opens the mobile left sidebar drawer).",
+      "id": "feature-update-the-sidebar-header-block-top-section-of-leftsidebar-to-include-a-prominent-hamburger-menu-icon-positioned-immediately-to-the-left-of-the-brand-name-fourleaf-matching-the-uploaded-reference-layout-and-keeping-consistent-padding-inside-the-existing-header-container",
+      "title": "Update the sidebar header block (top section of LeftSidebar) to include a prominent hamburger menu icon positioned immediately to the left of the brand name “Fourleaf”, matching the uploaded reference layout and keeping consistent padding inside the existing header container.",
       "reqIds": [
         "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-hamburger-icon-visual-styling-as-three-thick-horizontal-bars-with-rounded-ends-using-the-same-vibrant-green-accent-color-already-used-by-the-fourleaf-logo-elements-e-g-22c55e",
+      "title": "Implement the hamburger icon visual styling as three thick horizontal bars with rounded ends, using the same vibrant green accent color already used by the Fourleaf logo elements (e.g., #22c55e).",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-the-new-hamburger-icon-in-the-sidebar-header-act-as-the-toggle-to-expand-collapse-the-sidebar-navigation-menu-while-preserving-the-existing-dark-aesthetic-and-keeping-navigation-items-e-g-home-my-library-in-the-same-order-and-general-layout",
+      "title": "Make the new hamburger icon in the sidebar header act as the toggle to expand/collapse the sidebar navigation menu while preserving the existing dark aesthetic and keeping navigation items (e.g., Home, My Library) in the same order and general layout.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-smooth-transition-animation-for-the-sidebar-expand-collapse-interaction-that-is-consistent-with-existing-ui-motion-patterns-and-provide-appropriate-accessibility-attributes-for-the-toggle-control",
+      "title": "Add a smooth transition animation for the sidebar expand/collapse interaction that is consistent with existing UI motion patterns, and provide appropriate accessibility attributes for the toggle control.",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
@@ -18,12 +43,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add a hamburger menu icon next to the Fourleaf logo",
+      "summary": "Add green rounded-bar hamburger icon left of 'Fourleaf' in sidebar header that toggles sidebar expand/collapse with smooth transition while preserving dark aesthetic and nav layout.",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Fourleaf",
+  "gameProjectType": "none",
+  "projectName": "Add green hamburger icon next to Fourleaf brand in sidebar header with expand/collapse toggle",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

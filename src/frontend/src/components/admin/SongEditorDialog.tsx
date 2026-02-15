@@ -1,30 +1,31 @@
-import { useState, useEffect, useRef } from 'react';
-import { useUploadPublicSong, useEditSong } from '../../hooks/useQueries';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { useState, useRef, useEffect } from 'react';
+import { useUploadPublicSong } from '../../hooks/useQueries';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Upload, Music, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import { ExternalBlob, type Song } from '../../backend';
+import { Upload, Music, Image as ImageIcon } from 'lucide-react';
+import { ExternalBlob } from '../../backend';
+import type { Song } from '../../backend';
+import {
+  validateAudioFile,
+  validateCoverImage,
+  validateDuration,
+  validateRequiredField,
+} from '../../utils/uploadValidation';
+import { buildSongUpdate } from '../../utils/buildSongUpdate';
+import { normalizeBackendError } from '../../utils/backendErrors';
 
 interface SongEditorDialogProps {
-  song: Song | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  song?: Song | null;
 }
 
-export default function SongEditorDialog({ song, open, onOpenChange }: SongEditorDialogProps) {
+export default function SongEditorDialog({ open, onOpenChange, song }: SongEditorDialogProps) {
   const uploadPublicSong = useUploadPublicSong();
-  const editSong = useEditSong();
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
   const [album, setAlbum] = useState('');
@@ -36,6 +37,7 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
   const audioInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
+  const isUploading = uploadPublicSong.isPending;
   const isEditing = !!song;
 
   useEffect(() => {
@@ -43,54 +45,93 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
       setTitle(song.title);
       setArtist(song.artist);
       setAlbum(song.album);
-      setDuration(Number(song.duration).toString());
+      setDuration(song.duration.toString());
     } else {
-      setTitle('');
-      setArtist('');
-      setAlbum('');
-      setDuration('');
-      setAudioFile(null);
-      setCoverImage(null);
-    }
-    setAudioProgress(0);
-    setCoverProgress(0);
-    
-    if (audioInputRef.current) {
-      audioInputRef.current.value = '';
-    }
-    if (coverInputRef.current) {
-      coverInputRef.current.value = '';
+      resetForm();
     }
   }, [song, open]);
 
-  const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAudioFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setAudioFile(file);
       const audio = new Audio();
       audio.src = URL.createObjectURL(file);
-      audio.onloadedmetadata = () => {
-        setDuration(Math.floor(audio.duration).toString());
+      audio.addEventListener('loadedmetadata', () => {
+        const detectedDuration = Math.floor(audio.duration);
+        if (detectedDuration > 0 && isFinite(detectedDuration)) {
+          setDuration(detectedDuration.toString());
+        }
         URL.revokeObjectURL(audio.src);
-      };
+      });
+      audio.addEventListener('error', () => {
+        console.warn('Could not load audio metadata');
+        URL.revokeObjectURL(audio.src);
+      });
     }
   };
 
-  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setCoverImage(file);
     }
   };
 
-  const handleSubmit = async () => {
-    if (!title.trim() || !artist.trim() || !album.trim() || !duration) {
-      toast.error('Please fill in all required fields');
+  const resetForm = () => {
+    setTitle('');
+    setArtist('');
+    setAlbum('');
+    setDuration('');
+    setAudioFile(null);
+    setCoverImage(null);
+    setAudioProgress(0);
+    setCoverProgress(0);
+    if (audioInputRef.current) {
+      audioInputRef.current.value = '';
+    }
+    if (coverInputRef.current) {
+      coverInputRef.current.value = '';
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate all fields
+    const titleValidation = validateRequiredField(title, 'a song title');
+    if (!titleValidation.isValid) {
+      toast.error(titleValidation.error);
       return;
     }
 
-    if (!isEditing && !audioFile) {
-      toast.error('Please select an audio file');
+    const artistValidation = validateRequiredField(artist, 'an artist name');
+    if (!artistValidation.isValid) {
+      toast.error(artistValidation.error);
+      return;
+    }
+
+    const albumValidation = validateRequiredField(album, 'an album name');
+    if (!albumValidation.isValid) {
+      toast.error(albumValidation.error);
+      return;
+    }
+
+    const durationValidation = validateDuration(duration);
+    if (!durationValidation.isValid) {
+      toast.error(durationValidation.error);
+      return;
+    }
+
+    const audioValidation = validateAudioFile(audioFile);
+    if (!audioValidation.isValid) {
+      toast.error(audioValidation.error);
+      return;
+    }
+
+    const coverValidation = validateCoverImage(coverImage);
+    if (!coverValidation.isValid) {
+      toast.error(coverValidation.error);
       return;
     }
 
@@ -98,18 +139,11 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
       setAudioProgress(0);
       setCoverProgress(0);
 
-      let audioBlob: ExternalBlob;
-      if (audioFile) {
-        const audioBytes = new Uint8Array(await audioFile.arrayBuffer());
-        audioBlob = ExternalBlob.fromBytes(audioBytes).withUploadProgress((percentage) => {
-          const normalized = Math.min(100, Math.max(0, percentage > 1 ? percentage : percentage * 100));
-          setAudioProgress(Math.round(normalized));
-        });
-      } else if (song) {
-        audioBlob = song.audioFile;
-      } else {
-        throw new Error('No audio file available');
-      }
+      const audioBytes = new Uint8Array(await audioFile!.arrayBuffer());
+      const audioBlob = ExternalBlob.fromBytes(audioBytes).withUploadProgress((percentage) => {
+        const normalized = Math.min(100, Math.max(0, percentage > 1 ? percentage : percentage * 100));
+        setAudioProgress(Math.round(normalized));
+      });
 
       let coverBlob: ExternalBlob | undefined;
       if (coverImage) {
@@ -118,31 +152,27 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
           const normalized = Math.min(100, Math.max(0, percentage > 1 ? percentage : percentage * 100));
           setCoverProgress(Math.round(normalized));
         });
-      } else if (song?.coverImage) {
-        coverBlob = song.coverImage;
       }
 
-      const songUpdate = {
+      const songUpdate = buildSongUpdate({
         title: title.trim(),
         artist: artist.trim(),
         album: album.trim(),
-        duration: BigInt(parseInt(duration)),
+        duration: BigInt(duration),
         audioFile: audioBlob,
         coverImage: coverBlob,
-      };
+      });
 
-      if (isEditing) {
-        await editSong.mutateAsync({ songId: song.id, songUpdate });
-        toast.success('Song updated successfully');
-      } else {
-        await uploadPublicSong.mutateAsync(songUpdate);
-        toast.success('Song uploaded successfully');
-      }
-
+      await uploadPublicSong.mutateAsync(songUpdate);
+      toast.success(isEditing ? 'Song updated successfully!' : 'Song created successfully!');
+      
+      resetForm();
       onOpenChange(false);
     } catch (error: any) {
-      const errorMessage = error.message || 'Failed to save song';
-      toast.error(errorMessage);
+      console.error('Upload error:', error);
+      const errorMsg = normalizeBackendError(error);
+      toast.error(errorMsg);
+      
       setAudioProgress(0);
       setCoverProgress(0);
     }
@@ -166,133 +196,147 @@ export default function SongEditorDialog({ song, open, onOpenChange }: SongEdito
     }
   };
 
-  const isUploading = uploadPublicSong.isPending || editSong.isPending;
-
-  const totalProgress = coverImage && audioFile
+  const totalProgress = coverImage 
     ? Math.round((audioProgress * 0.7) + (coverProgress * 0.3))
-    : audioFile
-    ? audioProgress
-    : 0;
-
-  const showProgress = isUploading && (audioProgress > 0 || coverProgress > 0 || audioFile !== null);
+    : audioProgress;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent 
-        className="sm:max-w-lg max-h-[90vh] overflow-y-auto"
-        onInteractOutside={handleInteractOutside}
-        onEscapeKeyDown={handleEscapeKeyDown}
-      >
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onInteractOutside={handleInteractOutside} onEscapeKeyDown={handleEscapeKeyDown}>
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Song' : 'Upload New Song'}</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Song' : 'Add New Song'}</DialogTitle>
           <DialogDescription>
-            {isEditing
-              ? 'Update the song details below'
-              : 'Fill in the song details and upload files'}
+            {isEditing ? 'Update the song details below.' : 'Fill in the details to add a new song to the catalog.'}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
-            <Input
-              id="title"
-              placeholder="Song title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              disabled={isUploading}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="artist">Artist *</Label>
-            <Input
-              id="artist"
-              placeholder="Artist name"
-              value={artist}
-              onChange={(e) => setArtist(e.target.value)}
-              disabled={isUploading}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="album">Album *</Label>
-            <Input
-              id="album"
-              placeholder="Album name"
-              value={album}
-              onChange={(e) => setAlbum(e.target.value)}
-              disabled={isUploading}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="duration">Duration (seconds) *</Label>
-            <Input
-              id="duration"
-              type="number"
-              placeholder="Duration in seconds"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              disabled={isUploading}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="audio">
-              Audio File {!isEditing && '*'}
-              {isEditing && ' (leave empty to keep current)'}
-            </Label>
-            <div className="flex items-center gap-2">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title *</Label>
               <Input
-                ref={audioInputRef}
-                id="audio"
-                type="file"
-                accept="audio/*"
-                onChange={handleAudioChange}
-                className="flex-1"
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Song title"
                 disabled={isUploading}
               />
-              {audioFile && <Music className="h-5 w-5 text-primary shrink-0" />}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="artist">Artist *</Label>
+              <Input
+                id="artist"
+                value={artist}
+                onChange={(e) => setArtist(e.target.value)}
+                placeholder="Artist name"
+                disabled={isUploading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="album">Album *</Label>
+              <Input
+                id="album"
+                value={album}
+                onChange={(e) => setAlbum(e.target.value)}
+                placeholder="Album name"
+                disabled={isUploading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="duration">Duration (seconds) *</Label>
+              <Input
+                id="duration"
+                type="number"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                placeholder="Duration in seconds (auto-detected if possible)"
+                disabled={isUploading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="audioFile">Audio File *</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  ref={audioInputRef}
+                  id="audioFile"
+                  type="file"
+                  accept="audio/*"
+                  onChange={handleAudioFileChange}
+                  disabled={isUploading}
+                  className="flex-1"
+                />
+                <Music className="h-5 w-5 text-muted-foreground shrink-0" />
+              </div>
+              {audioFile && (
+                <p className="text-sm text-muted-foreground">
+                  Selected: {audioFile.name}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="coverImage">Cover Image (optional)</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  ref={coverInputRef}
+                  id="coverImage"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverImageChange}
+                  disabled={isUploading}
+                  className="flex-1"
+                />
+                <ImageIcon className="h-5 w-5 text-muted-foreground shrink-0" />
+              </div>
+              {coverImage && (
+                <p className="text-sm text-muted-foreground">
+                  Selected: {coverImage.name}
+                </p>
+              )}
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="cover">Cover Image (optional)</Label>
-            <div className="flex items-center gap-2">
-              <Input
-                ref={coverInputRef}
-                id="cover"
-                type="file"
-                accept="image/*"
-                onChange={handleCoverChange}
-                className="flex-1"
-                disabled={isUploading}
-              />
-              {coverImage && <ImageIcon className="h-5 w-5 text-primary shrink-0" />}
-            </div>
-          </div>
-
-          {showProgress && (
+          {isUploading && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Uploading...</span>
                 <span className="font-medium">{totalProgress}%</span>
               </div>
               <Progress value={totalProgress} className="h-2" />
+              {coverImage && (
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <div className="flex justify-between">
+                    <span>Audio:</span>
+                    <span>{audioProgress}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Cover:</span>
+                    <span>{coverProgress}%</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
-        </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isUploading}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={isUploading} className="gap-2">
-            <Upload className="h-4 w-4" />
-            {isUploading ? 'Saving...' : isEditing ? 'Update Song' : 'Upload Song'}
-          </Button>
-        </DialogFooter>
+          <div className="flex gap-3 justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isUploading}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isUploading} className="gap-2">
+              <Upload className="h-4 w-4" />
+              {isUploading ? 'Uploading...' : isEditing ? 'Update Song' : 'Add Song'}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

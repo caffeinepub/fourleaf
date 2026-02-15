@@ -1,23 +1,92 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Reposition hamburger icon next to Fourleaf brand in header",
+  "title": "Sidebar header hamburger icon and collapsible LeftSidebar navigation",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Adjust header layout so hamburger icon and Fourleaf brand form a single left-aligned cluster on mobile while keeping Login button right-aligned and preserving drawer behavior.",
+      "summary": "Add a hamburger icon immediately left of the “Fourleaf” brand text inside the LeftSidebar header row with consistent padding/alignment.",
       "acceptanceCriteria": [
-        "On mobile breakpoints, the header shows a hamburger icon button immediately adjacent to the Fourleaf brand (logo/text) with consistent spacing and vertical alignment.",
-        "Clicking/tapping the hamburger icon still opens the mobile LeftSidebar drawer exactly as before.",
-        "The Login button remains right-aligned in the header and does not overlap the brand cluster.",
-        "The hamburger button remains hidden on desktop (md and up) if that is the current behavior, unless the app already shows it on desktop.",
-        "The hamburger icon button has an accessible aria-label (e.g., \"Open menu\")."
+        "In the LeftSidebar top header block, a hamburger icon appears directly to the left of the “Fourleaf” text (not above or below it).",
+        "The hamburger icon and the brand text are vertically aligned and visually centered within the header row.",
+        "Padding/margins remain consistent with the existing header container styling (no crowding or overlap)."
       ],
       "file_operations": [
         {
+          "path": "frontend/src/components/layout/LeftSidebar.tsx",
+          "operation": "modify",
+          "description": "Update the sidebar header container to render a left-aligned hamburger toggle button, followed by the Fourleaf logo mark and a separate “Fourleaf” text node so the icon sits immediately left of the brand text; keep existing header padding and row alignment. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/branding/FourleafBrand.tsx",
+          "operation": "modify",
+          "description": "Optionally extend FourleafBrand with a small helper variant (or exported sub-render) that allows LeftSidebar to compose logo mark and brand text separately without duplicating SVG markup, enabling precise hamburger-to-text positioning. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Style the hamburger icon as three thick rounded green bars matching the Fourleaf green accent and ensure it renders crisply at ~24px.",
+      "acceptanceCriteria": [
+        "The icon is rendered as exactly three horizontal bars.",
+        "Bars are visually thick and have rounded ends.",
+        "Icon color matches the green used in the existing Fourleaf logo elements.",
+        "Icon remains crisp at typical sizes (e.g., ~24px)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/generated/hamburger-menu.dim_24x24.svg",
+          "operation": "create",
+          "description": "Add/replace the hamburger icon SVG as three thick horizontal bars with rounded ends in the same vibrant green accent used by the Fourleaf logo (e.g., #22c55e), sized to render crisply at 24x24. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/layout/LeftSidebar.tsx",
+          "operation": "modify",
+          "description": "Use the generated asset at frontend/public/assets/generated/hamburger-menu.dim_24x24.svg for the new sidebar-header hamburger button; ensure sizing and alignment keep it visually prominent and crisp. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Make the sidebar-header hamburger button toggle LeftSidebar between expanded and collapsed states without changing nav order/routes or dark styling.",
+      "acceptanceCriteria": [
+        "Clicking the hamburger icon toggles between an expanded and collapsed sidebar state.",
+        "Navigation items remain present and in the same order; collapsing only changes the sidebar presentation (e.g., width and/or label visibility), not the routes.",
+        "Collapsed state remains usable (icons still visible/clickable; labels may be hidden or minimized).",
+        "The sidebar retains the existing dark styling (background, card translucency, borders) in both states."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/LeftSidebar.tsx",
+          "operation": "modify",
+          "description": "Introduce a desktop-capable collapsed/expanded state for LeftSidebar driven by the new hamburger button: collapse reduces sidebar width and hides/minimizes nav labels while keeping icons and click targets intact; preserve nav item order and existing dark card/translucent styling in both states. Verify the component's usage instructions before implementing."
+        },
+        {
           "path": "frontend/src/components/layout/AppLayout.tsx",
           "operation": "modify",
-          "description": "Update the header layout to render a left-aligned cluster containing (1) the existing mobile-only hamburger Button and (2) the Fourleaf brand (use existing FourleafBrand component, ideally the compact variant), with consistent spacing/alignment. Keep LoginButton right-aligned using justify-between (remove the current spacer div), preserve the existing onClick behavior that opens the mobile LeftSidebar drawer, keep the hamburger hidden on md+ as it is now, and continue using the existing icon asset path /assets/generated/hamburger-menu.dim_24x24.svg with an aria-label (e.g., \"Open menu\"). Verify the component's usage instructions before implementing."
+          "description": "Adjust layout wiring as needed so the sidebar’s new collapse behavior does not conflict with the existing mobile drawer open/close behavior; keep routes and destinations unchanged and ensure the app header remains consistent with the dark aesthetic. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Add smooth expand/collapse animation with reduced-motion support and accessible ARIA/keyboard behavior on the hamburger toggle.",
+      "acceptanceCriteria": [
+        "Expand/collapse animates smoothly (e.g., width/opacity) without jarring layout jumps.",
+        "Animation respects reduced-motion preferences (no/instant transition when reduced motion is enabled).",
+        "Hamburger toggle button includes clear ARIA labeling (English) and reflects state via aria-expanded.",
+        "Keyboard interaction works (toggle is focusable and activates via Enter/Space)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/LeftSidebar.tsx",
+          "operation": "modify",
+          "description": "Add Tailwind-based transitions for sidebar width and label opacity/visibility, including motion-reduce fallbacks; implement the hamburger as a real button (using existing Button) with aria-label, aria-expanded reflecting expanded state, and keyboard activation via native button semantics. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "If needed for consistency with existing motion patterns, add a small utility or ensure existing motion-reduce conventions apply cleanly to the sidebar collapse transition (without introducing new global stylesheet paths). Verify the component's usage instructions before implementing."
         }
       ]
     }

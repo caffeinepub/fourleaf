@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-app-header-so-the-hamburger-menu-icon-button-is-placed-directly-next-to-the-fourleaf-brand-logo-text-forming-a-single-left-aligned-cluster-while-keeping-the-login-button-right-aligned-reuse-the-existing-icon-asset-at-assets-generated-hamburger-menu-dim-24x24-svg-and-preserve-current-behavior-clicking-the-icon-opens-the-mobile-left-sidebar-drawer",
-      "featureTitle": "Update the app header so the hamburger menu icon button is placed directly next to the Fourleaf brand (logo/text), forming a single left-aligned cluster, while keeping the Login button right-aligned. Reuse the existing icon asset at \"/assets/generated/hamburger-menu.dim_24x24.svg\" and preserve current behavior (clicking the icon opens the mobile left sidebar drawer).",
+      "featureId": "feature-update-the-sidebar-header-block-top-section-of-leftsidebar-to-include-a-prominent-hamburger-menu-icon-positioned-immediately-to-the-left-of-the-brand-name-fourleaf-matching-the-uploaded-reference-layout-and-keeping-consistent-padding-inside-the-existing-header-container",
+      "featureTitle": "Update the sidebar header block (top section of LeftSidebar) to include a prominent hamburger menu icon positioned immediately to the left of the brand name “Fourleaf”, matching the uploaded reference layout and keeping consistent padding inside the existing header container.",
       "files": [
-        "frontend/src/components/layout/AppLayout.tsx"
+        "frontend/src/components/layout/LeftSidebar.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -18,6 +18,66 @@
       ],
       "testIds": [
         "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-the-hamburger-icon-visual-styling-as-three-thick-horizontal-bars-with-rounded-ends-using-the-same-vibrant-green-accent-color-already-used-by-the-fourleaf-logo-elements-e-g-22c55e",
+      "featureTitle": "Implement the hamburger icon visual styling as three thick horizontal bars with rounded ends, using the same vibrant green accent color already used by the Fourleaf logo elements (e.g., #22c55e).",
+      "files": [
+        "frontend/src/components/layout/LeftSidebar.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-make-the-new-hamburger-icon-in-the-sidebar-header-act-as-the-toggle-to-expand-collapse-the-sidebar-navigation-menu-while-preserving-the-existing-dark-aesthetic-and-keeping-navigation-items-e-g-home-my-library-in-the-same-order-and-general-layout",
+      "featureTitle": "Make the new hamburger icon in the sidebar header act as the toggle to expand/collapse the sidebar navigation menu while preserving the existing dark aesthetic and keeping navigation items (e.g., Home, My Library) in the same order and general layout.",
+      "files": [
+        "frontend/src/components/layout/LeftSidebar.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-smooth-transition-animation-for-the-sidebar-expand-collapse-interaction-that-is-consistent-with-existing-ui-motion-patterns-and-provide-appropriate-accessibility-attributes-for-the-toggle-control",
+      "featureTitle": "Add a smooth transition animation for the sidebar expand/collapse interaction that is consistent with existing UI motion patterns, and provide appropriate accessibility attributes for the toggle control.",
+      "files": [
+        "frontend/src/components/layout/LeftSidebar.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

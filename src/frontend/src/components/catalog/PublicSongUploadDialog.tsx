@@ -9,13 +9,14 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { Upload, Music, Image as ImageIcon, Globe } from 'lucide-react';
 import { ExternalBlob } from '../../backend';
-import type { Update } from '../../backend';
 import {
   validateAudioFile,
   validateCoverImage,
   validateDuration,
   validateRequiredField,
 } from '../../utils/uploadValidation';
+import { buildSongUpdate } from '../../utils/buildSongUpdate';
+import { normalizeBackendError } from '../../utils/backendErrors';
 
 interface PublicSongUploadDialogProps {
   open: boolean;
@@ -148,14 +149,14 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
         });
       }
 
-      const songUpdate: Update = {
+      const songUpdate = buildSongUpdate({
         title: title.trim(),
         artist: artist.trim(),
         album: album.trim(),
         duration: BigInt(duration),
         audioFile: audioBlob,
         coverImage: coverBlob,
-      };
+      });
 
       await uploadPublicSong.mutateAsync(songUpdate);
       toast.success('Song uploaded successfully and is now publicly available for streaming!');
@@ -164,7 +165,7 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
       onOpenChange(false);
     } catch (error: any) {
       console.error('Upload error:', error);
-      const errorMsg = error.message || 'Failed to upload song';
+      const errorMsg = normalizeBackendError(error);
       toast.error(errorMsg);
       
       setAudioProgress(0);
@@ -220,10 +221,10 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-primary" />
-            Upload Public Song
+            Upload to Public Catalog
           </DialogTitle>
           <DialogDescription>
-            Share your music with everyone! Songs uploaded here will be publicly available for anyone to stream on the website.
+            Upload a song to the public catalog. All users will be able to stream this track.
           </DialogDescription>
         </DialogHeader>
 
