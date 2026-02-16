@@ -79,9 +79,27 @@ actor {
   include MixinAuthorization(accessControlState);
   include MixinStorage();
 
-  public shared ({ caller }) func uploadPersonalSong(songUpdate : Song.Update) : async () {
+  type UploadPersonalSongResult = {
+    #ok : Nat;
+    #error : UploadPersonalSongError;
+  };
+
+  type UploadPersonalSongError = {
+    #unauthorized : Text;
+    #invalidPayload : Text;
+    #storageError : Text;
+  };
+
+  public shared ({ caller }) func uploadPersonalSong(songUpdate : Song.Update) : async UploadPersonalSongResult {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can upload personal songs");
+      return #error(#unauthorized("Only users can upload personal songs"));
+    };
+
+    switch (validateSongUpdate(songUpdate)) {
+      case (#ok) {};
+      case (#error(err)) {
+        return #error(err);
+      };
     };
 
     let personalSong : PersonalSong = {
@@ -97,11 +115,31 @@ actor {
 
     personalSongs.add(nextPersonalSongId, personalSong);
     nextPersonalSongId += 1;
+
+    #ok(personalSong.id);
   };
 
-  public shared ({ caller }) func uploadPublicSong(songUpdate : Song.Update) : async () {
+  type UploadPublicSongResult = {
+    #ok : Nat;
+    #error : UploadPublicSongError;
+  };
+
+  type UploadPublicSongError = {
+    #unauthorized : Text;
+    #invalidPayload : Text;
+    #storageError : Text;
+  };
+
+  public shared ({ caller }) func uploadPublicSong(songUpdate : Song.Update) : async UploadPublicSongResult {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can upload songs");
+      return #error(#unauthorized("Only users can upload songs"));
+    };
+
+    switch (validateSongUpdate(songUpdate)) {
+      case (#ok) {};
+      case (#error(err)) {
+        return #error(err);
+      };
     };
 
     let song : Song = {
@@ -116,6 +154,22 @@ actor {
 
     songs.add(nextSongId, song);
     nextSongId += 1;
+
+    #ok(song.id);
+  };
+
+  type InvalidPayloadError = {
+    #invalidPayload : Text;
+  };
+
+  func validateSongUpdate(update : Song.Update) : { #ok; #error : InvalidPayloadError } {
+    if (update.duration == 0) {
+      return #error(
+        #invalidPayload("Duration must be greater than zero")
+      );
+    };
+
+    #ok;
   };
 
   public query ({ caller }) func getPersonalSongs() : async [PersonalSong] {

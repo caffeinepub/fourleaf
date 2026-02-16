@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-sidebar-header-block-top-section-of-leftsidebar-to-include-a-prominent-hamburger-menu-icon-positioned-immediately-to-the-left-of-the-brand-name-fourleaf-matching-the-uploaded-reference-layout-and-keeping-consistent-padding-inside-the-existing-header-container",
-      "featureTitle": "Update the sidebar header block (top section of LeftSidebar) to include a prominent hamburger menu icon positioned immediately to the left of the brand name “Fourleaf”, matching the uploaded reference layout and keeping consistent padding inside the existing header container.",
+      "featureId": "feature-update-the-library-page-search-bar-container-so-it-no-longer-uses-fixed-sticky-positioning-and-therefore-does-not-follow-the-scroll-or-overlap-content-specifically-change-the-search-bar-wrapper-in-frontend-src-pages-librarypage-tsx-from-classname-sticky-to-a-non-sticky-layout-relative-or-default-static-flow-and-remove-the-inline-style-top-var-header-offset-that-is-only-needed-for-sticky-positioning",
+      "featureTitle": "Update the Library page search bar container so it no longer uses fixed/sticky positioning and therefore does not follow the scroll or overlap content. Specifically, change the search bar wrapper in `frontend/src/pages/LibraryPage.tsx` from `className=\"sticky ...\"` to a non-sticky layout (`relative` or default/static flow), and remove the inline `style={{ top: 'var(--header-offset)' }}` that is only needed for sticky positioning.",
       "files": [
-        "frontend/src/components/layout/LeftSidebar.tsx"
+        "frontend/src/pages/LibraryPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -22,10 +22,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-the-hamburger-icon-visual-styling-as-three-thick-horizontal-bars-with-rounded-ends-using-the-same-vibrant-green-accent-color-already-used-by-the-fourleaf-logo-elements-e-g-22c55e",
-      "featureTitle": "Implement the hamburger icon visual styling as three thick horizontal bars with rounded ends, using the same vibrant green accent color already used by the Fourleaf logo elements (e.g., #22c55e).",
+      "featureId": "feature-add-a-reusable-css-snippet-in-frontend-src-index-css-that-developers-can-apply-to-page-level-search-bars-to-ensure-non-floating-behavior-using-position-relative-or-static-top-0-and-an-appropriate-z-index-that-does-not-overlay-content-unexpectedly-ensure-the-library-page-search-bar-uses-this-class-or-an-equivalent-tailwind-class-set-so-the-positioning-intent-is-explicit",
+      "featureTitle": "Add a reusable CSS snippet (in `frontend/src/index.css`) that developers can apply to page-level search bars to ensure non-floating behavior, using `position: relative` (or static), `top: 0`, and an appropriate `z-index` that does not overlay content unexpectedly. Ensure the Library page search bar uses this class (or an equivalent Tailwind class set) so the positioning intent is explicit.",
       "files": [
-        "frontend/src/components/layout/LeftSidebar.tsx"
+        "frontend/src/index.css",
+        "frontend/src/pages/LibraryPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -38,46 +39,6 @@
       ],
       "testIds": [
         "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-make-the-new-hamburger-icon-in-the-sidebar-header-act-as-the-toggle-to-expand-collapse-the-sidebar-navigation-menu-while-preserving-the-existing-dark-aesthetic-and-keeping-navigation-items-e-g-home-my-library-in-the-same-order-and-general-layout",
-      "featureTitle": "Make the new hamburger icon in the sidebar header act as the toggle to expand/collapse the sidebar navigation menu while preserving the existing dark aesthetic and keeping navigation items (e.g., Home, My Library) in the same order and general layout.",
-      "files": [
-        "frontend/src/components/layout/LeftSidebar.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-smooth-transition-animation-for-the-sidebar-expand-collapse-interaction-that-is-consistent-with-existing-ui-motion-patterns-and-provide-appropriate-accessibility-attributes-for-the-toggle-control",
-      "featureTitle": "Add a smooth transition animation for the sidebar expand/collapse interaction that is consistent with existing UI motion patterns, and provide appropriate accessibility attributes for the toggle control.",
-      "files": [
-        "frontend/src/components/layout/LeftSidebar.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
       ],
       "confidence": "high"
     }

@@ -7,18 +7,40 @@ export function normalizeBackendError(error: any): string {
 
   const errorMessage = error.message || String(error);
 
-  // Authorization errors
+  // Authorization errors - check for typed upload errors first
   if (errorMessage.includes('Unauthorized') || errorMessage.includes('permission')) {
     // Check for explicit admin requirement
-    if (errorMessage.toLowerCase().includes('admin') && errorMessage.toLowerCase().includes('only')) {
-      return 'You do not have permission to perform this action. Admin access required.';
+    if (errorMessage.toLowerCase().includes('admin') && 
+        (errorMessage.toLowerCase().includes('only') || errorMessage.toLowerCase().includes('required'))) {
+      return 'Admin access required for this action.';
     }
     // Check for login requirement
     if (errorMessage.includes('logged in') || errorMessage.includes('authenticated')) {
       return 'Please log in to continue.';
     }
-    // Generic permission denial - avoid assuming admin-only
+    // Check for user role requirement (from typed upload errors)
+    if (errorMessage.includes('Only users can upload')) {
+      return 'You must be logged in to upload songs.';
+    }
+    // Generic permission denial
     return 'You do not have permission to perform this action.';
+  }
+
+  // Invalid payload errors
+  if (errorMessage.includes('Invalid') || errorMessage.includes('invalid')) {
+    // Extract the specific validation message if present
+    if (errorMessage.includes('Duration must be greater than zero')) {
+      return 'Song duration must be greater than zero.';
+    }
+    if (errorMessage.includes('payload')) {
+      return 'Invalid song data. Please check all fields and try again.';
+    }
+    return errorMessage.length < 100 ? errorMessage : 'Invalid data provided.';
+  }
+
+  // Storage errors
+  if (errorMessage.includes('storage') || errorMessage.includes('Storage')) {
+    return 'A storage error occurred. Please try again.';
   }
 
   // Subscription errors
@@ -50,16 +72,31 @@ export function normalizeBackendError(error: any): string {
   if (errorMessage.includes('trap') || errorMessage.includes('Canister')) {
     // Try to extract meaningful message before "trap" keyword
     const beforeTrap = errorMessage.split(/trap|Canister/i)[0].trim();
-    if (beforeTrap && beforeTrap.length > 10) {
-      return beforeTrap;
+    if (beforeTrap && beforeTrap.length > 10 && beforeTrap.length < 150) {
+      // Remove common prefixes
+      const cleaned = beforeTrap.replace(/^(Error:|Rejected:)\s*/i, '').trim();
+      return cleaned;
     }
     return 'An error occurred while processing your request.';
   }
 
-  // Return the original message if it's already user-friendly
-  if (errorMessage.length < 100 && !errorMessage.includes('Error:')) {
+  // Return the original message if it's already user-friendly (short and clear)
+  if (errorMessage.length < 100 && !errorMessage.includes('Error:') && !errorMessage.includes('Rejected:')) {
     return errorMessage;
   }
 
   return 'An error occurred. Please try again.';
+}
+
+/**
+ * Checks if an error is authorization-related for UI purposes
+ */
+export function isAuthorizationError(error: any): boolean {
+  if (!error) return false;
+  const errorMessage = (error.message || String(error)).toLowerCase();
+  return errorMessage.includes('unauthorized') || 
+         errorMessage.includes('permission') || 
+         errorMessage.includes('not have access') ||
+         errorMessage.includes('only users can') ||
+         errorMessage.includes('admin') && errorMessage.includes('required');
 }

@@ -156,6 +156,7 @@ export default function AdminDashboardPage() {
         open={isCreating || !!editingSong}
         onOpenChange={handleDialogClose}
         song={editingSong}
+        mode={isCreating ? 'create' : 'edit'}
       />
 
       <AlertDialog open={!!deletingSong} onOpenChange={(open) => !open && setDeletingSong(null)}>

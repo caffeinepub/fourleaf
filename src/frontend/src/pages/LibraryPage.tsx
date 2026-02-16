@@ -117,7 +117,7 @@ export default function LibraryPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
             <div className="min-w-0 flex-1">
               <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold font-display mb-2 drop-shadow-lg text-primary">
-                Discover Music
+                Fourleaf Vibes
               </h1>
               <p className="text-base sm:text-lg text-foreground/90 drop-shadow">
                 {totalSongs ? `${totalSongs.toString()} tracks available` : 'Explore the collection'}
@@ -135,16 +135,19 @@ export default function LibraryPage() {
         </div>
       </div>
 
-      <div className="sticky top-[57px] lg:top-[57px] z-40 bg-background/95 backdrop-blur border-b border-border/40 px-6 py-4">
+      {/* Non-floating search bar - stays in normal document flow */}
+      <div 
+        className="page-search-bar bg-background/95 backdrop-blur border-b border-border/40 px-6 py-4"
+      >
         <div className="container max-w-screen-2xl">
           <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
               type="text"
               placeholder="Search tracks, artists, albums..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-10"
             />
           </div>
         </div>

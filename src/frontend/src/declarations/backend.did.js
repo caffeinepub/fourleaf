@@ -65,6 +65,24 @@ export const Update = IDL.Record({
   'coverImage' : IDL.Opt(ExternalBlob),
   'artist' : IDL.Text,
 });
+export const UploadPersonalSongError = IDL.Variant({
+  'storageError' : IDL.Text,
+  'invalidPayload' : IDL.Text,
+  'unauthorized' : IDL.Text,
+});
+export const UploadPersonalSongResult = IDL.Variant({
+  'ok' : IDL.Nat,
+  'error' : UploadPersonalSongError,
+});
+export const UploadPublicSongError = IDL.Variant({
+  'storageError' : IDL.Text,
+  'invalidPayload' : IDL.Text,
+  'unauthorized' : IDL.Text,
+});
+export const UploadPublicSongResult = IDL.Variant({
+  'ok' : IDL.Nat,
+  'error' : UploadPublicSongError,
+});
 
 export const idlService = IDL.Service({
   '_caffeineStorageBlobIsLive' : IDL.Func(
@@ -126,8 +144,8 @@ export const idlService = IDL.Service({
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'streamPersonalSongAudio' : IDL.Func([IDL.Nat], [ExternalBlob], ['query']),
   'streamSongAudio' : IDL.Func([IDL.Nat], [IDL.Opt(ExternalBlob)], ['query']),
-  'uploadPersonalSong' : IDL.Func([Update], [], []),
-  'uploadPublicSong' : IDL.Func([Update], [], []),
+  'uploadPersonalSong' : IDL.Func([Update], [UploadPersonalSongResult], []),
+  'uploadPublicSong' : IDL.Func([Update], [UploadPublicSongResult], []),
 });
 
 export const idlInitArgs = [];
@@ -189,6 +207,24 @@ export const idlFactory = ({ IDL }) => {
     'audioFile' : ExternalBlob,
     'coverImage' : IDL.Opt(ExternalBlob),
     'artist' : IDL.Text,
+  });
+  const UploadPersonalSongError = IDL.Variant({
+    'storageError' : IDL.Text,
+    'invalidPayload' : IDL.Text,
+    'unauthorized' : IDL.Text,
+  });
+  const UploadPersonalSongResult = IDL.Variant({
+    'ok' : IDL.Nat,
+    'error' : UploadPersonalSongError,
+  });
+  const UploadPublicSongError = IDL.Variant({
+    'storageError' : IDL.Text,
+    'invalidPayload' : IDL.Text,
+    'unauthorized' : IDL.Text,
+  });
+  const UploadPublicSongResult = IDL.Variant({
+    'ok' : IDL.Nat,
+    'error' : UploadPublicSongError,
   });
   
   return IDL.Service({
@@ -259,8 +295,8 @@ export const idlFactory = ({ IDL }) => {
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'streamPersonalSongAudio' : IDL.Func([IDL.Nat], [ExternalBlob], ['query']),
     'streamSongAudio' : IDL.Func([IDL.Nat], [IDL.Opt(ExternalBlob)], ['query']),
-    'uploadPersonalSong' : IDL.Func([Update], [], []),
-    'uploadPublicSong' : IDL.Func([Update], [], []),
+    'uploadPersonalSong' : IDL.Func([Update], [UploadPersonalSongResult], []),
+    'uploadPublicSong' : IDL.Func([Update], [UploadPublicSongResult], []),
   });
 };
 

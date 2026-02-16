@@ -1,92 +1,41 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Sidebar header hamburger icon and collapsible LeftSidebar navigation",
+  "title": "Library page search bar should not float while scrolling",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add a hamburger icon immediately left of the “Fourleaf” brand text inside the LeftSidebar header row with consistent padding/alignment.",
+      "summary": "Remove sticky/fixed positioning from the Library page search bar wrapper so it stays in normal document flow and never overlaps content.",
       "acceptanceCriteria": [
-        "In the LeftSidebar top header block, a hamburger icon appears directly to the left of the “Fourleaf” text (not above or below it).",
-        "The hamburger icon and the brand text are vertically aligned and visually centered within the header row.",
-        "Padding/margins remain consistent with the existing header container styling (no crowding or overlap)."
+        "On the Library page, the search bar remains in the normal document flow and does not move when scrolling the page content.",
+        "The search bar does not overlap subsequent content; content starts below it as expected.",
+        "No sticky/fixed behavior remains for the Library page search bar (no `position: sticky/fixed` styling and no `top: var(--header-offset)` dependency)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/layout/LeftSidebar.tsx",
+          "path": "frontend/src/pages/LibraryPage.tsx",
           "operation": "modify",
-          "description": "Update the sidebar header container to render a left-aligned hamburger toggle button, followed by the Fourleaf logo mark and a separate “Fourleaf” text node so the icon sits immediately left of the brand text; keep existing header padding and row alignment. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/branding/FourleafBrand.tsx",
-          "operation": "modify",
-          "description": "Optionally extend FourleafBrand with a small helper variant (or exported sub-render) that allows LeftSidebar to compose logo mark and brand text separately without duplicating SVG markup, enabling precise hamburger-to-text positioning. Verify the component's usage instructions before implementing."
+          "description": "Update the search bar wrapper (currently using `className=\"sticky ...\"` plus `style={{ top: 'var(--header-offset)' }}`) to use non-sticky/static flow layout (e.g., remove `sticky` and remove the inline `top` style entirely). Ensure any z-index choices do not cause overlay since the element should be in normal flow."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Style the hamburger icon as three thick rounded green bars matching the Fourleaf green accent and ensure it renders crisply at ~24px.",
+      "summary": "Add a reusable non-floating search bar CSS utility class and apply it on the Library page for explicit intent.",
       "acceptanceCriteria": [
-        "The icon is rendered as exactly three horizontal bars.",
-        "Bars are visually thick and have rounded ends.",
-        "Icon color matches the green used in the existing Fourleaf logo elements.",
-        "Icon remains crisp at typical sizes (e.g., ~24px)."
+        "`frontend/src/index.css` contains a clearly named class (or documented snippet) for a non-sticky page search bar (relative/static positioning, `top: 0`, and a non-problematic `z-index`).",
+        "The Library page search bar styling is updated to use the new class/snippet or an equivalent Tailwind class combination, and the search bar no longer floats on scroll."
       ],
       "file_operations": [
-        {
-          "path": "frontend/public/assets/generated/hamburger-menu.dim_24x24.svg",
-          "operation": "create",
-          "description": "Add/replace the hamburger icon SVG as three thick horizontal bars with rounded ends in the same vibrant green accent used by the Fourleaf logo (e.g., #22c55e), sized to render crisply at 24x24. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/layout/LeftSidebar.tsx",
-          "operation": "modify",
-          "description": "Use the generated asset at frontend/public/assets/generated/hamburger-menu.dim_24x24.svg for the new sidebar-header hamburger button; ensure sizing and alignment keep it visually prominent and crisp. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Make the sidebar-header hamburger button toggle LeftSidebar between expanded and collapsed states without changing nav order/routes or dark styling.",
-      "acceptanceCriteria": [
-        "Clicking the hamburger icon toggles between an expanded and collapsed sidebar state.",
-        "Navigation items remain present and in the same order; collapsing only changes the sidebar presentation (e.g., width and/or label visibility), not the routes.",
-        "Collapsed state remains usable (icons still visible/clickable; labels may be hidden or minimized).",
-        "The sidebar retains the existing dark styling (background, card translucency, borders) in both states."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/layout/LeftSidebar.tsx",
-          "operation": "modify",
-          "description": "Introduce a desktop-capable collapsed/expanded state for LeftSidebar driven by the new hamburger button: collapse reduces sidebar width and hides/minimizes nav labels while keeping icons and click targets intact; preserve nav item order and existing dark card/translucent styling in both states. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/layout/AppLayout.tsx",
-          "operation": "modify",
-          "description": "Adjust layout wiring as needed so the sidebar’s new collapse behavior does not conflict with the existing mobile drawer open/close behavior; keep routes and destinations unchanged and ensure the app header remains consistent with the dark aesthetic. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Add smooth expand/collapse animation with reduced-motion support and accessible ARIA/keyboard behavior on the hamburger toggle.",
-      "acceptanceCriteria": [
-        "Expand/collapse animates smoothly (e.g., width/opacity) without jarring layout jumps.",
-        "Animation respects reduced-motion preferences (no/instant transition when reduced motion is enabled).",
-        "Hamburger toggle button includes clear ARIA labeling (English) and reflects state via aria-expanded.",
-        "Keyboard interaction works (toggle is focusable and activates via Enter/Space)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/layout/LeftSidebar.tsx",
-          "operation": "modify",
-          "description": "Add Tailwind-based transitions for sidebar width and label opacity/visibility, including motion-reduce fallbacks; implement the hamburger as a real button (using existing Button) with aria-label, aria-expanded reflecting expanded state, and keyboard activation via native button semantics. Verify the component's usage instructions before implementing."
-        },
         {
           "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "If needed for consistency with existing motion patterns, add a small utility or ensure existing motion-reduce conventions apply cleanly to the sidebar collapse transition (without introducing new global stylesheet paths). Verify the component's usage instructions before implementing."
+          "description": "Add a reusable, clearly named CSS class for page-level search bars that must not float (e.g., sets `position: relative` or `static`, `top: 0`, and a safe `z-index` that does not overlay content). Place it in an appropriate Tailwind layer section (e.g., `@layer components` or similar) and include a brief comment describing intended usage."
+        },
+        {
+          "path": "frontend/src/pages/LibraryPage.tsx",
+          "operation": "modify",
+          "description": "Apply the new non-floating search bar CSS class to the Library page search bar wrapper (or use an equivalent explicit Tailwind class set) so the non-sticky positioning intent is clear and consistent with the new global snippet."
         }
       ]
     }

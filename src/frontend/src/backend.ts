@@ -89,6 +89,22 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface SongMetadata {
+    id: bigint;
+    title: string;
+    duration: bigint;
+    album: string;
+    audioFile: ExternalBlob;
+    coverImage?: ExternalBlob;
+    artist: string;
+}
+export type UploadPublicSongResult = {
+    __kind__: "ok";
+    ok: bigint;
+} | {
+    __kind__: "error";
+    error: UploadPublicSongError;
+};
 export interface _CaffeineStorageRefillResult {
     success?: boolean;
     topped_up_amount?: bigint;
@@ -103,19 +119,10 @@ export interface PersonalSong {
     coverImage?: ExternalBlob;
     artist: string;
 }
-export interface Update {
-    title: string;
-    duration: bigint;
-    album: string;
-    audioFile: ExternalBlob;
-    coverImage?: ExternalBlob;
-    artist: string;
-}
 export interface _CaffeineStorageRefillInformation {
     proposed_top_up_amount?: bigint;
 }
-export interface Song {
-    id: bigint;
+export interface Update {
     title: string;
     duration: bigint;
     album: string;
@@ -127,11 +134,14 @@ export interface _CaffeineStorageCreateCertificateResult {
     method: string;
     blob_hash: string;
 }
-export interface UserProfile {
-    hasActiveSubscription: boolean;
-    name: string;
-}
-export interface SongMetadata {
+export type UploadPersonalSongResult = {
+    __kind__: "ok";
+    ok: bigint;
+} | {
+    __kind__: "error";
+    error: UploadPersonalSongError;
+};
+export interface Song {
     id: bigint;
     title: string;
     duration: bigint;
@@ -140,6 +150,30 @@ export interface SongMetadata {
     coverImage?: ExternalBlob;
     artist: string;
 }
+export type UploadPublicSongError = {
+    __kind__: "storageError";
+    storageError: string;
+} | {
+    __kind__: "invalidPayload";
+    invalidPayload: string;
+} | {
+    __kind__: "unauthorized";
+    unauthorized: string;
+};
+export interface UserProfile {
+    hasActiveSubscription: boolean;
+    name: string;
+}
+export type UploadPersonalSongError = {
+    __kind__: "storageError";
+    storageError: string;
+} | {
+    __kind__: "invalidPayload";
+    invalidPayload: string;
+} | {
+    __kind__: "unauthorized";
+    unauthorized: string;
+};
 export enum UserRole {
     admin = "admin",
     user = "user",
@@ -175,10 +209,10 @@ export interface backendInterface {
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     streamPersonalSongAudio(songId: bigint): Promise<ExternalBlob>;
     streamSongAudio(songId: bigint): Promise<ExternalBlob | null>;
-    uploadPersonalSong(songUpdate: Update): Promise<void>;
-    uploadPublicSong(songUpdate: Update): Promise<void>;
+    uploadPersonalSong(songUpdate: Update): Promise<UploadPersonalSongResult>;
+    uploadPublicSong(songUpdate: Update): Promise<UploadPublicSongResult>;
 }
-import type { ExternalBlob as _ExternalBlob, PersonalSong as _PersonalSong, Song as _Song, SongMetadata as _SongMetadata, Update as _Update, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
+import type { ExternalBlob as _ExternalBlob, PersonalSong as _PersonalSong, Song as _Song, SongMetadata as _SongMetadata, Update as _Update, UploadPersonalSongError as _UploadPersonalSongError, UploadPersonalSongResult as _UploadPersonalSongResult, UploadPublicSongError as _UploadPublicSongError, UploadPublicSongResult as _UploadPublicSongResult, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _caffeineStorageBlobIsLive(arg0: Uint8Array): Promise<boolean> {
@@ -535,32 +569,32 @@ export class Backend implements backendInterface {
             return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
         }
     }
-    async uploadPersonalSong(arg0: Update): Promise<void> {
+    async uploadPersonalSong(arg0: Update): Promise<UploadPersonalSongResult> {
         if (this.processError) {
             try {
                 const result = await this.actor.uploadPersonalSong(await to_candid_Update_n25(this._uploadFile, this._downloadFile, arg0));
-                return result;
+                return from_candid_UploadPersonalSongResult_n28(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.uploadPersonalSong(await to_candid_Update_n25(this._uploadFile, this._downloadFile, arg0));
-            return result;
+            return from_candid_UploadPersonalSongResult_n28(this._uploadFile, this._downloadFile, result);
         }
     }
-    async uploadPublicSong(arg0: Update): Promise<void> {
+    async uploadPublicSong(arg0: Update): Promise<UploadPublicSongResult> {
         if (this.processError) {
             try {
                 const result = await this.actor.uploadPublicSong(await to_candid_Update_n25(this._uploadFile, this._downloadFile, arg0));
-                return result;
+                return from_candid_UploadPublicSongResult_n32(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.uploadPublicSong(await to_candid_Update_n25(this._uploadFile, this._downloadFile, arg0));
-            return result;
+            return from_candid_UploadPublicSongResult_n32(this._uploadFile, this._downloadFile, result);
         }
     }
 }
@@ -575,6 +609,18 @@ async function from_candid_SongMetadata_n19(_uploadFile: (file: ExternalBlob) =>
 }
 async function from_candid_Song_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Song): Promise<Song> {
     return await from_candid_record_n13(_uploadFile, _downloadFile, value);
+}
+function from_candid_UploadPersonalSongError_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UploadPersonalSongError): UploadPersonalSongError {
+    return from_candid_variant_n31(_uploadFile, _downloadFile, value);
+}
+function from_candid_UploadPersonalSongResult_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UploadPersonalSongResult): UploadPersonalSongResult {
+    return from_candid_variant_n29(_uploadFile, _downloadFile, value);
+}
+function from_candid_UploadPublicSongError_n34(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UploadPublicSongError): UploadPublicSongError {
+    return from_candid_variant_n31(_uploadFile, _downloadFile, value);
+}
+function from_candid_UploadPublicSongResult_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UploadPublicSongResult): UploadPublicSongResult {
+    return from_candid_variant_n33(_uploadFile, _downloadFile, value);
 }
 function from_candid_UserRole_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
     return from_candid_variant_n17(_uploadFile, _downloadFile, value);
@@ -689,6 +735,71 @@ function from_candid_variant_n17(_uploadFile: (file: ExternalBlob) => Promise<Ui
     guest: null;
 }): UserRole {
     return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
+}
+function from_candid_variant_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    ok: bigint;
+} | {
+    error: _UploadPersonalSongError;
+}): {
+    __kind__: "ok";
+    ok: bigint;
+} | {
+    __kind__: "error";
+    error: UploadPersonalSongError;
+} {
+    return "ok" in value ? {
+        __kind__: "ok",
+        ok: value.ok
+    } : "error" in value ? {
+        __kind__: "error",
+        error: from_candid_UploadPersonalSongError_n30(_uploadFile, _downloadFile, value.error)
+    } : value;
+}
+function from_candid_variant_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    storageError: string;
+} | {
+    invalidPayload: string;
+} | {
+    unauthorized: string;
+}): {
+    __kind__: "storageError";
+    storageError: string;
+} | {
+    __kind__: "invalidPayload";
+    invalidPayload: string;
+} | {
+    __kind__: "unauthorized";
+    unauthorized: string;
+} {
+    return "storageError" in value ? {
+        __kind__: "storageError",
+        storageError: value.storageError
+    } : "invalidPayload" in value ? {
+        __kind__: "invalidPayload",
+        invalidPayload: value.invalidPayload
+    } : "unauthorized" in value ? {
+        __kind__: "unauthorized",
+        unauthorized: value.unauthorized
+    } : value;
+}
+function from_candid_variant_n33(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    ok: bigint;
+} | {
+    error: _UploadPublicSongError;
+}): {
+    __kind__: "ok";
+    ok: bigint;
+} | {
+    __kind__: "error";
+    error: UploadPublicSongError;
+} {
+    return "ok" in value ? {
+        __kind__: "ok",
+        ok: value.ok
+    } : "error" in value ? {
+        __kind__: "error",
+        error: from_candid_UploadPublicSongError_n34(_uploadFile, _downloadFile, value.error)
+    } : value;
 }
 async function from_candid_vec_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Song>): Promise<Array<Song>> {
     return await Promise.all(value.map(async (x)=>await from_candid_Song_n12(_uploadFile, _downloadFile, x)));

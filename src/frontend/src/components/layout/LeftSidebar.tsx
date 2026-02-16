@@ -80,7 +80,7 @@ export default function LeftSidebar({ isMobileOpen = false, onRequestClose }: Le
               className="hidden md:flex h-10 w-10 shrink-0 hover:bg-accent/50"
             >
               <img 
-                src="/assets/generated/hamburger-menu.dim_24x24.svg" 
+                src="/assets/generated/hamburger-menu.dim_24x24.png" 
                 alt="" 
                 className="h-6 w-6"
               />

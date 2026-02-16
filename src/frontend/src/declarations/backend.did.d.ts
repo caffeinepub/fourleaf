@@ -47,6 +47,16 @@ export interface Update {
   'coverImage' : [] | [ExternalBlob],
   'artist' : string,
 }
+export type UploadPersonalSongError = { 'storageError' : string } |
+  { 'invalidPayload' : string } |
+  { 'unauthorized' : string };
+export type UploadPersonalSongResult = { 'ok' : bigint } |
+  { 'error' : UploadPersonalSongError };
+export type UploadPublicSongError = { 'storageError' : string } |
+  { 'invalidPayload' : string } |
+  { 'unauthorized' : string };
+export type UploadPublicSongResult = { 'ok' : bigint } |
+  { 'error' : UploadPublicSongError };
 export interface UserProfile {
   'hasActiveSubscription' : boolean,
   'name' : string,
@@ -107,8 +117,8 @@ export interface _SERVICE {
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'streamPersonalSongAudio' : ActorMethod<[bigint], ExternalBlob>,
   'streamSongAudio' : ActorMethod<[bigint], [] | [ExternalBlob]>,
-  'uploadPersonalSong' : ActorMethod<[Update], undefined>,
-  'uploadPublicSong' : ActorMethod<[Update], undefined>,
+  'uploadPersonalSong' : ActorMethod<[Update], UploadPersonalSongResult>,
+  'uploadPublicSong' : ActorMethod<[Update], UploadPublicSongResult>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

@@ -14,6 +14,22 @@ export class ExternalBlob {
     static fromBytes(blob: Uint8Array<ArrayBuffer>): ExternalBlob;
     withUploadProgress(onProgress: (percentage: number) => void): ExternalBlob;
 }
+export interface SongMetadata {
+    id: bigint;
+    title: string;
+    duration: bigint;
+    album: string;
+    audioFile: ExternalBlob;
+    coverImage?: ExternalBlob;
+    artist: string;
+}
+export type UploadPublicSongResult = {
+    __kind__: "ok";
+    ok: bigint;
+} | {
+    __kind__: "error";
+    error: UploadPublicSongError;
+};
 export interface PersonalSong {
     id: bigint;
     title: string;
@@ -32,6 +48,13 @@ export interface Update {
     coverImage?: ExternalBlob;
     artist: string;
 }
+export type UploadPersonalSongResult = {
+    __kind__: "ok";
+    ok: bigint;
+} | {
+    __kind__: "error";
+    error: UploadPersonalSongError;
+};
 export interface Song {
     id: bigint;
     title: string;
@@ -41,19 +64,30 @@ export interface Song {
     coverImage?: ExternalBlob;
     artist: string;
 }
+export type UploadPublicSongError = {
+    __kind__: "storageError";
+    storageError: string;
+} | {
+    __kind__: "invalidPayload";
+    invalidPayload: string;
+} | {
+    __kind__: "unauthorized";
+    unauthorized: string;
+};
 export interface UserProfile {
     hasActiveSubscription: boolean;
     name: string;
 }
-export interface SongMetadata {
-    id: bigint;
-    title: string;
-    duration: bigint;
-    album: string;
-    audioFile: ExternalBlob;
-    coverImage?: ExternalBlob;
-    artist: string;
-}
+export type UploadPersonalSongError = {
+    __kind__: "storageError";
+    storageError: string;
+} | {
+    __kind__: "invalidPayload";
+    invalidPayload: string;
+} | {
+    __kind__: "unauthorized";
+    unauthorized: string;
+};
 export enum UserRole {
     admin = "admin",
     user = "user",
@@ -82,6 +116,6 @@ export interface backendInterface {
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     streamPersonalSongAudio(songId: bigint): Promise<ExternalBlob>;
     streamSongAudio(songId: bigint): Promise<ExternalBlob | null>;
-    uploadPersonalSong(songUpdate: Update): Promise<void>;
-    uploadPublicSong(songUpdate: Update): Promise<void>;
+    uploadPersonalSong(songUpdate: Update): Promise<UploadPersonalSongResult>;
+    uploadPublicSong(songUpdate: Update): Promise<UploadPublicSongResult>;
 }

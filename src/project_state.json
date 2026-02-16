@@ -3,53 +3,30 @@
   "projectStateVersion": 3,
   "summary": "New project",
   "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
-  "imageRequirements": "## Edit Images\n- Update the hamburger icon asset to match the new three-thick-bar rounded green style (hamburger-menu.dim_24x24.svg > hamburger-menu.dim_24x24.svg)",
+  "known_issues": [
+    "Search bar is using fixed/sticky positioning, floats on scroll, and overlaps page content; needs CSS adjustment (position/top/z-index) so it stays at top without scrolling."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-the-sidebar-header-block-top-section-of-leftsidebar-to-include-a-prominent-hamburger-menu-icon-positioned-immediately-to-the-left-of-the-brand-name-fourleaf-matching-the-uploaded-reference-layout-and-keeping-consistent-padding-inside-the-existing-header-container",
-      "title": "Update the sidebar header block (top section of LeftSidebar) to include a prominent hamburger menu icon positioned immediately to the left of the brand name “Fourleaf”, matching the uploaded reference layout and keeping consistent padding inside the existing header container.",
+      "id": "feature-update-the-library-page-search-bar-container-so-it-no-longer-uses-fixed-sticky-positioning-and-therefore-does-not-follow-the-scroll-or-overlap-content-specifically-change-the-search-bar-wrapper-in-frontend-src-pages-librarypage-tsx-from-classname-sticky-to-a-non-sticky-layout-relative-or-default-static-flow-and-remove-the-inline-style-top-var-header-offset-that-is-only-needed-for-sticky-positioning",
+      "title": "Update the Library page search bar container so it no longer uses fixed/sticky positioning and therefore does not follow the scroll or overlap content. Specifically, change the search bar wrapper in `frontend/src/pages/LibraryPage.tsx` from `className=\"sticky ...\"` to a non-sticky layout (`relative` or default/static flow), and remove the inline `style={{ top: 'var(--header-offset)' }}` that is only needed for sticky positioning.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-the-hamburger-icon-visual-styling-as-three-thick-horizontal-bars-with-rounded-ends-using-the-same-vibrant-green-accent-color-already-used-by-the-fourleaf-logo-elements-e-g-22c55e",
-      "title": "Implement the hamburger icon visual styling as three thick horizontal bars with rounded ends, using the same vibrant green accent color already used by the Fourleaf logo elements (e.g., #22c55e).",
+      "id": "feature-add-a-reusable-css-snippet-in-frontend-src-index-css-that-developers-can-apply-to-page-level-search-bars-to-ensure-non-floating-behavior-using-position-relative-or-static-top-0-and-an-appropriate-z-index-that-does-not-overlay-content-unexpectedly-ensure-the-library-page-search-bar-uses-this-class-or-an-equivalent-tailwind-class-set-so-the-positioning-intent-is-explicit",
+      "title": "Add a reusable CSS snippet (in `frontend/src/index.css`) that developers can apply to page-level search bars to ensure non-floating behavior, using `position: relative` (or static), `top: 0`, and an appropriate `z-index` that does not overlay content unexpectedly. Ensure the Library page search bar uses this class (or an equivalent Tailwind class set) so the positioning intent is explicit.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
-    },
-    {
-      "id": "feature-make-the-new-hamburger-icon-in-the-sidebar-header-act-as-the-toggle-to-expand-collapse-the-sidebar-navigation-menu-while-preserving-the-existing-dark-aesthetic-and-keeping-navigation-items-e-g-home-my-library-in-the-same-order-and-general-layout",
-      "title": "Make the new hamburger icon in the sidebar header act as the toggle to expand/collapse the sidebar navigation menu while preserving the existing dark aesthetic and keeping navigation items (e.g., Home, My Library) in the same order and general layout.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-smooth-transition-animation-for-the-sidebar-expand-collapse-interaction-that-is-consistent-with-existing-ui-motion-patterns-and-provide-appropriate-accessibility-attributes-for-the-toggle-control",
-      "title": "Add a smooth transition animation for the sidebar expand/collapse interaction that is consistent with existing UI motion patterns, and provide appropriate accessibility attributes for the toggle control.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Add green rounded-bar hamburger icon left of 'Fourleaf' in sidebar header that toggles sidebar expand/collapse with smooth transition while preserving dark aesthetic and nav layout.",
-      "reqIds": [],
-      "status": "pending"
-    }
-  ],
-  "gameProjectType": "none",
-  "projectName": "Add green hamburger icon next to Fourleaf brand in sidebar header with expand/collapse toggle",
+  "new_feature_requests": [],
+  "projectName": "Stop Library page search bar from floating on scroll",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

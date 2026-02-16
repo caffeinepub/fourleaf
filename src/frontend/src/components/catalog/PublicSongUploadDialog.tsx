@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { Upload, Music, Image as ImageIcon, Globe } from 'lucide-react';
+import { Upload, Music, Image as ImageIcon, Globe, AlertCircle } from 'lucide-react';
 import { ExternalBlob } from '../../backend';
 import {
   validateAudioFile,
@@ -16,7 +16,8 @@ import {
   validateRequiredField,
 } from '../../utils/uploadValidation';
 import { buildSongUpdate } from '../../utils/buildSongUpdate';
-import { normalizeBackendError } from '../../utils/backendErrors';
+import { normalizeBackendError, isAuthorizationError } from '../../utils/backendErrors';
+import UploadDiagnosticsDialog from '../upload/UploadDiagnosticsDialog';
 
 interface PublicSongUploadDialogProps {
   open: boolean;
@@ -34,6 +35,8 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [audioProgress, setAudioProgress] = useState(0);
   const [coverProgress, setCoverProgress] = useState(0);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [lastError, setLastError] = useState<string | null>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,12 +80,18 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
     setCoverImage(null);
     setAudioProgress(0);
     setCoverProgress(0);
+    setLastError(null);
     if (audioInputRef.current) {
       audioInputRef.current.value = '';
     }
     if (coverInputRef.current) {
       coverInputRef.current.value = '';
     }
+  };
+
+  const resetProgress = () => {
+    setAudioProgress(0);
+    setCoverProgress(0);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -131,8 +140,8 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
     }
 
     try {
-      setAudioProgress(0);
-      setCoverProgress(0);
+      resetProgress();
+      setLastError(null);
 
       const audioBytes = new Uint8Array(await audioFile!.arrayBuffer());
       const audioBlob = ExternalBlob.fromBytes(audioBytes).withUploadProgress((percentage) => {
@@ -159,17 +168,18 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
       });
 
       await uploadPublicSong.mutateAsync(songUpdate);
-      toast.success('Song uploaded successfully and is now publicly available for streaming!');
+      toast.success('Song uploaded successfully to the public catalog!');
       
       resetForm();
       onOpenChange(false);
     } catch (error: any) {
       console.error('Upload error:', error);
       const errorMsg = normalizeBackendError(error);
+      setLastError(errorMsg);
       toast.error(errorMsg);
       
-      setAudioProgress(0);
-      setCoverProgress(0);
+      // Always reset progress on failure so user can retry
+      resetProgress();
     }
   };
 
@@ -193,17 +203,23 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
 
   if (!isAuthenticated) {
     return (
-      <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent onInteractOutside={handleInteractOutside} onEscapeKeyDown={handleEscapeKeyDown}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Login Required</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Globe className="h-5 w-5 text-primary" />
+              Upload to Public Catalog
+            </DialogTitle>
             <DialogDescription>
-              Please log in with Internet Identity to upload songs to the public catalog.
+              Please log in to upload songs to the public catalog.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-6 text-center">
-            <Button onClick={login} disabled={isLoggingIn} className="gap-2">
-              {isLoggingIn ? 'Logging in...' : 'Login with Internet Identity'}
+          <div className="flex flex-col items-center gap-4 py-6">
+            <p className="text-sm text-muted-foreground text-center">
+              You need to be logged in with Internet Identity to upload songs.
+            </p>
+            <Button onClick={login} disabled={isLoggingIn}>
+              {isLoggingIn ? 'Logging in...' : 'Log In'}
             </Button>
           </div>
         </DialogContent>
@@ -212,32 +228,60 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
   }
 
   const totalProgress = coverImage 
-    ? Math.round((audioProgress * 0.7) + (coverProgress * 0.3))
+    ? Math.round((audioProgress + coverProgress) / 2)
     : audioProgress;
 
-  return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onInteractOutside={handleInteractOutside} onEscapeKeyDown={handleEscapeKeyDown}>
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5 text-primary" />
-            Upload to Public Catalog
-          </DialogTitle>
-          <DialogDescription>
-            Upload a song to the public catalog. All users will be able to stream this track.
-          </DialogDescription>
-        </DialogHeader>
+  const showAuthWarning = lastError && isAuthorizationError(lastError);
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
+  return (
+    <>
+      <Dialog 
+        open={open} 
+        onOpenChange={handleClose}
+        modal={true}
+      >
+        <DialogContent 
+          className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"
+          onInteractOutside={handleInteractOutside}
+          onEscapeKeyDown={handleEscapeKeyDown}
+        >
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Globe className="h-5 w-5 text-primary" />
+              Upload to Public Catalog
+            </DialogTitle>
+            <DialogDescription>
+              Upload a song to the public catalog. All users will be able to stream it.
+            </DialogDescription>
+          </DialogHeader>
+
+          {showAuthWarning && (
+            <div className="rounded-lg border border-warning/50 bg-warning/10 p-3 flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
+              <div className="flex-1 space-y-2">
+                <p className="text-sm text-foreground">{lastError}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowDiagnostics(true)}
+                  className="h-8"
+                >
+                  View Diagnostics
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Title *</Label>
+              <Label htmlFor="title">Song Title *</Label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Song title"
+                placeholder="Enter song title"
                 disabled={isUploading}
+                required
               />
             </div>
 
@@ -247,8 +291,9 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
                 id="artist"
                 value={artist}
                 onChange={(e) => setArtist(e.target.value)}
-                placeholder="Artist name"
+                placeholder="Enter artist name"
                 disabled={isUploading}
+                required
               />
             </div>
 
@@ -258,8 +303,9 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
                 id="album"
                 value={album}
                 onChange={(e) => setAlbum(e.target.value)}
-                placeholder="Album name"
+                placeholder="Enter album name"
                 disabled={isUploading}
+                required
               />
             </div>
 
@@ -270,92 +316,114 @@ export default function PublicSongUploadDialog({ open, onOpenChange }: PublicSon
                 type="number"
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
-                placeholder="Duration in seconds (auto-detected if possible)"
+                placeholder="Auto-detected from audio file"
                 disabled={isUploading}
+                required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="audioFile">Audio File *</Label>
+              <Label htmlFor="audioFile">Audio File * (MP3, WAV, max 100MB)</Label>
               <div className="flex items-center gap-2">
                 <Input
-                  ref={audioInputRef}
                   id="audioFile"
+                  ref={audioInputRef}
                   type="file"
                   accept="audio/*"
                   onChange={handleAudioFileChange}
                   disabled={isUploading}
-                  className="flex-1"
+                  required
                 />
-                <Music className="h-5 w-5 text-muted-foreground shrink-0" />
+                <Music className="h-5 w-5 text-muted-foreground flex-shrink-0" />
               </div>
               {audioFile && (
-                <p className="text-sm text-muted-foreground">
-                  Selected: {audioFile.name}
+                <p className="text-xs text-muted-foreground">
+                  Selected: {audioFile.name} ({(audioFile.size / 1024 / 1024).toFixed(2)} MB)
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="coverImage">Cover Image (optional)</Label>
+              <Label htmlFor="coverImage">Cover Image (JPG, PNG, max 10MB)</Label>
               <div className="flex items-center gap-2">
                 <Input
-                  ref={coverInputRef}
                   id="coverImage"
+                  ref={coverInputRef}
                   type="file"
                   accept="image/*"
                   onChange={handleCoverImageChange}
                   disabled={isUploading}
-                  className="flex-1"
                 />
-                <ImageIcon className="h-5 w-5 text-muted-foreground shrink-0" />
+                <ImageIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
               </div>
               {coverImage && (
-                <p className="text-sm text-muted-foreground">
-                  Selected: {coverImage.name}
+                <p className="text-xs text-muted-foreground">
+                  Selected: {coverImage.name} ({(coverImage.size / 1024 / 1024).toFixed(2)} MB)
                 </p>
               )}
             </div>
-          </div>
 
-          {isUploading && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Uploading...</span>
-                <span className="font-medium">{totalProgress}%</span>
-              </div>
-              <Progress value={totalProgress} className="h-2" />
-              {coverImage && (
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <div className="flex justify-between">
-                    <span>Audio:</span>
-                    <span>{audioProgress}%</span>
+            {isUploading && (
+              <div className="space-y-3 pt-2">
+                <div className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Audio upload</span>
+                    <span className="font-medium">{audioProgress}%</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Cover:</span>
-                    <span>{coverProgress}%</span>
-                  </div>
+                  <Progress value={audioProgress} className="h-2" />
                 </div>
-              )}
-            </div>
-          )}
 
-          <div className="flex gap-3 justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={isUploading}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isUploading} className="gap-2">
-              <Upload className="h-4 w-4" />
-              {isUploading ? 'Uploading...' : 'Upload Song'}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+                {coverImage && (
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Cover upload</span>
+                      <span className="font-medium">{coverProgress}%</span>
+                    </div>
+                    <Progress value={coverProgress} className="h-2" />
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <div className="flex justify-between text-sm font-medium">
+                    <span>Total progress</span>
+                    <span>{totalProgress}%</span>
+                  </div>
+                  <Progress value={totalProgress} className="h-2" />
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={isUploading}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isUploading}>
+                {isUploading ? (
+                  <>
+                    <Upload className="mr-2 h-4 w-4 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Song
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <UploadDiagnosticsDialog
+        open={showDiagnostics}
+        onOpenChange={setShowDiagnostics}
+      />
+    </>
   );
 }

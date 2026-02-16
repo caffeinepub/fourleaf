@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { useInternetIdentity } from './useInternetIdentity';
-import type { Song, PersonalSong, UserProfile, Update, SongMetadata } from '../backend';
+import type { Song, PersonalSong, UserProfile, Update, SongMetadata, UploadPublicSongResult, UploadPersonalSongResult } from '../backend';
 import { ExternalBlob, UserRole } from '../backend';
 import { normalizeBackendError } from '../utils/backendErrors';
 import { Principal } from '@dfinity/principal';
@@ -94,7 +94,7 @@ export function useSaveCallerUserProfile() {
     },
     onError: (error: any) => {
       console.error('Failed to save profile:', error);
-      throw new Error(normalizeBackendError(error));
+      // Don't throw - let the component handle the error
     },
   });
 }
@@ -108,7 +108,26 @@ export function useUploadPublicSong() {
     mutationFn: async (songUpdate: Update) => {
       if (!actor) throw new Error('Actor not available');
       if (!identity) throw new Error('You must be logged in to upload songs');
-      return actor.uploadPublicSong(songUpdate);
+      
+      const result: UploadPublicSongResult = await actor.uploadPublicSong(songUpdate);
+      
+      // Handle the union type result
+      if (result.__kind__ === 'error') {
+        const error = result.error;
+        let errorMessage = 'Upload failed';
+        
+        if (error.__kind__ === 'unauthorized') {
+          errorMessage = error.unauthorized || 'Unauthorized: You do not have permission to upload songs';
+        } else if (error.__kind__ === 'invalidPayload') {
+          errorMessage = error.invalidPayload || 'Invalid song data';
+        } else if (error.__kind__ === 'storageError') {
+          errorMessage = error.storageError || 'Storage error occurred';
+        }
+        
+        throw new Error(errorMessage);
+      }
+      
+      return result.ok;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['songs'] });
@@ -118,7 +137,7 @@ export function useUploadPublicSong() {
     },
     onError: (error: any) => {
       console.error('Failed to upload public song:', error);
-      throw new Error(normalizeBackendError(error));
+      // Don't throw - let the component handle the error
     },
   });
 }
@@ -132,7 +151,26 @@ export function useUploadPersonalSong() {
     mutationFn: async (songUpdate: Update) => {
       if (!actor) throw new Error('Actor not available');
       if (!identity) throw new Error('You must be logged in to upload songs');
-      return actor.uploadPersonalSong(songUpdate);
+      
+      const result: UploadPersonalSongResult = await actor.uploadPersonalSong(songUpdate);
+      
+      // Handle the union type result
+      if (result.__kind__ === 'error') {
+        const error = result.error;
+        let errorMessage = 'Upload failed';
+        
+        if (error.__kind__ === 'unauthorized') {
+          errorMessage = error.unauthorized || 'Unauthorized: You do not have permission to upload songs';
+        } else if (error.__kind__ === 'invalidPayload') {
+          errorMessage = error.invalidPayload || 'Invalid song data';
+        } else if (error.__kind__ === 'storageError') {
+          errorMessage = error.storageError || 'Storage error occurred';
+        }
+        
+        throw new Error(errorMessage);
+      }
+      
+      return result.ok;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['personalSongs'] });
@@ -140,7 +178,7 @@ export function useUploadPersonalSong() {
     },
     onError: (error: any) => {
       console.error('Failed to upload personal song:', error);
-      throw new Error(normalizeBackendError(error));
+      // Don't throw - let the component handle the error
     },
   });
 }
@@ -163,7 +201,7 @@ export function useEditSong() {
     },
     onError: (error: any) => {
       console.error('Failed to edit song:', error);
-      throw new Error(normalizeBackendError(error));
+      // Don't throw - let the component handle the error
     },
   });
 }
@@ -188,7 +226,7 @@ export function useRemoveSong() {
     },
     onError: (error: any) => {
       console.error('Failed to remove song:', error);
-      throw new Error(normalizeBackendError(error));
+      // Don't throw - let the component handle the error
     },
   });
 }
@@ -211,7 +249,7 @@ export function useRemovePersonalSong() {
     },
     onError: (error: any) => {
       console.error('Failed to remove personal song:', error);
-      throw new Error(normalizeBackendError(error));
+      // Don't throw - let the component handle the error
     },
   });
 }
@@ -269,7 +307,7 @@ export function useDownloadSongAudio() {
     },
     onError: (error: any) => {
       console.error('Failed to download song:', error);
-      throw new Error(normalizeBackendError(error));
+      // Don't throw - let the component handle the error
     },
   });
 }
@@ -318,8 +356,27 @@ export function useGrantAdminRole() {
     },
     onError: (error: any) => {
       console.error('Failed to grant admin role:', error);
-      throw new Error(normalizeBackendError(error));
+      // Don't throw - let the component handle the error
     },
+  });
+}
+
+export function useGetUploadPermissionsDebug() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<{
+    principal: Principal;
+    role: UserRole;
+    canUploadToPublicCatalog: boolean;
+  } | null>({
+    queryKey: ['uploadPermissionsDebug'],
+    queryFn: async () => {
+      if (!actor) return null;
+      return actor.getUploadPermissionsDebug();
+    },
+    enabled: false, // Only fetch when explicitly requested
+    staleTime: 0,
+    gcTime: 0,
   });
 }
 

@@ -67,10 +67,9 @@ export default function AppLayout() {
                   aria-controls="mobile-sidebar"
                 >
                   <img 
-                    src="/assets/generated/hamburger-menu.dim_24x24.svg" 
+                    src="/assets/generated/hamburger-menu.dim_24x24.png" 
                     alt="" 
                     className="h-6 w-6"
-                    style={{ filter: 'brightness(0) saturate(100%) invert(var(--tw-invert, 0))' }}
                   />
                 </Button>
                 
@@ -83,8 +82,8 @@ export default function AppLayout() {
             </div>
           </header>
 
-          {/* Scrollable Main Content */}
-          <main className="flex-1 overflow-y-auto overflow-x-auto">
+          {/* Scrollable Main Content with stable scrollbar gutter */}
+          <main className="app-main-scroll flex-1 overflow-y-auto overflow-x-hidden">
             <Outlet />
           </main>
         </div>
