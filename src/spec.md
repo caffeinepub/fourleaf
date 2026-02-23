@@ -1,10 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Prevent the Library page search bar from floating/sticking while scrolling and avoid it overlapping page content.
+**Goal:** Add a voice search microphone icon with listening animation to the main search bar.
 
 **Planned changes:**
-- Update `frontend/src/pages/LibraryPage.tsx` to remove sticky positioning from the search bar wrapper (replace `className="sticky ..."` with non-sticky layout classes such as `relative`/default flow) and remove the inline `style={{ top: 'var(--header-offset)' }}` used for sticky behavior.
-- Add a reusable CSS snippet/class in `frontend/src/index.css` for a non-sticky page-level search bar (relative/static positioning, `top: 0`, and a safe `z-index`), and apply it (or an equivalent Tailwind class set) to the Library page search bar wrapper to make the intent explicit.
+- Add microphone icon as an input adornment inside the search bar on the right side
+- Style the icon with Fourleaf pink/magenta theme (#FF2D78) with hover state transition from white/grey to pink
+- Implement pulsing glow animation when the microphone is active to indicate listening state
+- Connect microphone click to existing useVoiceSearch hook to populate search field and execute search automatically
 
-**User-visible outcome:** On the Library page, the search bar stays in the normal document flow (does not follow scroll) and content below it is no longer overlapped.
+**User-visible outcome:** Users can click a microphone icon inside the search bar to perform voice searches. When active, the microphone displays a pulsing glow effect, and the voice transcript automatically populates and executes the search.

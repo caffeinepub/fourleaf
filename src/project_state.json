@@ -1,32 +1,58 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
-  "known_issues": [
-    "Search bar is using fixed/sticky positioning, floats on scroll, and overlaps page content; needs CSS adjustment (position/top/z-index) so it stays at top without scrolling."
+  "summary": "Music streaming application with 'Fourleaf' pink/magenta theme",
+  "architectural_notes": [
+    "Fourleaf branding with pink/magenta theme (#FF2D78)",
+    "Search functionality for tracks, artists, albums",
+    "Voice input integration with search"
   ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-update-the-library-page-search-bar-container-so-it-no-longer-uses-fixed-sticky-positioning-and-therefore-does-not-follow-the-scroll-or-overlap-content-specifically-change-the-search-bar-wrapper-in-frontend-src-pages-librarypage-tsx-from-classname-sticky-to-a-non-sticky-layout-relative-or-default-static-flow-and-remove-the-inline-style-top-var-header-offset-that-is-only-needed-for-sticky-positioning",
-      "title": "Update the Library page search bar container so it no longer uses fixed/sticky positioning and therefore does not follow the scroll or overlap content. Specifically, change the search bar wrapper in `frontend/src/pages/LibraryPage.tsx` from `className=\"sticky ...\"` to a non-sticky layout (`relative` or default/static flow), and remove the inline `style={{ top: 'var(--header-offset)' }}` that is only needed for sticky positioning.",
+      "id": "feature-integrate-a-microphone-icon-as-an-input-adornment-inside-the-existing-search-bar-border-on-the-far-right-side-of-the-search-input-field-in-headersearchbar-component",
+      "title": "Integrate a microphone icon as an input adornment inside the existing search bar border on the far right side of the search input field in HeaderSearchBar component",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-reusable-css-snippet-in-frontend-src-index-css-that-developers-can-apply-to-page-level-search-bars-to-ensure-non-floating-behavior-using-position-relative-or-static-top-0-and-an-appropriate-z-index-that-does-not-overlay-content-unexpectedly-ensure-the-library-page-search-bar-uses-this-class-or-an-equivalent-tailwind-class-set-so-the-positioning-intent-is-explicit",
-      "title": "Add a reusable CSS snippet (in `frontend/src/index.css`) that developers can apply to page-level search bars to ensure non-floating behavior, using `position: relative` (or static), `top: 0`, and an appropriate `z-index` that does not overlay content unexpectedly. Ensure the Library page search bar uses this class (or an equivalent Tailwind class set) so the positioning intent is explicit.",
+      "id": "feature-style-the-microphone-icon-to-match-the-fourleaf-pink-magenta-theme-ff2d78-with-a-hover-state-that-changes-color-from-subtle-white-grey-to-pink",
+      "title": "Style the microphone icon to match the Fourleaf pink/magenta theme (#FF2D78) with a hover state that changes color from subtle white/grey to pink",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-implement-a-listening-overlay-or-pulsing-glow-animation-that-activates-when-the-microphone-icon-is-clicked-to-indicate-voice-input-is-active",
+      "title": "Implement a 'Listening...' overlay or pulsing glow animation that activates when the microphone icon is clicked to indicate voice input is active",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-connect-the-microphone-icon-click-handler-to-the-existing-usevoicesearch-hook-so-that-voice-to-text-input-automatically-populates-the-search-field-and-executes-the-search",
+      "title": "Connect the microphone icon click handler to the existing useVoiceSearch hook so that voice-to-text input automatically populates the search field and executes the search",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "Stop Library page search bar from floating on scroll",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Voice search/microphone assistant in search bar with listening animation and voice-to-text",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Fourleaf",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

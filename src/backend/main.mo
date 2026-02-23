@@ -131,8 +131,8 @@ actor {
   };
 
   public shared ({ caller }) func uploadPublicSong(songUpdate : Song.Update) : async UploadPublicSongResult {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      return #error(#unauthorized("Only users can upload songs"));
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      return #error(#unauthorized("Only admins can upload songs to the public catalog"));
     };
 
     switch (validateSongUpdate(songUpdate)) {
@@ -280,15 +280,10 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Explicit query for the caller's profile - NO AUTHORIZATION CHECK NEEDED
-  // This is the key function for the implementation plan: it allows ANY caller
-  // (including guests/anonymous) to check if they have a profile, so the frontend
-  // can decide whether to show the "Welcome to Fourleaf!" profile setup dialog.
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     userProfiles.get(caller);
   };
 
-  // Query to get another user's profile - admin only
   public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Can only view your own profile");
@@ -320,7 +315,6 @@ actor {
     );
   };
 
-  // For developer troubleshooting
   public query ({ caller }) func getUploadPermissionsDebug() : async {
     principal : Principal;
     role : AccessControl.UserRole;
@@ -332,7 +326,7 @@ actor {
       canUploadToPublicCatalog = AccessControl.hasPermission(
         accessControlState,
         caller,
-        #user,
+        #admin,
       );
     };
   };

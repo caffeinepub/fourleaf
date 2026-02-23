@@ -1,51 +1,96 @@
 {
   "kind": "build_request",
-  "title": "Stop Library page search bar from floating on scroll",
+  "title": "Add voice search microphone icon with listening animation to search bar",
+  "projectName": "Fourleaf",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the Library page search bar container so it no longer uses fixed/sticky positioning and therefore does not follow the scroll or overlap content. Specifically, change the search bar wrapper in `frontend/src/pages/LibraryPage.tsx` from `className=\"sticky ...\"` to a non-sticky layout (`relative` or default/static flow), and remove the inline `style={{ top: 'var(--header-offset)' }}` that is only needed for sticky positioning.",
+      "text": "Integrate a microphone icon as an input adornment inside the existing search bar border on the far right side of the search input field in HeaderSearchBar component",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-8"
+          "msg-4"
         ],
         "quotes": [
-          "The search bar on my page is currently sticking to the top and following the scroll (floating), which is overlapping with the content. Please provide a CSS snippet to change its position from fixed or sticky to absolute or relative. Also, ensure that the z-index or top properties are adjusted so it stays at the very top of the page and doesn't move when I scroll down."
+          "Add a Voice Search/Microphone Assistant icon inside the right side of the main search bar",
+          "Integrate the microphone icon as an 'input adornment' inside the existing search bar border"
         ]
       },
       "acceptanceCriteria": [
-        "On the Library page, the search bar remains in the normal document flow and does not move when scrolling the page content.",
-        "The search bar does not overlap subsequent content; content starts below it as expected.",
-        "No sticky/fixed behavior remains for the Library page search bar (no `position: sticky/fixed` styling and no `top: var(--header-offset)` dependency)."
+        "Microphone icon appears inside the search input border on the right side",
+        "Icon is properly aligned with the search input field",
+        "Icon does not overlap with existing search functionality"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add a reusable CSS snippet (in `frontend/src/index.css`) that developers can apply to page-level search bars to ensure non-floating behavior, using `position: relative` (or static), `top: 0`, and an appropriate `z-index` that does not overlay content unexpectedly. Ensure the Library page search bar uses this class (or an equivalent Tailwind class set) so the positioning intent is explicit.",
+      "text": "Style the microphone icon to match the Fourleaf pink/magenta theme (#FF2D78) with a hover state that changes color from subtle white/grey to pink",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-8"
+          "msg-4"
         ],
         "quotes": [
-          "Please provide a CSS snippet to change its position from fixed or sticky to absolute or relative. Also, ensure that the z-index or top properties are adjusted so it stays at the very top of the page and doesn't move when I scroll down."
+          "The icon should match the existing 'Fourleaf' pink/magenta theme (#FF2D78 or similar) or be a subtle white/grey that turns pink when hovered"
         ]
       },
       "acceptanceCriteria": [
-        "`frontend/src/index.css` contains a clearly named class (or documented snippet) for a non-sticky page search bar (relative/static positioning, `top: 0`, and a non-problematic `z-index`).",
-        "The Library page search bar styling is updated to use the new class/snippet or an equivalent Tailwind class combination, and the search bar no longer floats on scroll."
+        "Icon uses #FF2D78 or similar pink/magenta color from the theme",
+        "Idle state shows subtle white/grey color",
+        "Hover state transitions to pink (#FF2D78)",
+        "Icon design is clean and modern, similar to YouTube's voice search"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Implement a 'Listening...' overlay or pulsing glow animation that activates when the microphone icon is clicked to indicate voice input is active",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "When clicked, it should trigger a 'Listening...' overlay or pulse animation to indicate voice input is active",
+          "Ask for a pulsing glow effect around the mic when it's active so the user knows it's working"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking the microphone icon triggers visual feedback",
+        "A pulsing glow effect appears around the microphone when active",
+        "Visual indication clearly shows the listening state to users",
+        "Animation is smooth and not distracting"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Connect the microphone icon click handler to the existing useVoiceSearch hook so that voice-to-text input automatically populates the search field and executes the search",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Ensure the voice-to-text input automatically populates the 'Search tracks, artists, albums...' field and executes the search"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking the microphone icon activates voice recognition using the existing useVoiceSearch hook",
+        "Voice transcript automatically populates the search input field",
+        "Search executes automatically after voice input is captured",
+        "Integration works seamlessly with existing HeaderSearchBar search functionality"
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under `frontend/src/components/ui` (read-only UI components).",
-    "Do not modify immutable paths listed in SYSTEM_CONTEXT (e.g., `frontend/src/main.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/hooks/useInternetIdentity.ts(x)`)."
+    "Do not modify the existing voice search logic in useVoiceSearch.ts",
+    "Maintain the existing Fourleaf pink/magenta theme color scheme (#FF2D78)",
+    "Keep the microphone icon inside the search input border as an input adornment"
   ],
   "nonGoals": [
-    "Do not change the global app header behavior in `frontend/src/components/layout/AppLayout.tsx` (it may remain sticky).",
-    "Do not change search/filter logic or backend APIs; this is a styling/positioning fix only."
+    "Changing the overall search bar layout or dimensions",
+    "Modifying existing search functionality beyond voice integration",
+    "Adding new voice recognition libraries or replacing the Web Speech API"
   ],
   "imageRequirements": {
     "required": [],

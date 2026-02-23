@@ -1,4 +1,4 @@
-import { Home, Globe } from 'lucide-react';
+import { Home, Globe, Mic } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
@@ -6,6 +6,8 @@ import { useHeaderSearch } from '../../hooks/useHeaderSearch';
 import { useHomeBrowsing } from '../../hooks/useHomeBrowsing';
 import { useState, useEffect, useRef } from 'react';
 import { useUISounds } from '../../hooks/useUISounds';
+import { useVoiceSearch } from '../../hooks/useVoiceSearch';
+import { toast } from 'sonner';
 
 export default function HeaderSearchBar() {
   const navigate = useNavigate();
@@ -16,6 +18,16 @@ export default function HeaderSearchBar() {
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { playClick } = useUISounds();
+  
+  const {
+    isListening,
+    transcript,
+    error,
+    isSupported,
+    startListening,
+    clearError,
+    clearTranscript,
+  } = useVoiceSearch();
 
   const handleHomeClick = () => {
     playClick();
@@ -70,6 +82,39 @@ export default function HeaderSearchBar() {
     }
   };
 
+  const handleMicClick = () => {
+    playClick();
+    if (!isSupported) {
+      toast.error('Voice search is not supported in your browser. Please use Chrome, Edge, or Safari.');
+      return;
+    }
+    startListening();
+  };
+
+  // Handle transcript updates - automatically populate search and trigger search
+  useEffect(() => {
+    if (transcript) {
+      setQuery(transcript);
+      clearTranscript();
+    }
+  }, [transcript, setQuery, clearTranscript]);
+
+  // Handle errors - show toast notification
+  useEffect(() => {
+    if (error) {
+      toast.error(error, {
+        action: {
+          label: 'Try again',
+          onClick: () => {
+            clearError();
+            startListening();
+          },
+        },
+      });
+      clearError();
+    }
+  }, [error, clearError, startListening]);
+
   // Close menu on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -91,8 +136,8 @@ export default function HeaderSearchBar() {
 
   return (
     <div className="relative w-full max-w-md">
-      {/* Fixed-width grid layout: left button | input | right button */}
-      <div className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center gap-0">
+      {/* Fixed-width grid layout: left button | input | right buttons */}
+      <div className="grid grid-cols-[2.5rem_1fr_5rem] items-center gap-0">
         {/* Left: Home button */}
         <div className="flex items-center justify-center">
           <Button
@@ -106,14 +151,46 @@ export default function HeaderSearchBar() {
           </Button>
         </div>
 
-        {/* Center: Search input with fixed padding to prevent text jump */}
-        <Input
-          type="text"
-          placeholder="Search songs..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="h-10 px-3"
-        />
+        {/* Center: Search input container with microphone icon */}
+        <div className="relative">
+          <Input
+            type="text"
+            placeholder="Search tracks, artists, albums..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="h-10 px-3 pr-12"
+          />
+          
+          {/* Microphone button positioned absolutely inside input - right side */}
+          <button
+            onClick={handleMicClick}
+            disabled={!isSupported}
+            className={`absolute right-1 top-1/2 -translate-y-1/2 h-11 w-11 flex items-center justify-center rounded-full transition-all duration-200 ${
+              isListening
+                ? 'text-[#FF2D78] mic-pulse-glow'
+                : isSupported
+                ? 'text-gray-400 hover:text-[#FF2D78] hover:bg-accent cursor-pointer'
+                : 'text-gray-300 cursor-not-allowed opacity-50'
+            } focus:outline-none focus:ring-2 focus:ring-[#FF2D78] focus:ring-offset-2`}
+            aria-label={isListening ? 'Listening...' : 'Voice search'}
+            title={
+              !isSupported
+                ? 'Voice search not supported'
+                : isListening
+                ? 'Listening...'
+                : 'Click to search by voice'
+            }
+          >
+            <Mic className={`h-5 w-5 transition-transform ${isListening ? 'scale-110' : ''}`} />
+          </button>
+          
+          {/* Listening indicator text */}
+          {isListening && (
+            <div className="absolute left-3 -bottom-6 text-xs text-[#FF2D78] font-medium animate-pulse">
+              Listening...
+            </div>
+          )}
+        </div>
 
         {/* Right: Browse button */}
         <div className="flex items-center justify-center relative">

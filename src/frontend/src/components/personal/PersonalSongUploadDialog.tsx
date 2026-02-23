@@ -168,7 +168,7 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
       });
 
       await uploadPersonalSong.mutateAsync(songUpdate);
-      toast.success('Song uploaded successfully to your personal library!');
+      toast.success('Song uploaded successfully to your library!');
       
       resetForm();
       onOpenChange(false);
@@ -208,7 +208,7 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <User className="h-5 w-5 text-primary" />
-              Upload to Personal Library
+              Upload to Your Library
             </DialogTitle>
             <DialogDescription>
               Please log in to upload songs to your personal library.
@@ -248,7 +248,7 @@ export default function PersonalSongUploadDialog({ open, onOpenChange }: Persona
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <User className="h-5 w-5 text-primary" />
-              Upload to Personal Library
+              Upload to Your Library
             </DialogTitle>
             <DialogDescription>
               Upload a song to your personal library. Only you will be able to access it.
