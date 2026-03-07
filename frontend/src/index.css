@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 0.5rem;
+        /* Cherry blossom soft-glam palette - Light mode */
+        --background: 98% 0.01 0;
+        --foreground: 20% 0.01 0;
+        --card: 100% 0 0;
+        --card-foreground: 20% 0.01 0;
+        --popover: 100% 0 0;
+        --popover-foreground: 20% 0.01 0;
+        --primary: 55% 0.22 10;
+        --primary-foreground: 98% 0.01 0;
+        --secondary: 85% 0.08 350;
+        --secondary-foreground: 30% 0.02 350;
+        --muted: 96% 0.01 0;
+        --muted-foreground: 50% 0.01 0;
+        --accent: 95% 0.02 350;
+        --accent-foreground: 30% 0.02 350;
+        --highlight: 75% 0.15 30;
+        --highlight-foreground: 20% 0.01 0;
+        --destructive: 55% 0.22 25;
+        --destructive-foreground: 98% 0.01 0;
+        --border: 90% 0.01 0;
+        --input: 90% 0.01 0;
+        --ring: 55% 0.22 10;
+        
+        /* Header offset for sticky positioning */
+        --header-offset: 57px;
+    }
+
+    .dark {
+        /* Cherry blossom soft-glam palette - Dark mode */
+        --background: 15% 0.01 0;
+        --foreground: 95% 0.01 0;
+        --card: 18% 0.01 0;
+        --card-foreground: 95% 0.01 0;
+        --popover: 18% 0.01 0;
+        --popover-foreground: 95% 0.01 0;
+        --primary: 60% 0.20 10;
+        --primary-foreground: 15% 0.01 0;
+        --secondary: 30% 0.06 350;
+        --secondary-foreground: 95% 0.01 0;
+        --muted: 25% 0.01 0;
+        --muted-foreground: 65% 0.01 0;
+        --accent: 25% 0.02 350;
+        --accent-foreground: 95% 0.01 0;
+        --highlight: 70% 0.15 30;
+        --highlight-foreground: 15% 0.01 0;
+        --destructive: 55% 0.20 25;
+        --destructive-foreground: 95% 0.01 0;
+        --border: 25% 0.01 0;
+        --input: 25% 0.01 0;
+        --ring: 60% 0.20 10;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@layer components {
+    /* Non-floating page search bar - stays in normal document flow */
+    .page-search-bar {
+        position: relative;
+        top: 0;
+        z-index: 10;
+    }
+    
+    /* Microphone pulsing glow animation for voice search */
+    .mic-pulse-glow {
+        animation: micPulseGlow 1.5s ease-in-out infinite;
+    }
+}
+
+/* Hero background animation utility */
+.hero-bg-animated {
+    background-image: url('/assets/generated/fourleaf-hero-bg-static.dim_1920x1080.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .hero-bg-animated {
+        background-image: url('/assets/generated/fourleaf-hero-bg-animated.dim_1920x1080.gif');
+    }
+}
+
+/* Header logo utility for crisp rendering */
+.header-logo {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+}
+
+/* Stable scrollbar gutter for main scroll container */
+@supports (scrollbar-gutter: stable) {
+    .app-main-scroll {
+        scrollbar-gutter: stable;
+    }
+}
+
+/* Microphone pulsing glow keyframes animation */
+@keyframes micPulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(255, 45, 120, 0.4);
+        transform: translateY(-50%) scale(1);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(255, 45, 120, 0);
+        transform: translateY(-50%) scale(1.05);
+    }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .mic-pulse-glow {
+        animation: none;
+        box-shadow: 0 0 0 4px rgba(255, 45, 120, 0.3);
+    }
+}

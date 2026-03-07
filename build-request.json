@@ -1,0 +1,99 @@
+{
+  "kind": "build_request",
+  "title": "Add voice search microphone icon with listening animation to search bar",
+  "projectName": "Fourleaf",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Integrate a microphone icon as an input adornment inside the existing search bar border on the far right side of the search input field in HeaderSearchBar component",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Add a Voice Search/Microphone Assistant icon inside the right side of the main search bar",
+          "Integrate the microphone icon as an 'input adornment' inside the existing search bar border"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Microphone icon appears inside the search input border on the right side",
+        "Icon is properly aligned with the search input field",
+        "Icon does not overlap with existing search functionality"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Style the microphone icon to match the Fourleaf pink/magenta theme (#FF2D78) with a hover state that changes color from subtle white/grey to pink",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "The icon should match the existing 'Fourleaf' pink/magenta theme (#FF2D78 or similar) or be a subtle white/grey that turns pink when hovered"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Icon uses #FF2D78 or similar pink/magenta color from the theme",
+        "Idle state shows subtle white/grey color",
+        "Hover state transitions to pink (#FF2D78)",
+        "Icon design is clean and modern, similar to YouTube's voice search"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Implement a 'Listening...' overlay or pulsing glow animation that activates when the microphone icon is clicked to indicate voice input is active",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "When clicked, it should trigger a 'Listening...' overlay or pulse animation to indicate voice input is active",
+          "Ask for a pulsing glow effect around the mic when it's active so the user knows it's working"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking the microphone icon triggers visual feedback",
+        "A pulsing glow effect appears around the microphone when active",
+        "Visual indication clearly shows the listening state to users",
+        "Animation is smooth and not distracting"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Connect the microphone icon click handler to the existing useVoiceSearch hook so that voice-to-text input automatically populates the search field and executes the search",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Ensure the voice-to-text input automatically populates the 'Search tracks, artists, albums...' field and executes the search"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking the microphone icon activates voice recognition using the existing useVoiceSearch hook",
+        "Voice transcript automatically populates the search input field",
+        "Search executes automatically after voice input is captured",
+        "Integration works seamlessly with existing HeaderSearchBar search functionality"
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify the existing voice search logic in useVoiceSearch.ts",
+    "Maintain the existing Fourleaf pink/magenta theme color scheme (#FF2D78)",
+    "Keep the microphone icon inside the search input border as an input adornment"
+  ],
+  "nonGoals": [
+    "Changing the overall search bar layout or dimensions",
+    "Modifying existing search functionality beyond voice integration",
+    "Adding new voice recognition libraries or replacing the Web Speech API"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

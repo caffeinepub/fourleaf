@@ -1,0 +1,121 @@
+import type { Principal } from "@icp-sdk/core/principal";
+export interface Some<T> {
+    __kind__: "Some";
+    value: T;
+}
+export interface None {
+    __kind__: "None";
+}
+export type Option<T> = Some<T> | None;
+export class ExternalBlob {
+    getBytes(): Promise<Uint8Array<ArrayBuffer>>;
+    getDirectURL(): string;
+    static fromURL(url: string): ExternalBlob;
+    static fromBytes(blob: Uint8Array<ArrayBuffer>): ExternalBlob;
+    withUploadProgress(onProgress: (percentage: number) => void): ExternalBlob;
+}
+export interface SongMetadata {
+    id: bigint;
+    title: string;
+    duration: bigint;
+    album: string;
+    audioFile: ExternalBlob;
+    coverImage?: ExternalBlob;
+    artist: string;
+}
+export type UploadPublicSongResult = {
+    __kind__: "ok";
+    ok: bigint;
+} | {
+    __kind__: "error";
+    error: UploadPublicSongError;
+};
+export interface PersonalSong {
+    id: bigint;
+    title: string;
+    duration: bigint;
+    album: string;
+    owner: Principal;
+    audioFile: ExternalBlob;
+    coverImage?: ExternalBlob;
+    artist: string;
+}
+export interface Update {
+    title: string;
+    duration: bigint;
+    album: string;
+    audioFile: ExternalBlob;
+    coverImage?: ExternalBlob;
+    artist: string;
+}
+export type UploadPersonalSongResult = {
+    __kind__: "ok";
+    ok: bigint;
+} | {
+    __kind__: "error";
+    error: UploadPersonalSongError;
+};
+export interface Song {
+    id: bigint;
+    title: string;
+    duration: bigint;
+    album: string;
+    audioFile: ExternalBlob;
+    coverImage?: ExternalBlob;
+    artist: string;
+}
+export type UploadPublicSongError = {
+    __kind__: "storageError";
+    storageError: string;
+} | {
+    __kind__: "invalidPayload";
+    invalidPayload: string;
+} | {
+    __kind__: "unauthorized";
+    unauthorized: string;
+};
+export interface UserProfile {
+    hasActiveSubscription: boolean;
+    name: string;
+}
+export type UploadPersonalSongError = {
+    __kind__: "storageError";
+    storageError: string;
+} | {
+    __kind__: "invalidPayload";
+    invalidPayload: string;
+} | {
+    __kind__: "unauthorized";
+    unauthorized: string;
+};
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
+export interface backendInterface {
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    downloadPersonalSongAudio(songId: bigint): Promise<ExternalBlob>;
+    downloadSongAudio(songId: bigint): Promise<ExternalBlob>;
+    getAllSongs(): Promise<Array<Song>>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
+    getPersonalSongMetadata(): Promise<Array<SongMetadata>>;
+    getPersonalSongs(): Promise<Array<PersonalSong>>;
+    getSong(id: bigint): Promise<Song | null>;
+    getSongsByDuration(): Promise<Array<Song>>;
+    getTotalSongs(): Promise<bigint>;
+    getUploadPermissionsDebug(): Promise<{
+        principal: Principal;
+        role: UserRole;
+        canUploadToPublicCatalog: boolean;
+    }>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    isCallerAdmin(): Promise<boolean>;
+    isPersonalSongOwner(songId: bigint): Promise<boolean>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    streamPersonalSongAudio(songId: bigint): Promise<ExternalBlob>;
+    streamSongAudio(songId: bigint): Promise<ExternalBlob | null>;
+    uploadPersonalSong(songUpdate: Update): Promise<UploadPersonalSongResult>;
+    uploadPublicSong(songUpdate: Update): Promise<UploadPublicSongResult>;
+}

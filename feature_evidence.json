@@ -1,0 +1,86 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-integrate-a-microphone-icon-as-an-input-adornment-inside-the-existing-search-bar-border-on-the-far-right-side-of-the-search-input-field-in-headersearchbar-component",
+      "featureTitle": "Integrate a microphone icon as an input adornment inside the existing search bar border on the far right side of the search input field in HeaderSearchBar component",
+      "files": [
+        "frontend/src/components/layout/HeaderSearchBar.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-style-the-microphone-icon-to-match-the-fourleaf-pink-magenta-theme-ff2d78-with-a-hover-state-that-changes-color-from-subtle-white-grey-to-pink",
+      "featureTitle": "Style the microphone icon to match the Fourleaf pink/magenta theme (#FF2D78) with a hover state that changes color from subtle white/grey to pink",
+      "files": [
+        "frontend/src/components/layout/HeaderSearchBar.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-a-listening-overlay-or-pulsing-glow-animation-that-activates-when-the-microphone-icon-is-clicked-to-indicate-voice-input-is-active",
+      "featureTitle": "Implement a 'Listening...' overlay or pulsing glow animation that activates when the microphone icon is clicked to indicate voice input is active",
+      "files": [
+        "frontend/src/components/layout/HeaderSearchBar.tsx",
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-connect-the-microphone-icon-click-handler-to-the-existing-usevoicesearch-hook-so-that-voice-to-text-input-automatically-populates-the-search-field-and-executes-the-search",
+      "featureTitle": "Connect the microphone icon click handler to the existing useVoiceSearch hook so that voice-to-text input automatically populates the search field and executes the search",
+      "files": [
+        "frontend/src/components/layout/HeaderSearchBar.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

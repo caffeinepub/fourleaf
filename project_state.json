@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Music streaming application with 'Fourleaf' pink/magenta theme",
+  "architectural_notes": [
+    "Fourleaf branding with pink/magenta theme (#FF2D78)",
+    "Search functionality for tracks, artists, albums",
+    "Voice input integration with search"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-integrate-a-microphone-icon-as-an-input-adornment-inside-the-existing-search-bar-border-on-the-far-right-side-of-the-search-input-field-in-headersearchbar-component",
+      "title": "Integrate a microphone icon as an input adornment inside the existing search bar border on the far right side of the search input field in HeaderSearchBar component",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-style-the-microphone-icon-to-match-the-fourleaf-pink-magenta-theme-ff2d78-with-a-hover-state-that-changes-color-from-subtle-white-grey-to-pink",
+      "title": "Style the microphone icon to match the Fourleaf pink/magenta theme (#FF2D78) with a hover state that changes color from subtle white/grey to pink",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-listening-overlay-or-pulsing-glow-animation-that-activates-when-the-microphone-icon-is-clicked-to-indicate-voice-input-is-active",
+      "title": "Implement a 'Listening...' overlay or pulsing glow animation that activates when the microphone icon is clicked to indicate voice input is active",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-connect-the-microphone-icon-click-handler-to-the-existing-usevoicesearch-hook-so-that-voice-to-text-input-automatically-populates-the-search-field-and-executes-the-search",
+      "title": "Connect the microphone icon click handler to the existing useVoiceSearch hook so that voice-to-text input automatically populates the search field and executes the search",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Voice search/microphone assistant in search bar with listening animation and voice-to-text",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Fourleaf",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

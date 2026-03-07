@@ -1,0 +1,79 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Add voice search microphone icon with listening animation to search bar",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Integrate microphone icon as input adornment inside HeaderSearchBar on the far right side of the search input field",
+      "acceptanceCriteria": [
+        "Microphone icon appears inside the search input border on the right side",
+        "Icon is properly aligned with the search input field",
+        "Icon does not overlap with existing search functionality"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/HeaderSearchBar.tsx",
+          "operation": "modify",
+          "description": "Add a microphone icon button as an input adornment positioned inside the search input border on the far right side. The icon should be placed within the same container as the search input, using absolute positioning or flex layout to align it to the right edge while maintaining proper spacing from the input text. Ensure the icon does not interfere with the existing search input functionality or the browse menu dropdown."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Style microphone icon to match Fourleaf pink/magenta theme with hover state transition from subtle white/grey to pink",
+      "acceptanceCriteria": [
+        "Icon uses #FF2D78 or similar pink/magenta color from the theme",
+        "Idle state shows subtle white/grey color",
+        "Hover state transitions to pink (#FF2D78)",
+        "Icon design is clean and modern, similar to YouTube's voice search"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/HeaderSearchBar.tsx",
+          "operation": "modify",
+          "description": "Apply styling to the microphone icon button with an idle state color of subtle white/grey (e.g., text-gray-400 or text-gray-300) and a hover state that transitions smoothly to the Fourleaf pink/magenta theme color (#FF2D78). Use Tailwind classes like 'text-gray-400 hover:text-[#FF2D78] transition-colors duration-200' or similar. The icon should use a clean microphone SVG or icon component that matches the modern aesthetic of the application."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Implement pulsing glow animation that activates when microphone icon is clicked to indicate listening state",
+      "acceptanceCriteria": [
+        "Clicking the microphone icon triggers visual feedback",
+        "A pulsing glow effect appears around the microphone when active",
+        "Visual indication clearly shows the listening state to users",
+        "Animation is smooth and not distracting"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/HeaderSearchBar.tsx",
+          "operation": "modify",
+          "description": "Implement a visual 'Listening...' state that activates when the microphone icon is clicked. When isListening is true (from useVoiceSearch hook), apply a pulsing glow animation around the microphone icon using CSS animations or Tailwind animate classes. Consider using a combination of ring utilities (e.g., 'ring-4 ring-[#FF2D78] ring-opacity-50') with an 'animate-pulse' class, or create a custom keyframe animation that creates a smooth pulsing effect. The animation should clearly indicate to users that voice input is active without being overly distracting."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Add custom CSS keyframe animation for the microphone pulsing glow effect if Tailwind's built-in animate-pulse is insufficient. Define a @keyframes rule that creates a smooth pulsing glow effect suitable for the listening state, potentially using box-shadow or ring opacity transitions. Ensure the animation matches the Fourleaf pink/magenta theme color (#FF2D78)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Connect microphone icon click handler to useVoiceSearch hook to populate search field and execute search automatically",
+      "acceptanceCriteria": [
+        "Clicking the microphone icon activates voice recognition using the existing useVoiceSearch hook",
+        "Voice transcript automatically populates the search input field",
+        "Search executes automatically after voice input is captured",
+        "Integration works seamlessly with existing HeaderSearchBar search functionality"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/HeaderSearchBar.tsx",
+          "operation": "modify",
+          "description": "Wire the microphone icon button's onClick handler to the startListening function from the useVoiceSearch hook. When a transcript is received from the hook, automatically populate the search input field with the transcript value and trigger the existing search functionality (likely by calling setQuery from useHeaderSearch or triggering the form submission). Ensure the integration is seamless: when transcript updates, set it as the input value and execute the search action that would normally occur on form submit or search button click. Handle the isListening state to control the visual feedback implemented in REQ-3."
+        }
+      ]
+    }
+  ]
+}
